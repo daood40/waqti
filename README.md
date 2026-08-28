@@ -91,8 +91,14 @@ APK باسم **"وقتي"** مع كل push ويرفعه كـ Artifact:
 > النسخة موقّعة بمفتاح تطوير — مناسبة للاستخدام الشخصي والتجربة.
 > النشر على Google Play يتطلب مفتاح توقيع Release خاصًا بك.
 
-## خارطة الطريق
+## الحوكمة والوثائق
 
-- إشعارات محلية فعلية (`flutter_local_notifications`) خلف تفضيلات الإشعارات الحالية
-- مزامنة سحابية وتسجيل دخول حقيقي (Firebase/Supabase)
-- دفع فعلي داخل التطبيق للاشتراك المميز
+المرجع الملزم للتطوير هو **وثيقة التوجيه الرئيسي**: [`docs/WAQTI_MASTER_DIRECTIVE_v2.md`](docs/WAQTI_MASTER_DIRECTIVE_v2.md)
+
+| الوثيقة | المحتوى |
+|---|---|
+| [`PROJECT_STATUS.md`](PROJECT_STATUS.md) | الحالة الحالية + تحليل الفجوات مقابل التوجيه |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | مراحل التنفيذ 0–5 والموقع الحالي |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | المعمارية الحالية والهدف ومسار الانتقال |
+| [`docs/SYNC.md`](docs/SYNC.md) | تصميم محرك المزامنة Local-first |
+| [`docs/adr/`](docs/adr/) | سجل القرارات المعمارية ADR-001…007 |
