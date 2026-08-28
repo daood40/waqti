@@ -44,7 +44,7 @@ class SettingsTab extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(s.cancel),
           ),
           TextButton(

@@ -461,7 +461,9 @@ class AppState extends ChangeNotifier {
         if (!allDone) break;
         streak++;
       }
-      date = day.subtract(const Duration(days: 1));
+      // نطرح يومًا بمكوّنات التاريخ لا بـ Duration حتى لا يُقفَز
+      // فوق يوم عند تحول التوقيت الصيفي.
+      date = DateTime(day.year, day.month, day.day - 1);
     }
     return streak;
   }

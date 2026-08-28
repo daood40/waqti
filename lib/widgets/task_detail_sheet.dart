@@ -150,8 +150,11 @@ class TaskDetailSheet extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  showTaskEditorSheet(context, existing: task);
+                  // نلتقط الـ Navigator قبل الإغلاق ونفتح المحرر من
+                  // سياقه الحي بدل سياق النافذة المُغلقة.
+                  final navigator = Navigator.of(context);
+                  navigator.pop();
+                  showTaskEditorSheet(navigator.context, existing: task);
                 },
                 child: Text(s.editTask),
               ),

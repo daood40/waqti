@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../models/models.dart';
+import '../screens/subscription_screen.dart';
 import '../state/app_state.dart';
 import 'category_manager_sheet.dart';
 import 'common.dart';
@@ -39,6 +40,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
   late Recurrence _recurrence;
   late bool _notificationsOn;
   String? _nameError;
+  String? _formError;
 
   bool get _isEditing => widget.existing != null;
 
@@ -74,6 +76,10 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
       setState(() => _nameError = s.enterTaskName);
       return;
     }
+    // مهمة "مرة واحدة" بلا تاريخ لن تظهر أبدًا — نفترض اليوم.
+    if (_recurrence.type == RecurrenceType.once && _recurrence.date == null) {
+      _recurrence = _recurrence.copyWith(date: DateTime.now());
+    }
     final state = context.read<AppState>();
     if (_isEditing) {
       final task = widget.existing!.deepCopy()
@@ -99,9 +105,9 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
         notificationsOn: _notificationsOn,
       );
       if (!state.addTask(task)) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(s.freeLimitReached)));
+        // Snackbar يظهر خلف النافذة المنبثقة ولا يُرى —
+        // نعرض الرسالة داخل النافذة نفسها مع دعوة للترقية.
+        setState(() => _formError = s.freeLimitReached);
         return;
       }
     }
@@ -130,8 +136,20 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    state.removeTask(widget.existing!.id);
+    final removed = state.removeTask(widget.existing!.id);
+    final messenger = ScaffoldMessenger.of(context);
     Navigator.of(context).pop(true);
+    if (removed != null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(s.taskDeleted),
+          action: SnackBarAction(
+            label: s.undo,
+            onPressed: () => state.restoreTask(removed.$1, removed.$2),
+          ),
+        ),
+      );
+    }
   }
 
   void _addCustomIcon() {
@@ -440,6 +458,43 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                 ),
               ],
             ),
+            if (_formError != null) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: wq.missed.withValues(alpha: .1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: wq.missed.withValues(alpha: .4)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 16, color: wq.missed),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _formError!,
+                        style: TextStyle(fontSize: 12, color: wq.missed),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        final navigator = Navigator.of(context);
+                        navigator.pop(false);
+                        SubscriptionScreen.push(navigator.context);
+                      },
+                      child: Text(
+                        s.upgradeNow,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 18),
             Row(
               children: [

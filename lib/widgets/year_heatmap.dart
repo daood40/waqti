@@ -35,7 +35,9 @@ class YearHeatmap extends StatelessWidget {
     final firstDay = DateTime(year, 1, 1);
     final lastDay = DateTime(year, 12, 31);
     // نبدأ الشبكة من أحد الأسبوع الذي يحوي أول يوم في السنة.
-    final gridStart = firstDay.subtract(Duration(days: firstDay.weekday % 7));
+    // نبني التاريخ بمكوّناته (لا بطرح Duration) حتى لا ينزاح
+    // عبر تحولات التوقيت الصيفي.
+    final gridStart = DateTime(year, 1, 1 - firstDay.weekday % 7);
     final totalDays = lastDay.difference(gridStart).inDays + 1;
     final weekCount = (totalDays / 7).ceil();
 
@@ -149,7 +151,13 @@ class _HeatmapPainter extends CustomPainter {
     for (var week = 0; week < weekCount; week++) {
       final x = _weekX(week, size.width);
       for (var dow = 0; dow < 7; dow++) {
-        final date = gridStart.add(Duration(days: week * 7 + dow));
+        // بناء التاريخ بمكوّناته يبقيه عند منتصف الليل حتى عبر
+        // تحولات التوقيت الصيفي (add بالساعات كان ينزاح هناك).
+        final date = DateTime(
+          gridStart.year,
+          gridStart.month,
+          gridStart.day + week * 7 + dow,
+        );
         if (date.year != year) continue;
 
         final pct = pctForDate(date);
