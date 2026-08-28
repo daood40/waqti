@@ -1,0 +1,8 @@
+{
+  "appId": "com.daood40.waqti",
+  "appName": "وقتي",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}
