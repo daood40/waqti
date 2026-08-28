@@ -1,5 +1,5 @@
-# نشر تطبيق "وقتي" على GitHub Pages مع كل push
-name: Deploy to GitHub Pages
+# نشر تطبيق "وقتي" (Flutter Web) على GitHub Pages مع كل push
+name: Deploy Flutter Web to GitHub Pages
 
 on:
   push:
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,24 +29,26 @@ jobs:
         with:
           enablement: true
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          node-version: 22
-          cache: npm
+          channel: stable
+          flutter-version: 3.35.1
+          cache: true
 
       - name: Install dependencies
-        run: npm ci
+        run: flutter pub get
 
-      - name: Build (base /waqti/)
-        run: npm run build
-        env:
-          VITE_BASE: /waqti/
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Build web (base /waqti/)
+        run: flutter build web --release --base-href /waqti/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: build/web
 
   deploy:
     needs: build
