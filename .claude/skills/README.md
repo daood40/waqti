@@ -1,38 +1,28 @@
-# حزمة Skills لـ Claude Code
+# حزمة مهارات Claude Code — 25 مهارة (تطبيقات، مواقع، خلفية، ذكاء اصطناعي، بيانات)
 
-## التثبيت (مرة واحدة)
+## لماذا 25 وليس 1000؟
+Claude Code يحمّل **وصف** كل مهارة في كل جلسة، ويقرأ **محتواها** فقط عند الحاجة.
+لذلك كثرة المهارات تستهلك توكنز وتُضعف اختيار المهارة الصحيحة. 25 مهارة مركّزة تغطي كل مسار عمل.
 
-### لتكون متاحة في كل مشاريعك
-انسخ مجلد `skills` إلى `~/.claude/`:
+## التثبيت
+### من الهاتف (Claude Code في تطبيق Claude)
+افتح مستودعك في Claude Code والصق محتوى ملفات `paste/` بالترتيب (1 ثم 2 ...). كل ملف رسالة واحدة.
 
-    mkdir -p ~/.claude/skills
-    cp -r skills/* ~/.claude/skills/
+### من كمبيوتر
+انسخ مجلد `skills/` إلى `~/.claude/skills/` (لكل المشاريع) أو `.claude/skills/` داخل المشروع.
 
-على Windows (PowerShell):
-
-    New-Item -ItemType Directory -Force "$HOME\.claude\skills"
-    Copy-Item -Recurse skills\* "$HOME\.claude\skills\"
-
-### أو داخل مشروع واحد فقط
-انسخ المجلد إلى `.claude/skills/` داخل مجلد المشروع، ثم ارفعه مع Git ليستفيد فريقك.
-
-## التحقق
-افتح Claude Code داخل مشروعك واكتب `/skills` أو اسأل: "ما المهارات المتاحة؟"
-يجب أن ترى الأسماء الستة. إن كان المجلد جديدًا، أعد تشغيل Claude Code مرة واحدة.
-
-## الاستخدام
-لا تحتاج فعل شيء. عندما تطلب مثلًا "أضف شاشة إعدادات في تطبيق وقتي"، سيقرأ كلود مهارة flutter-arabic-app تلقائيًا ويلتزم بقواعدها.
-يمكنك أيضًا استدعاء مهارة مباشرة: `/web-security` لمراجعة أمنية.
+## بعد التثبيت
+- انسخ `CLAUDE.md.example` إلى جذر مشروعك باسم `CLAUDE.md` وعدّله.
+- اكتب `/skills` في Claude Code للتأكد من ظهور 25 مهارة.
 
 ## المهارات
-| المجلد | متى تعمل |
+| المجموعة | المهارات |
 |---|---|
-| flutter-arabic-app | أي عمل على Flutter |
-| web-frontend | واجهات الويب وReact/Next.js |
-| backend-api | مسارات API وقواعد البيانات |
-| web-security | مراجعة أمنية وقبل النشر |
-| ai-rag-agents | دمج LLM وRAG والوكلاء |
-| quality-testing | اختبارات ومراجعة قبل التسليم |
+| أساسية | token-efficiency, project-setup, debugging, code-review, quality-testing, git-workflow |
+| ويب | web-frontend, web-performance, accessibility-seo, pwa-offline |
+| جوال | flutter-arabic-app, android-kotlin, ios-swift, react-native-expo, mobile-release |
+| خلفية | backend-api, database-design, api-integrations, web-security, devops-deploy |
+| ذكاء اصطناعي وبيانات | ai-rag-agents, llm-prompting, ml-pipeline, data-analysis, docs-writing |
 
-## التعديل
-افتح أي `SKILL.md` وعدّل القواعد بما يناسبك. كلود يلتقط التغيير في الجلسة نفسها.
+## التخصيص
+عدّل أي SKILL.md مباشرة؛ التغيير يُلتقط في الجلسة نفسها. احذف مهارات التقنيات التي لا تستخدمها لتوفير التوكنز.
