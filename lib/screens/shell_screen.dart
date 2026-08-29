@@ -257,7 +257,11 @@ class _BottomNav extends StatelessWidget {
 
     return Container(
       height: 66 + bottomInset,
-      padding: EdgeInsets.only(bottom: bottomInset, left: 6, right: 6),
+      padding: EdgeInsetsDirectional.only(
+        bottom: bottomInset,
+        start: 6,
+        end: 6,
+      ),
       decoration: BoxDecoration(
         color: wq.surface,
         border: Border(top: BorderSide(color: wq.border)),

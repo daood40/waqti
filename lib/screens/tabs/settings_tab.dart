@@ -118,8 +118,8 @@ class SettingsTab extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                        begin: AlignmentDirectional.topStart,
+                        end: AlignmentDirectional.bottomEnd,
                         colors: [wq.primary, wq.primaryDark],
                       ),
                       shape: BoxShape.circle,
