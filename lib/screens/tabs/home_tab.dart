@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -58,7 +60,11 @@ class _HomeTabState extends State<HomeTab> {
     final tasks = query.isEmpty
         ? state.tasks
         : state.tasks
-              .where((t) => t.name.toLowerCase().contains(query))
+              .where(
+                (t) =>
+                    t.name.toLowerCase().contains(query) ||
+                    t.description.toLowerCase().contains(query),
+              )
               .toList();
 
     final stats = state.monthStats(cursor.year, cursor.month);
@@ -66,7 +72,12 @@ class _HomeTabState extends State<HomeTab> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
       children: [
+        _TodayHeader(strings: s),
+        const SizedBox(height: 14),
+        _TodayCard(strings: s),
+        _OverdueCard(strings: s),
         if (!state.isPremium) ...[
+          const SizedBox(height: 4),
           WqCard(
             onTap: () => SubscriptionScreen.push(context),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -112,8 +123,6 @@ class _HomeTabState extends State<HomeTab> {
           ),
           const SizedBox(height: 18),
         ],
-        _TodayCard(strings: s),
-        const SizedBox(height: 18),
         Text(
           s.monthlySchedule,
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
@@ -444,9 +453,10 @@ class _TodayCard extends StatelessWidget {
     final wq = context.wq;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final todayTasks = state.tasks
-        .where((t) => t.isApplicableOn(today))
-        .toList(growable: false);
+    // العاجل والمهم أولًا — الشاشة تجيب "على ماذا أركز الآن؟".
+    final todayTasks = AppState.sortedByPriority(
+      state.tasks.where((t) => t.isApplicableOn(today)).toList(),
+    );
     if (todayTasks.isEmpty) return const SizedBox.shrink();
 
     final doneCount = todayTasks
@@ -455,53 +465,56 @@ class _TodayCard extends StatelessWidget {
     final allDone = doneCount == todayTasks.length;
     final pct = ((doneCount / todayTasks.length) * 100).round();
 
-    return WqCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '☀️ ${strings.todayTasks}',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              Text(
-                '$doneCount / ${todayTasks.length}',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: allDone ? wq.done : wq.textMuted,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          LevelBar(pct: pct, color: allDone ? wq.done : null, height: 8),
-          const SizedBox(height: 12),
-          if (allDone)
-            Text(
-              strings.todayAllDone,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: wq.done,
-              ),
-            )
-          else
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: WqCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                for (final task in todayTasks)
-                  _TodayChip(task: task, date: today),
+                Text(
+                  '☀️ ${strings.todayTasks}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  '$doneCount / ${todayTasks.length}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: allDone ? wq.done : wq.textMuted,
+                  ),
+                ),
               ],
             ),
-        ],
+            const SizedBox(height: 10),
+            LevelBar(pct: pct, color: allDone ? wq.done : null, height: 8),
+            const SizedBox(height: 12),
+            if (allDone)
+              Text(
+                strings.todayAllDone,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: wq.done,
+                ),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final task in todayTasks)
+                    _TodayChip(task: task, date: today),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -519,11 +532,17 @@ class _TodayChip extends StatelessWidget {
     final state = context.read<AppState>();
     final wq = context.wq;
     final status = task.statusOn(date);
+    // مهمة معلّقة عاجلة/عالية تُميَّز لونيًا حتى تُقرأ الأولوية بلمحة.
+    final pendingFg = switch (task.priority) {
+      TaskPriority.urgent => wq.missed,
+      TaskPriority.high => wq.late,
+      _ => wq.textMuted,
+    };
     final (Color bg, Color fg) = switch (status) {
       TaskStatus.done => (wq.done.withValues(alpha: .15), wq.done),
       TaskStatus.doneLate => (wq.late.withValues(alpha: .15), wq.late),
       TaskStatus.missed => (wq.missed.withValues(alpha: .15), wq.missed),
-      null => (wq.surfaceAlt, wq.textMuted),
+      null => (wq.surfaceAlt, pendingFg),
     };
     return Material(
       color: bg,
@@ -562,6 +581,189 @@ class _TodayChip extends StatelessWidget {
                   color: fg,
                 ),
               ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// ترويسة اليوم: تحية بحسب الوقت، التاريخ الكامل، وساعة حيّة.
+class _TodayHeader extends StatefulWidget {
+  const _TodayHeader({required this.strings});
+
+  final AppStrings strings;
+
+  @override
+  State<_TodayHeader> createState() => _TodayHeaderState();
+}
+
+class _TodayHeaderState extends State<_TodayHeader> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    // تحديث كل دقيقة يكفي لساعة بلا ثوانٍ.
+    _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final wq = context.wq;
+    final s = widget.strings;
+    final now = DateTime.now();
+    final greeting = now.hour >= 5 && now.hour < 12
+        ? s.greetingMorning
+        : now.hour >= 12 && now.hour < 17
+        ? s.greetingAfternoon
+        : s.greetingEvening;
+    final time =
+        '${now.hour.toString().padLeft(2, '0')}:'
+        '${now.minute.toString().padLeft(2, '0')}';
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                greeting,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${s.weekdays[now.weekday % 7]}، '
+                '${now.day} ${s.months[now.month - 1]} ${now.year}',
+                style: TextStyle(fontSize: 13, color: wq.textMuted),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          time,
+          textDirection: TextDirection.ltr,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: wq.primaryDark,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// بطاقة المتأخرات: أيام مستحقة فاتت بلا حالة خلال آخر أسبوع —
+/// نقرة واحدة تنجز المهمة لذلك اليوم.
+class _OverdueCard extends StatelessWidget {
+  const _OverdueCard({required this.strings});
+
+  final AppStrings strings;
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
+    final wq = context.wq;
+    final entries = state.overdueEntries();
+    if (entries.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: WqCard(
+        padding: const EdgeInsets.all(16),
+        borderColor: wq.late.withValues(alpha: .55),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.history_rounded, size: 17, color: wq.late),
+                const SizedBox(width: 7),
+                Text(
+                  '${strings.overdueTitle} (${entries.length})',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  strings.overdueHint,
+                  style: TextStyle(fontSize: 11, color: wq.textMuted),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final entry in entries.take(12))
+                  _OverdueChip(entry: entry, strings: strings),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OverdueChip extends StatelessWidget {
+  const _OverdueChip({required this.entry, required this.strings});
+
+  final ({TaskItem task, DateTime date}) entry;
+  final AppStrings strings;
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.read<AppState>();
+    final wq = context.wq;
+    final task = entry.task;
+    final date = entry.date;
+    return Material(
+      color: wq.late.withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        // نقرة = إنجاز ذلك اليوم (التقليب الكامل متاح في الشبكة).
+        onTap: () => state.cycleStatus(task.id, date),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(task.icon, style: const TextStyle(fontSize: 13)),
+              const SizedBox(width: 6),
+              Text(
+                task.name,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: wq.text,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '${strings.weekdaysShort[date.weekday % 7]} ${date.day}',
+                style: TextStyle(fontSize: 11, color: wq.textMuted),
+              ),
             ],
           ),
         ),

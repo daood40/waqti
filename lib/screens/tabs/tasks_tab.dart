@@ -153,11 +153,19 @@ class TasksTab extends StatelessWidget {
                           color: Color(category.colorValue),
                         ),
                       WqChip(_recurrenceLabel(task.recurrence, s)),
-                      WqChip(switch (task.priority) {
-                        TaskPriority.low => s.low,
-                        TaskPriority.medium => s.medium,
-                        TaskPriority.high => s.high,
-                      }),
+                      WqChip(
+                        switch (task.priority) {
+                          TaskPriority.low => s.low,
+                          TaskPriority.medium => s.medium,
+                          TaskPriority.high => s.high,
+                          TaskPriority.urgent => s.urgent,
+                        },
+                        color: switch (task.priority) {
+                          TaskPriority.urgent => wq.missed,
+                          TaskPriority.high => wq.late,
+                          _ => null,
+                        },
+                      ),
                     ],
                   ),
                 ],

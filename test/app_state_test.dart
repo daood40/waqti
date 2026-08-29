@@ -207,4 +207,84 @@ void main() {
     expect(level.level, 2);
     expect(level.current, 10);
   });
+
+  test('urgent priority round-trips through JSON', () async {
+    final task = TaskItem(
+      id: 'u1',
+      name: 'عاجلة',
+      priority: TaskPriority.urgent,
+    );
+    final decoded = TaskItem.fromJson(task.toJson());
+    expect(decoded.priority, TaskPriority.urgent);
+    expect(TaskPriority.fromKey('urgent'), TaskPriority.urgent);
+    expect(TaskPriority.fromKey('unknown'), TaskPriority.medium);
+  });
+
+  test('sortedByPriority puts urgent first and keeps manual order within '
+      'a priority', () async {
+    final a = TaskItem(id: 'a', name: 'a', priority: TaskPriority.low);
+    final b = TaskItem(id: 'b', name: 'b', priority: TaskPriority.urgent);
+    final c = TaskItem(id: 'c', name: 'c', priority: TaskPriority.high);
+    final d = TaskItem(id: 'd', name: 'd', priority: TaskPriority.high);
+    final sorted = AppState.sortedByPriority([a, b, c, d]);
+    expect(sorted.map((t) => t.id).toList(), ['b', 'c', 'd', 'a']);
+  });
+
+  test('overdueEntries lists past applicable days without status, '
+      'excluding today', () async {
+    final state = await freshState();
+    state.setPremium(true);
+    final now3 = DateTime.now();
+    final task = TaskItem(
+      id: 'o1',
+      name: 'يومية',
+      createdAt: DateTime(now3.year, now3.month, now3.day - 5),
+    );
+    state.addTask(task);
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final twoDaysAgo = DateTime(now.year, now.month, now.day - 2);
+
+    var overdue = state.overdueEntries(lookBackDays: 3);
+    expect(overdue, hasLength(3)); // ثلاثة أيام ماضية بلا حالة
+
+    task.setStatusOn(yesterday, TaskStatus.done);
+    overdue = state.overdueEntries(lookBackDays: 3);
+    expect(overdue, hasLength(2));
+    expect(
+      overdue.any(
+        (e) => e.date.day == yesterday.day && e.date.month == yesterday.month,
+      ),
+      isFalse,
+    );
+    expect(
+      overdue.any(
+        (e) => e.date.day == twoDaysAgo.day && e.date.month == twoDaysAgo.month,
+      ),
+      isTrue,
+    );
+    // اليوم نفسه لا يُعد متأخرًا
+    expect(overdue.any((e) => e.date.day == now.day), isFalse);
+  });
+
+  test(
+    'a task created today has no overdue entries; createdAt round-trips',
+    () async {
+      final state = await freshState();
+      state.setPremium(true);
+      state.addTask(TaskItem(id: 'n1', name: 'جديدة'));
+      expect(state.overdueEntries(lookBackDays: 7), isEmpty);
+
+      final old = TaskItem(
+        id: 'n2',
+        name: 'قديمة',
+        createdAt: DateTime(2020, 5, 5),
+      );
+      final decoded = TaskItem.fromJson(old.toJson());
+      expect(decoded.createdAt.year, 2020);
+      // بيانات بلا createdAt تُعامل كقديمة
+      final legacyJson = old.toJson()..remove('createdAt');
+      expect(TaskItem.fromJson(legacyJson).createdAt.year, 2000);
+    },
+  );
 }

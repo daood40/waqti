@@ -402,7 +402,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
             const SizedBox(height: 14),
             _FieldLabel(s.priority),
             SegmentedPills(
-              options: [s.low, s.medium, s.high],
+              options: [s.low, s.medium, s.high, s.urgent],
               selectedIndex: _priority.index,
               onSelected: (i) =>
                   setState(() => _priority = TaskPriority.values[i]),

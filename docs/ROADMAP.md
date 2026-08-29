@@ -1,60 +1,46 @@
 <div dir="rtl">
 
-# ROADMAP — خارطة طريق وقتي
+# ROADMAP — خارطة طريق وقتي (وفق توجيه التحويل v3)
 
-> المرجع: `WAQTI_MASTER_DIRECTIVE_v2.md` §39 · الحالة التفصيلية في `../PROJECT_STATUS.md`
+> المراجع: `WAQTI_TRANSFORMATION_DIRECTIVE_v3.md` (المراحل) +
+> `WAQTI_MASTER_DIRECTIVE_v2.md` (المواصفات التفصيلية) + `AUDIT.md` (الواقع).
+> القاعدة الثابتة: التطبيق يعمل وCI أخضر بعد **كل** خطوة.
 
-## الموقع الحالي: نهاية "ما قبل المرحلة 0"
+## الموقع الحالي
 
-أُنجز: تحويل النموذج الأولي إلى Flutter عامل (Android/iOS/Web) بمطابقة بصرية، CI كامل (APK + Pages)، أرشفة نسخة React، ووثائق المعمارية والقرارات (هذه الجلسة).
+**Phase 0 مكتملة** (هذه الجلسة) و**Phase 4 قيد التنفيذ**.
+المراحل 1–3 لها أساس قائم يُستكمل تدريجيًا لا من الصفر.
 
-## المراحل
+| Phase | المحتوى | الحالة |
+|---|---|---|
+| **0 · Audit** | الفحوص الـ18 (`AUDIT.md`) | ✅ هذه الجلسة |
+| **1 · Architecture** | ADRs ✅، ARCHITECTURE/SYNC ✅؛ يتبقى تنفيذ Drift+Riverpod (يُنفَّذ مع 5) | 🟡 أساس قائم |
+| **2 · Design System** | الألوان/الخط/المكونات ✅؛ يتبقى رموز مسافات 4pt وسلم Typography مسمى ولون Urgent | 🟡 أساس قائم |
+| **3 · Navigation** | 6 تبويبات + زر + مركزي ✅؛ يتحول إلى 5+"المزيد" عند إضافة أقسام جديدة (v2 §7) | 🟡 أساس قائم |
+| **4 · Dashboard (Today-first)** | تحية/تاريخ، مهام اليوم مرتبة بالأولوية، Urgent، شريط المتأخرات، توحيد البحث | ⏳ **هذه الجلسة** |
+| **5 · Tasks** | Drift + فصل Tasks/Habits + due date/time + Subtasks + Tags + Notes حقل + Progressive Disclosure + Quick Add متعدد الأنواع | ☐ |
+| **6 · Calendar + My Day** | Week/Day/Agenda + Time Blocks + Events | ☐ |
+| **7 · Habits** | عادات كمية، Skip مبرر، قواعد Streak المتقدمة، تسجيل رجعي | ☐ |
+| **8 · Reminders** | إشعارات محلية فعلية + إعادة جدولة بعد الإقلاع + Snooze/Dismiss + `achievements.json` | ☐ |
+| **9 · Statistics** | اتجاهات إنتاجية، Overdue metrics، مراجعة يومية/أسبوعية | ☐ |
+| **10 · Search** | FTS5 عبر Tasks/Habits/Events/Notes | ☐ |
+| **11 · AI** | مساعد إنتاجية خلف Flag، معاينة بموافقة، مفاتيح على الخادم | ☐ |
+| **12 · Offline** | قائم بطبيعته اليوم؛ يُثبَّت رسميًا فوق Drift | 🟡 |
+| **13 · Sync** | Supabase وفق `SYNC.md` (queue/LWW حقلي/Tombstones/دمج) | ☐ |
+| **14 · Security** | مصادقة حقيقية، RLS، Delete Account، خطط من الخادم، SQLCipher اختياري | ☐ |
+| **15 · Testing** | رفع التغطية لأهداف v2 §35 + E2E متصفحي مؤتمت في CI | ☐ متدرجة مع كل مرحلة |
+| **16 · Performance** | استعلامات مفهرسة، أهداف v2 §31، فحص أول تحميل الويب | ☐ |
+| **17 · Final Polish** | الـ Final Audit بأدوار (Product/UX/UI/Eng/QA/Sec/Perf) وصقل ختامي | ☐ |
 
-### المرحلة 0 — الأساس ⏳ (جارية)
-- [x] ADRs 001–007 موثقة في `adr/`
-- [x] ARCHITECTURE.md وSYNC.md وPROJECT_STATUS.md
-- [x] CI: بناء APK + نشر Pages مع كل push
-- [x] Tokens أولية (`WaqtiColors` ThemeExtension)
-- [ ] توسيع Design Tokens (مسافات 4pt، Typography، أنصاف الأقطار)
-- [ ] Drift Schema بجداول §27 + طبقة Repository + ترحيل بيانات `waqti.v1`
-- [ ] هيكلة `features/` وإدخال Riverpod تدريجياً
+## اعتماديات حاكمة
 
-### المرحلة 1 — المهام Local-only كاملة
-- [ ] فصل `status` عن سجل الإكمال + Smart Views (Inbox/Today/Upcoming/Completed/Archived)
-- [ ] مهام فرعية (مستوى واحد)، وسوم، ملاحظات
-- [ ] التكرار RRULE + استثناءات + توليد كسول + محوّل من النموذج القديم
-- [ ] إشعارات محلية فعلية (تُعاد جدولتها بعد إعادة التشغيل)
-- [ ] بحث شامل SQLite FTS5
-- [ ] تنقل 5 تبويبات + "المزيد" + زر "+" عائم (إضافة < 3 ثوانٍ)
+- 5 قبل 6/7/8/10 (النموذج الجديد أساس الجميع).
+- 13 قبل 14 الكاملة (لا Delete Account حقيقي بلا حساب حقيقي).
+- 15 لا تُؤجل للنهاية: كل مرحلة تسلّم اختباراتها.
 
-### المرحلة 2 — العادات والتركيز والوقت
-- [ ] عادات كمية (`quantitative`) + Skip مبرَّر + تسجيل رجعي 7 أيام
-- [ ] قواعد Streak وفق الأيام المجدولة فقط
-- [ ] Focus/Pomodoro موثوق (حساب من `started_at`، Foreground Service)
-- [ ] تتبّع الوقت `time_entries` + الفئات الافتراضية
-- [ ] نقل قواعد الإنجازات إلى `achievements.json`
+## المطلوب من المالك لاحقًا
 
-### المرحلة 3 — التقويم والتخطيط والأهداف
-- [ ] تقويم Day/Week/Month موحّد (مهام + مواعيد + جلسات)
-- [ ] المخطط اليومي `time_blocks` + اكتشاف التداخل
-- [ ] الأهداف الهرمية بحساب تقدم §16 + المشاريع الفردية
-- [ ] Daily/Weekly Review + خطة الغد
-- [ ] اختياري: مواقيت الصلاة محلياً، عرض هجري
-
-### المرحلة 4 — الحساب والمزامنة والاشتراكات
-- [ ] Supabase: مخطط §27 + RLS + مصادقة (Email/Google/Apple)
-- [ ] محرك المزامنة وفق `SYNC.md` (sync_queue، LWW حقلي، Tombstones، دمج)
-- [ ] اشتراكات فعلية من `plans` خلف `PaymentProvider`
-- [ ] لوحة إدارة ويب بأدوار admin/support
-- 🔑 تتطلب Credentials من المالك (ملحق ج)
-
-### المرحلة 5 — الإضافات
-- [ ] مساعد AI خلف `FEATURE_AI` (معاينة بموافقة، مفاتيح على الخادم)
-- [ ] استيراد Google/Apple Calendar
-- [ ] المشاريع الجماعية (`project_members`)
-
-## معيار الانتقال بين المراحل
-
-لا تُفتح مرحلة قبل استيفاء Definition of Done (§34) لمكونات المرحلة السابقة: اختبارات خضراء في CI، عمل Offline، فحص RTL/LTR/Dark، لا Dummy data، توثيق في PROJECT_STATUS.
+لا شيء حتى Phase 13. عندها: مشروع Supabase، Google/Apple Sign-In،
+مزود دفع، Sentry (مفصلة في `PROJECT_STATUS.md`).
 
 </div>

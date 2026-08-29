@@ -36,6 +36,12 @@ class AppStrings {
     required this.low,
     required this.medium,
     required this.high,
+    required this.urgent,
+    required this.overdueTitle,
+    required this.overdueHint,
+    required this.greetingMorning,
+    required this.greetingAfternoon,
+    required this.greetingEvening,
     required this.recurrence,
     required this.once,
     required this.daily,
@@ -209,6 +215,12 @@ class AppStrings {
   final String low;
   final String medium;
   final String high;
+  final String urgent;
+  final String overdueTitle;
+  final String overdueHint;
+  final String greetingMorning;
+  final String greetingAfternoon;
+  final String greetingEvening;
   final String recurrence;
   final String once;
   final String daily;
@@ -382,6 +394,12 @@ class AppStrings {
     low: 'منخفضة',
     medium: 'متوسطة',
     high: 'عالية',
+    urgent: 'عاجلة',
+    overdueTitle: 'مهام متأخرة',
+    overdueHint: 'انقر لإنجازها الآن',
+    greetingMorning: 'صباح الخير',
+    greetingAfternoon: 'طاب يومك',
+    greetingEvening: 'مساء الخير',
     recurrence: 'التكرار',
     once: 'مرة واحدة',
     daily: 'يومي',
@@ -581,6 +599,12 @@ class AppStrings {
     low: 'Low',
     medium: 'Medium',
     high: 'High',
+    urgent: 'Urgent',
+    overdueTitle: 'Overdue tasks',
+    overdueHint: 'Tap to complete now',
+    greetingMorning: 'Good morning',
+    greetingAfternoon: 'Good afternoon',
+    greetingEvening: 'Good evening',
     recurrence: 'Recurrence',
     once: 'Once',
     daily: 'Daily',

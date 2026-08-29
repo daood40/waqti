@@ -85,7 +85,15 @@ class AppState extends ChangeNotifier {
   // =======================================================================
 
   void _restore() {
-    final raw = _prefs.getString(_storageKey);
+    // حتى قراءة المفتاح نفسها قد ترمي إذا كان المخزون بنوع غير متوقع —
+    // تلف التخزين يجب ألا يمنع التطبيق من الإقلاع أبدًا.
+    final String? raw;
+    try {
+      raw = _prefs.getString(_storageKey);
+    } catch (_) {
+      categories = _defaultCategories();
+      return;
+    }
     if (raw == null) {
       categories = _defaultCategories();
       return;
@@ -406,6 +414,47 @@ class AppState extends ChangeNotifier {
       if (t.categoryId == id) t.categoryId = null;
     }
     _commit();
+  }
+
+  // =======================================================================
+  // اليوم والمتأخرات
+  // =======================================================================
+
+  /// المهام مرتبة تنازليًا بالأولوية (عاجلة أولًا) مع ثبات الترتيب اليدوي
+  /// داخل الأولوية الواحدة.
+  static List<TaskItem> sortedByPriority(List<TaskItem> list) {
+    final indexed = list.asMap().entries.toList()
+      ..sort((a, b) {
+        final byPriority = b.value.priority.index.compareTo(
+          a.value.priority.index,
+        );
+        return byPriority != 0 ? byPriority : a.key.compareTo(b.key);
+      });
+    return [for (final e in indexed) e.value];
+  }
+
+  /// المهام المتأخرة: أيام مستحقة خلال آخر [lookBackDays] يومًا
+  /// (قبل اليوم) بقيت بلا أي حالة. الأحدث أولًا ثم الأعلى أولوية.
+  List<({TaskItem task, DateTime date})> overdueEntries({
+    int lookBackDays = 7,
+  }) {
+    final now = DateTime.now();
+    final entries = <({TaskItem task, DateTime date})>[];
+    for (var back = 1; back <= lookBackDays; back++) {
+      final date = DateTime(now.year, now.month, now.day - back);
+      for (final task in sortedByPriority(tasks)) {
+        final created = DateTime(
+          task.createdAt.year,
+          task.createdAt.month,
+          task.createdAt.day,
+        );
+        if (date.isBefore(created)) continue; // لا تأخر قبل وجود المهمة
+        if (task.isApplicableOn(date) && task.statusOn(date) == null) {
+          entries.add((task: task, date: date));
+        }
+      }
+    }
+    return entries;
   }
 
   // =======================================================================

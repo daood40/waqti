@@ -20,15 +20,17 @@ enum TaskStatus {
   };
 }
 
-/// أولوية المهمة.
+/// أولوية المهمة — بترتيب تصاعدي حتى يصلح `index` للفرز.
 enum TaskPriority {
   low,
   medium,
-  high;
+  high,
+  urgent;
 
   static TaskPriority fromKey(String? key) => switch (key) {
     'low' => TaskPriority.low,
     'high' => TaskPriority.high,
+    'urgent' => TaskPriority.urgent,
     _ => TaskPriority.medium,
   };
 }
@@ -161,7 +163,9 @@ class TaskItem {
     this.recurrence = const Recurrence(),
     this.notificationsOn = true,
     Map<String, TaskStatus>? statuses,
-  }) : statuses = statuses ?? {};
+    DateTime? createdAt,
+  }) : statuses = statuses ?? {},
+       createdAt = createdAt ?? DateTime.now();
 
   final String id;
   String name;
@@ -172,6 +176,10 @@ class TaskItem {
   TaskPriority priority;
   Recurrence recurrence;
   bool notificationsOn;
+
+  /// تاريخ إنشاء المهمة — يحدّ حساب المتأخرات فلا تُحسب أيام
+  /// ما قبل وجود المهمة.
+  final DateTime createdAt;
 
   /// حالات الإنجاز مفهرسة بمفتاح تاريخ كامل `yyyy-MM-dd`
   /// (بخلاف النموذج الأولي الذي كان يفهرس برقم اليوم فقط،
@@ -217,6 +225,7 @@ class TaskItem {
     recurrence: recurrence,
     notificationsOn: notificationsOn,
     statuses: Map.of(statuses),
+    createdAt: createdAt,
   );
 
   Map<String, dynamic> toJson() => {
@@ -229,6 +238,7 @@ class TaskItem {
     'priority': priority.name,
     'recurrence': recurrence.toJson(),
     'notif': notificationsOn,
+    'createdAt': DateKey.fromDate(createdAt),
     'statuses': statuses.map((k, v) => MapEntry(k, v.key)),
   };
 
@@ -251,6 +261,10 @@ class TaskItem {
           ? Recurrence.fromJson(json['recurrence'] as Map<String, dynamic>)
           : const Recurrence(),
       notificationsOn: json['notif'] as bool? ?? true,
+      // بيانات قديمة بلا createdAt: نعتبرها موجودة منذ زمن حتى لا
+      // تختفي متأخراتها الحقيقية.
+      createdAt:
+          DateKey.tryParse(json['createdAt'] as String?) ?? DateTime(2000),
       statuses: statuses,
     );
   }
