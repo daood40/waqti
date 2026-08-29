@@ -159,7 +159,7 @@ class _TrendPainter extends CustomPainter {
         Paint()
           ..color = lineColor
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.5
+          ..strokeWidth = 2
           ..strokeJoin = StrokeJoin.round
           ..strokeCap = StrokeCap.round,
       );
@@ -173,9 +173,11 @@ class _TrendPainter extends CustomPainter {
       ..strokeWidth = 1.5;
     for (var i = 0; i < daily.length; i++) {
       final center = Offset(xFor(i), yFor(daily[i]));
-      canvas.drawCircle(center, 3.5, fill);
-      canvas.drawCircle(center, 3.5, stroke);
       final isToday = i == todayIndex;
+      // نقطة اليوم أبرز قليلًا حتى تُقرأ "أين نحن الآن" بلمحة.
+      final radius = isToday ? 5.0 : 3.5;
+      canvas.drawCircle(center, radius, fill);
+      canvas.drawCircle(center, radius, stroke);
       _drawText(
         canvas,
         '${i + 1}',
@@ -258,20 +260,31 @@ class WeeklyBars extends StatelessWidget {
                     style: TextStyle(fontSize: 10, color: wq.textMuted),
                   ),
                   const SizedBox(height: 4),
-                  TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0, end: bucket.pct.clamp(3, 100) / 100),
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeOutCubic,
-                    builder: (context, value, _) => Container(
-                      height: 84 * value,
+                  // صفر يبقى صفرًا: لا عمود وهمي يوحي بقيمة —
+                  // شرطة خط الأساس تكفي (صدق المقدار قبل الجمال).
+                  if (bucket.pct == 0)
+                    Container(
+                      height: 2,
                       decoration: BoxDecoration(
-                        color: wq.primary,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(6),
+                        color: wq.none,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    )
+                  else
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: bucket.pct / 100),
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, _) => Container(
+                        height: (84 * value).clamp(2, 84),
+                        decoration: BoxDecoration(
+                          color: wq.primary,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 6),
                   Text(
                     bucket.label,

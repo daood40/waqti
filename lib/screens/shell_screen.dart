@@ -82,69 +82,81 @@ class _ShellScreenState extends State<ShellScreen> {
       child: Scaffold(
         body: SafeArea(
           bottom: false,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
-                child: Row(
-                  children: [
-                    _Brand(appName: s.appName),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 260),
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        decoration: BoxDecoration(
-                          color: wq.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: wq.border),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.search, size: 18, color: wq.textMuted),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: (value) =>
-                                    setState(() => _query = value),
-                                style: const TextStyle(fontSize: 14),
-                                decoration: InputDecoration(
-                                  hintText: s.search,
-                                  filled: false,
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                  ),
-                                ),
-                              ),
+          // على الشاشات العريضة (ويب/سطح مكتب) يبقى المحتوى بعرض قراءة
+          // مريح في المنتصف بدل التمدد عبر الشاشة كاملة.
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
+                    child: Row(
+                      children: [
+                        _Brand(appName: s.appName),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 260),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            decoration: BoxDecoration(
+                              color: wq.surface,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: wq.border),
                             ),
-                            if (_query.isNotEmpty)
-                              GestureDetector(
-                                onTap: () {
-                                  _searchController.clear();
-                                  setState(() => _query = '');
-                                },
-                                child: Icon(
-                                  Icons.close,
-                                  size: 16,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.search,
+                                  size: 18,
                                   color: wq.textMuted,
                                 ),
-                              ),
-                          ],
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _searchController,
+                                    onChanged: (value) =>
+                                        setState(() => _query = value),
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                      hintText: s.search,
+                                      filled: false,
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                                if (_query.isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () {
+                                      _searchController.clear();
+                                      setState(() => _query = '');
+                                    },
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 16,
+                                      color: wq.textMuted,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    child: IndexedStack(index: _tabIndex, children: tabs),
+                  ),
+                ],
               ),
-              Expanded(
-                child: IndexedStack(index: _tabIndex, children: tabs),
-              ),
-            ],
+            ),
           ),
         ),
         bottomNavigationBar: _BottomNav(
@@ -269,39 +281,44 @@ class _BottomNav extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          navButton(0),
-          navButton(1),
-          navButton(2),
-          Transform.translate(
-            offset: const Offset(0, -14),
-            child: Tooltip(
-              message: addLabel,
-              child: Material(
-                shape: CircleBorder(
-                  side: BorderSide(color: wq.background, width: 4),
-                ),
-                color: wq.primary,
-                elevation: 4,
-                shadowColor: wq.primaryDark.withValues(alpha: .4),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: onAdd,
-                  child: const SizedBox(
-                    width: 56,
-                    height: 56,
-                    child: Icon(Icons.add, color: Colors.white, size: 28),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              navButton(0),
+              navButton(1),
+              navButton(2),
+              Transform.translate(
+                offset: const Offset(0, -14),
+                child: Tooltip(
+                  message: addLabel,
+                  child: Material(
+                    shape: CircleBorder(
+                      side: BorderSide(color: wq.background, width: 4),
+                    ),
+                    color: wq.primary,
+                    elevation: 4,
+                    shadowColor: wq.primaryDark.withValues(alpha: .4),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: onAdd,
+                      child: const SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: Icon(Icons.add, color: Colors.white, size: 28),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              navButton(3),
+              navButton(4),
+              navButton(5),
+            ],
           ),
-          navButton(3),
-          navButton(4),
-          navButton(5),
-        ],
+        ),
       ),
     );
   }

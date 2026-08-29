@@ -176,6 +176,7 @@ class AppStrings {
     required this.demoLoaded,
     required this.yearHeatmap,
     required this.heatmapLegendLess,
+    required this.heatmapLegendMissed,
     required this.heatmapLegendMore,
     required this.reorderHint,
     required this.about,
@@ -355,6 +356,7 @@ class AppStrings {
   final String demoLoaded;
   final String yearHeatmap;
   final String heatmapLegendLess;
+  final String heatmapLegendMissed;
   final String heatmapLegendMore;
   final String reorderHint;
   final String about;
@@ -559,6 +561,7 @@ class AppStrings {
     demoLoaded: 'تم تحميل البيانات التجريبية',
     yearHeatmap: 'خريطة السنة',
     heatmapLegendLess: 'أقل',
+    heatmapLegendMissed: 'فائت',
     heatmapLegendMore: 'أكثر',
     reorderHint: 'اضغط مطولًا واسحب لإعادة الترتيب',
     about: 'حول التطبيق',
@@ -764,6 +767,7 @@ class AppStrings {
     demoLoaded: 'Demo data loaded',
     yearHeatmap: 'Year heatmap',
     heatmapLegendLess: 'Less',
+    heatmapLegendMissed: 'Missed',
     heatmapLegendMore: 'More',
     reorderHint: 'Long-press and drag to reorder',
     about: 'About',

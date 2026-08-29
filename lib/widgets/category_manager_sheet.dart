@@ -13,6 +13,7 @@ Future<String?> showCategoryManagerSheet(BuildContext context) {
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    constraints: const BoxConstraints(maxWidth: 640),
     builder: (_) => const CategoryManagerSheet(),
   );
 }

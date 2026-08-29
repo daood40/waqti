@@ -12,6 +12,7 @@ class YearHeatmap extends StatelessWidget {
     required this.monthLabels,
     required this.lessLabel,
     required this.moreLabel,
+    required this.missedLabel,
   });
 
   final int year;
@@ -22,6 +23,7 @@ class YearHeatmap extends StatelessWidget {
   final List<String> monthLabels;
   final String lessLabel;
   final String moreLabel;
+  final String missedLabel;
 
   static const _cell = 11.0;
   static const _gap = 3.0;
@@ -96,6 +98,22 @@ class YearHeatmap extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               moreLabel,
+              style: TextStyle(fontSize: 10.5, color: wq.textMuted),
+            ),
+            const SizedBox(width: 14),
+            // الخلية الحمراء (يوم فائت 0%) لها مدخل في المفتاح —
+            // لا لون بلا تفسير (قاعدة dataviz: الحالة تُشرح لا تُفترض).
+            Container(
+              width: _cell,
+              height: _cell,
+              decoration: BoxDecoration(
+                color: wq.missed.withValues(alpha: .25),
+                borderRadius: BorderRadius.circular(2.5),
+              ),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              missedLabel,
               style: TextStyle(fontSize: 10.5, color: wq.textMuted),
             ),
           ],

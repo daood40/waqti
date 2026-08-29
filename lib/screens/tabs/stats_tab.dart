@@ -132,6 +132,7 @@ class StatsTab extends StatelessWidget {
                   monthLabels: s.months,
                   lessLabel: s.heatmapLegendLess,
                   moreLabel: s.heatmapLegendMore,
+                  missedLabel: s.heatmapLegendMissed,
                 ),
         ),
         SectionTitle(s.tasks),

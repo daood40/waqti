@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import '../core/tokens.dart';
 import '../models/models.dart';
 
 /// بطاقة بنمط "وقتي" — سطح أبيض بحواف ناعمة وحد خفيف وظل هادئ.
@@ -206,15 +207,19 @@ class StatusDot extends StatelessWidget {
         child: Opacity(opacity: applicable ? 1 : .5, child: dot),
       );
     }
+    // هدف اللمس أكبر من النقطة المرئية (إتاحة): حشوة شفافة حول النقطة
+    // ترفع منطقة النقر إلى WqHit.min دون تغيير الشكل.
+    final hitPad = ((WqHit.min - size) / 2).clamp(0.0, 12.0);
     return Semantics(
       label: _semanticLabel(strings),
       button: true,
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           HapticFeedback.selectionClick();
           onTap!();
         },
-        child: dot,
+        child: Padding(padding: EdgeInsets.all(hitPad), child: dot),
       ),
     );
   }

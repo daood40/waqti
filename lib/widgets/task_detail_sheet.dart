@@ -20,6 +20,7 @@ Future<void> showTaskDetailSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    constraints: const BoxConstraints(maxWidth: 640),
     builder: (_) => TaskDetailSheet(taskId: taskId, year: year, month: month),
   );
 }

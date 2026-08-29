@@ -15,6 +15,8 @@ Future<bool?> showTaskEditorSheet(BuildContext context, {TaskItem? existing}) {
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    // على الشاشات العريضة تبقى الورقة بعرض نموذج مريح في المنتصف.
+    constraints: const BoxConstraints(maxWidth: 640),
     builder: (_) => TaskEditorSheet(existing: existing),
   );
 }

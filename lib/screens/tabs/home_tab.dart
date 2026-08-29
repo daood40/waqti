@@ -356,7 +356,8 @@ class _HabitGrid extends StatelessWidget {
         const SizedBox(height: 6),
         for (final task in tasks)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            // هدف اللمس داخل StatusDot صار أعرض — لا حاجة لحشوة صف إضافية.
+            padding: EdgeInsets.zero,
             child: Row(
               children: [
                 SizedBox(
@@ -551,7 +552,7 @@ class _TodayChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         onTap: () => state.cycleStatus(task.id, date),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -745,7 +746,7 @@ class _OverdueChip extends StatelessWidget {
         // نقرة = إنجاز ذلك اليوم (التقليب الكامل متاح في الشبكة).
         onTap: () => state.cycleStatus(task.id, date),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
