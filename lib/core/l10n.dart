@@ -117,6 +117,14 @@ class AppStrings {
     required this.subscription,
     required this.freePlan,
     required this.premiumPlan,
+    required this.bronzePlan,
+    required this.silverPlan,
+    required this.goldPlan,
+    required this.allBronzePlus,
+    required this.allSilverPlus,
+    required this.featTasks15,
+    required this.featPrioritySupport,
+    required this.subscribedTier,
     required this.monthlyPlan,
     required this.yearlyPlan,
     required this.saveBadge,
@@ -297,6 +305,14 @@ class AppStrings {
   final String subscription;
   final String freePlan;
   final String premiumPlan;
+  final String bronzePlan;
+  final String silverPlan;
+  final String goldPlan;
+  final String allBronzePlus;
+  final String allSilverPlus;
+  final String featTasks15;
+  final String featPrioritySupport;
+  final String subscribedTier;
   final String monthlyPlan;
   final String yearlyPlan;
   final String saveBadge;
@@ -499,6 +515,14 @@ class AppStrings {
     subscription: 'الاشتراك المميز',
     freePlan: 'الخطة المجانية',
     premiumPlan: 'وقتي Premium',
+    bronzePlan: 'برونزي',
+    silverPlan: 'فضي',
+    goldPlan: 'ذهبي',
+    allBronzePlus: 'كل مزايا البرونزي، إضافةً إلى:',
+    allSilverPlus: 'كل مزايا الفضي، إضافةً إلى:',
+    featTasks15: 'حتى 15 مهمة وعادة',
+    featPrioritySupport: 'أولوية في الدعم',
+    subscribedTier: 'تم تفعيل باقتك بنجاح 🎉 (محاكاة — بدون دفع فعلي)',
     monthlyPlan: 'شهري',
     yearlyPlan: 'سنوي',
     saveBadge: 'وفّر 33%',
@@ -704,6 +728,14 @@ class AppStrings {
     subscription: 'Premium Subscription',
     freePlan: 'Free plan',
     premiumPlan: 'Waqti Premium',
+    bronzePlan: 'Bronze',
+    silverPlan: 'Silver',
+    goldPlan: 'Gold',
+    allBronzePlus: 'Everything in Bronze, plus:',
+    allSilverPlus: 'Everything in Silver, plus:',
+    featTasks15: 'Up to 15 tasks & habits',
+    featPrioritySupport: 'Priority support',
+    subscribedTier: 'Your plan is active 🎉 (simulated — no real payment)',
     monthlyPlan: 'Monthly',
     yearlyPlan: 'Yearly',
     saveBadge: 'Save 33%',

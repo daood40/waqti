@@ -35,6 +35,28 @@ enum TaskPriority {
   };
 }
 
+/// باقات الاشتراك — قيمة متدرجة تجعل الترقية مُبرَّرة.
+enum PlanTier {
+  free,
+  bronze,
+  silver,
+  gold;
+
+  /// حد المهام للباقة — `null` يعني بلا حدود.
+  int? get taskLimit => switch (this) {
+    PlanTier.free => 5,
+    PlanTier.bronze => 15,
+    PlanTier.silver || PlanTier.gold => null,
+  };
+
+  static PlanTier fromKey(String? key) => switch (key) {
+    'bronze' => PlanTier.bronze,
+    'silver' => PlanTier.silver,
+    'gold' => PlanTier.gold,
+    _ => PlanTier.free,
+  };
+}
+
 /// نوع تكرار المهمة.
 enum RecurrenceType {
   once,

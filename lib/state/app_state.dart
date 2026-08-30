@@ -64,8 +64,10 @@ class AppState extends ChangeNotifier {
   UserProfile? user;
 
   // ---------- الاشتراك ----------
-  bool isPremium = false;
+  PlanTier tier = PlanTier.free;
   String billingCycle = 'monthly';
+
+  bool get isPremium => tier != PlanTier.free;
 
   // ---------- البيانات ----------
   List<TaskCategory> categories = [];
@@ -113,7 +115,12 @@ class AppState extends ChangeNotifier {
       user = json['user'] is Map<String, dynamic>
           ? UserProfile.fromJson(json['user'] as Map<String, dynamic>)
           : null;
-      isPremium = json['isPremium'] as bool? ?? false;
+      // ترحيل: بيانات قديمة بـ isPremium فقط تُرفع للذهبي.
+      tier = json.containsKey('tier')
+          ? PlanTier.fromKey(json['tier'] as String?)
+          : ((json['isPremium'] as bool? ?? false)
+                ? PlanTier.gold
+                : PlanTier.free);
       billingCycle = json['billingCycle'] as String? ?? 'monthly';
       categories = ((json['categories'] as List?) ?? const [])
           .whereType<Map<String, dynamic>>()
@@ -151,7 +158,7 @@ class AppState extends ChangeNotifier {
       'eveningRecap': eveningRecap,
       'loggedIn': loggedIn,
       if (user != null) 'user': user!.toJson(),
-      'isPremium': isPremium,
+      'tier': tier.name,
       'billingCycle': billingCycle,
       'categories': categories.map((c) => c.toJson()).toList(),
       'tasks': tasks.map((t) => t.toJson()).toList(),
@@ -235,16 +242,22 @@ class AppState extends ChangeNotifier {
     _commit();
   }
 
-  void setPremium(bool value) {
-    isPremium = value;
+  void setTier(PlanTier value) {
+    tier = value;
     _commit();
   }
+
+  /// توافق خلفي مع الاختبارات والاستدعاءات القديمة.
+  void setPremium(bool value) => setTier(value ? PlanTier.gold : PlanTier.free);
 
   // =======================================================================
   // المهام
   // =======================================================================
 
-  bool get canAddTask => isPremium || tasks.length < freePlanTaskLimit;
+  bool get canAddTask {
+    final limit = tier.taskLimit;
+    return limit == null || tasks.length < limit;
+  }
 
   TaskItem? taskById(String id) {
     for (final t in tasks) {

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/app_info.dart';
 import '../../core/l10n.dart';
+import '../../models/models.dart';
 import '../../core/theme.dart';
 import '../../state/app_state.dart';
 import '../../widgets/common.dart';
@@ -163,9 +164,12 @@ class SettingsTab extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                state.isPremium
-                                    ? '👑 ${s.premiumTag}'
-                                    : s.freeTag,
+                                switch (state.tier) {
+                                  PlanTier.free => s.freeTag,
+                                  PlanTier.bronze => '🥉 ${s.bronzePlan}',
+                                  PlanTier.silver => '🥈 ${s.silverPlan}',
+                                  PlanTier.gold => '🥇 ${s.goldPlan}',
+                                },
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w800,

@@ -287,4 +287,27 @@ void main() {
       expect(TaskItem.fromJson(legacyJson).createdAt.year, 2000);
     },
   );
+
+  test('plan tiers gate task limits and persist', () async {
+    final state = await freshState();
+    // برونزي: 15 حدًا أقصى
+    state.setTier(PlanTier.bronze);
+    for (var i = 0; i < 15; i++) {
+      expect(state.addTask(TaskItem(id: 'b$i', name: 'م$i')), isTrue);
+    }
+    expect(state.addTask(TaskItem(id: 'b15', name: 'زيادة')), isFalse);
+    // فضي: بلا حدود
+    state.setTier(PlanTier.silver);
+    expect(state.addTask(TaskItem(id: 'b15', name: 'زيادة')), isTrue);
+    // الحفظ والاستعادة يحفظان الباقة
+    var restored = await AppState.load();
+    expect(restored.tier, PlanTier.silver);
+    expect(restored.isPremium, isTrue);
+    // ترحيل isPremium القديم إلى الذهبي
+    SharedPreferences.setMockInitialValues({
+      'waqti.v1': '{"isPremium": true, "tasks": [], "categories": []}',
+    });
+    restored = await AppState.load();
+    expect(restored.tier, PlanTier.gold);
+  });
 }

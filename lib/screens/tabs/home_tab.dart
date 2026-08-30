@@ -74,8 +74,6 @@ class _HomeTabState extends State<HomeTab> {
       children: [
         _TodayHeader(strings: s),
         const SizedBox(height: 14),
-        _TodayCard(strings: s),
-        _OverdueCard(strings: s),
         if (!state.isPremium) ...[
           const SizedBox(height: 4),
           WqCard(
@@ -123,6 +121,8 @@ class _HomeTabState extends State<HomeTab> {
           ),
           const SizedBox(height: 18),
         ],
+        _TodayCard(strings: s),
+        _OverdueCard(strings: s),
         Text(
           s.monthlySchedule,
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
