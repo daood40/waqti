@@ -4,6 +4,9 @@
 
 🌐 **جرّبه الآن:** [daood40.github.io/waqti](https://daood40.github.io/waqti/)
 
+📦 **التحميل المباشر (أحدث إصدار):** [github.com/daood40/waqti/releases/latest](https://github.com/daood40/waqti/releases/latest)
+— APK لأندرويد، AAB لمتجر Play، ويندوز (zip + MSIX)، حزمة ويب، وبنية iOS بلا توقيع.
+
 > هذا المشروع تحويل كامل واحترافي لنموذج HTML أولي إلى تطبيق Flutter حقيقي، مع حفظ دائم للبيانات وتحسينات جوهرية. النموذج الأصلي محفوظ في `design/waqti_prototype.html`، ونسخة React السابقة مؤرشفة في الفرع `archive/react-version`.
 
 ## المزايا

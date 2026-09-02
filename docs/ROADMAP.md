@@ -20,8 +20,8 @@
 | **4 · Dashboard (Today-first)** | تحية/تاريخ، مهام اليوم مرتبة بالأولوية، Urgent، شريط المتأخرات، توحيد البحث | ⏳ **هذه الجلسة** |
 | **5 · Tasks** | Drift + فصل Tasks/Habits + due date/time + Subtasks + Tags + Notes حقل + Progressive Disclosure + Quick Add متعدد الأنواع | ☐ |
 | **6 · Calendar + My Day** | Week/Day/Agenda + Time Blocks + Events | ☐ |
-| **7 · Habits** | عادات كمية، Skip مبرر، قواعد Streak المتقدمة، تسجيل رجعي | ☐ |
-| **8 · Reminders** | إشعارات محلية فعلية + إعادة جدولة بعد الإقلاع + Snooze/Dismiss + `achievements.json` | ☐ |
+| **7 · Habits** | عادات كمية ✅، Skip ✅، درجة عادة مرنة + سلسلة متسامحة ✅، إقلاع ✅؛ يتبقى تسجيل رجعي بواجهة مخصصة | 🟢 معظمه منجز |
+| **8 · Reminders** | إشعارات محلية فعلية ✅ (3 تذكيرات/عادة، ساعات هدوء، ملخص صباحي/مسائي)؛ يتبقى Snooze | 🟢 معظمه منجز |
 | **9 · Statistics** | اتجاهات إنتاجية، Overdue metrics، مراجعة يومية/أسبوعية | ☐ |
 | **10 · Search** | FTS5 عبر Tasks/Habits/Events/Notes | ☐ |
 | **11 · AI** | مساعد إنتاجية خلف Flag، معاينة بموافقة، مفاتيح على الخادم | ☐ |
