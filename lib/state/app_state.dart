@@ -530,6 +530,19 @@ class AppState extends ChangeNotifier {
     return streak;
   }
 
+  /// إجمالي الإنجازات المكتملة (في الوقت أو متأخرة) عبر كل الأيام.
+  int totalDone() {
+    var count = 0;
+    for (final task in tasks) {
+      for (final status in task.statuses.values) {
+        if (status == TaskStatus.done || status == TaskStatus.doneLate) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
   int totalXp() {
     var xp = 0;
     for (final task in tasks) {

@@ -61,6 +61,16 @@ void main() {
     expect(stats.pct, ((1 / 31) * 100).round());
   });
 
+  test('totalDone counts done and doneLate across all days', () async {
+    final state = await freshState();
+    final task = TaskItem(id: 't1', name: 'قراءة');
+    state.addTask(task);
+    task.setStatusOn(DateTime(2026, 7, 30), TaskStatus.done);
+    task.setStatusOn(DateTime(2026, 8, 1), TaskStatus.doneLate);
+    task.setStatusOn(DateTime(2026, 8, 2), TaskStatus.missed);
+    expect(state.totalDone(), 2);
+  });
+
   test('XP: 10 per done, 4 per late', () async {
     final state = await freshState();
     final task = TaskItem(id: 't1', name: 'قراءة');
