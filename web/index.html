@@ -31,8 +31,83 @@
 
   <title>وقتي</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- تنزيل الكود بالتوازي مع الإقلاع لتسريع أول فتح -->
+  <link rel="preload" href="main.dart.js" as="script">
+
+  <!-- شاشة تحميل فورية بدل الشاشة البيضاء ريثما يجهز التطبيق -->
+  <style>
+    #waqti-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: #E9EDE3;
+      font-family: "Tajawal", "Segoe UI", Tahoma, sans-serif;
+      transition: opacity .35s ease;
+    }
+    @media (prefers-color-scheme: dark) {
+      #waqti-splash { background: #1E231E; }
+      #waqti-splash .waqti-name { color: #DCE5D8; }
+      #waqti-splash .waqti-hint { color: #8FA391; }
+    }
+    #waqti-splash.waqti-gone { opacity: 0; pointer-events: none; }
+    #waqti-splash svg { width: 96px; height: 96px; }
+    #waqti-splash .waqti-name {
+      color: #4F6E54;
+      font-size: 26px;
+      font-weight: 800;
+    }
+    #waqti-splash .waqti-hint { color: #7C9B80; font-size: 13px; }
+    #waqti-splash .waqti-spin {
+      width: 26px;
+      height: 26px;
+      border: 3px solid #C9D6C6;
+      border-top-color: #6E8F72;
+      border-radius: 50%;
+      animation: waqti-rot .9s linear infinite;
+    }
+    @keyframes waqti-rot { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
+  <div id="waqti-splash">
+    <svg viewBox="0 0 1024 1024" aria-hidden="true">
+      <g transform="rotate(45 512 560)">
+        <rect x="487" y="196" width="50" height="80" fill="#6E8F72"/>
+        <rect x="437" y="128" width="150" height="74" rx="34" fill="#6E8F72"/>
+      </g>
+      <rect x="477" y="190" width="70" height="80" fill="#6E8F72"/>
+      <rect x="407" y="118" width="210" height="84" rx="38" fill="#6E8F72"/>
+      <circle cx="512" cy="560" r="270" fill="#F7F9F3" stroke="#6E8F72" stroke-width="58"/>
+      <g stroke="#7C9B80" stroke-width="30" stroke-linecap="round">
+        <line x1="512" y1="352" x2="512" y2="412"/>
+        <line x1="512" y1="708" x2="512" y2="768"/>
+        <line x1="304" y1="560" x2="364" y2="560"/>
+        <line x1="660" y1="560" x2="720" y2="560"/>
+      </g>
+      <g stroke="#6E8F72" stroke-linecap="round">
+        <line x1="512" y1="560" x2="659" y2="413" stroke-width="46"/>
+        <line x1="512" y1="560" x2="416" y2="464" stroke-width="46"/>
+      </g>
+      <circle cx="512" cy="560" r="34" fill="#5C7C60"/>
+    </svg>
+    <div class="waqti-name">وقتي</div>
+    <div class="waqti-spin"></div>
+    <div class="waqti-hint">جارٍ تجهيز التطبيق…</div>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var s = document.getElementById('waqti-splash');
+      if (!s) return;
+      s.classList.add('waqti-gone');
+      setTimeout(function () { s.remove(); }, 400);
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
