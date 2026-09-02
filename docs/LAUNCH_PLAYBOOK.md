@@ -41,8 +41,8 @@ GitHub → Actions → **Release Builds** → Run workflow → انتظر ~12 د
 
 ### A4 — Microsoft Store (30 دقيقة)
 1. Partner Center → Apps and games → New product → MSIX → احجز الاسم **وقتي**.
-2. Product identity → انسخ Package/Identity/Name و Publisher و PublisherDisplayName إلى `pubspec.yaml` تحت `msix_config` (أرسلها لي وأحدّثها).
-3. شغّل Release Builds مجددًا → نزّل `.msix` من `waqti-windows`.
+2. Product identity → ضع القيم الثلاث كأسرار في GitHub: `MSIX_PUBLISHER` (Package/Properties/Publisher مثل `CN=...`)، `MSIX_IDENTITY_NAME` (Package/Identity/Name)، `MSIX_PUBLISHER_DISPLAY_NAME`.
+3. شغّل Release Builds مجددًا → `.msix` للمتجر يظهر في الإصدار. (بدون الأسرار يُنتج MSIX اختباري للتثبيت الجانبي فقط.)
 4. Submissions → Packages → ارفع MSIX → Properties (الفئة Productivity، سياسة الخصوصية) → Store listings (النصوص واللقطات) → Submit. المراجعة: 1–3 أيام.
 
 ### A5 — الويب
@@ -60,7 +60,7 @@ GitHub → Actions → **Release Builds** → Run workflow → انتظر ~12 د
 | App Store | `ASC_KEY_ID`، `ASC_ISSUER_ID`، `ASC_KEY_P8` | App Store Connect → Users and Access → Integrations → App Store Connect API → Generate (Access: **App Manager**) — Key ID وIssuer ID ظاهران، ومحتوى ملف `.p8` |
 | | `APPLE_TEAM_ID` | developer.apple.com → Membership details |
 | Microsoft Store | `MS_TENANT_ID`، `MS_CLIENT_ID`، `MS_CLIENT_SECRET` | Partner Center → Account settings → User management → Azure AD applications → Add → Create new (Manager) → Add new key |
-| | (ليست أسرارًا) Identity Name / Publisher / Publisher Display Name | Partner Center → التطبيق → Product identity — أرسلها في المحادثة |
+| | `MSIX_PUBLISHER`، `MSIX_IDENTITY_NAME`، `MSIX_PUBLISHER_DISPLAY_NAME` | Partner Center → التطبيق → Product identity (تُستخدم في بناء MSIX للمتجر) |
 
 **ما أفعله بعدها**: أبني سير عمل `publish.yml` يرفع AAB إلى Play (مسار Internal testing أولًا ثم Production بأمرك)، ويوقّع ويرفع IPA إلى TestFlight ثم App Store عبر macOS runner (بلا Mac عندك)، ويرسل MSIX لـ Partner Center. البطاقات (النصوص، اللقطات، الخصوصية) أعبّئها عبر الواجهات البرمجية حيث تسمح، وما لا تسمح به (استبيان التصنيف العمري في Play، App Privacy في آبل) أعطيك الإجابات الجاهزة لتضغط «حفظ» فقط.
 

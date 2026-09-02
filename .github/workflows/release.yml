@@ -63,8 +63,24 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build windows --release
-      - name: MSIX package (unsigned, for Microsoft Store)
-        run: dart run msix:create --store
+      # مع أسرار MSIX_PUBLISHER (+ MSIX_IDENTITY_NAME/MSIX_PUBLISHER_DISPLAY_NAME) من Partner Center:
+      # حزمة متجر. بدونها: حزمة اختبارية موقّعة بشهادة تجريبية (للتثبيت الجانبي فقط).
+      - name: MSIX package
+        shell: bash
+        env:
+          MSIX_PUBLISHER: ${{ secrets.MSIX_PUBLISHER }}
+          MSIX_IDENTITY_NAME: ${{ secrets.MSIX_IDENTITY_NAME }}
+          MSIX_PUBLISHER_DISPLAY_NAME: ${{ secrets.MSIX_PUBLISHER_DISPLAY_NAME }}
+        run: |
+          if [ -n "$MSIX_PUBLISHER" ]; then
+            echo "store MSIX"
+            dart run msix:create --store --publisher "$MSIX_PUBLISHER" \
+              --identity-name "${MSIX_IDENTITY_NAME:-com.waqti.waqti}" \
+              --publisher-display-name "${MSIX_PUBLISHER_DISPLAY_NAME:-Waqti}"
+          else
+            echo "no MSIX_PUBLISHER secret -> test-signed MSIX (sideload only)"
+            dart run msix:create
+          fi
         continue-on-error: true
       - name: Zip portable build
         shell: pwsh

@@ -77,15 +77,15 @@ flutter build ipa --release
 
 سجّل في [Partner Center](https://partner.microsoft.com/dashboard)
 (رسم لمرة واحدة) واحجز اسم التطبيق، ثم خذ من صفحة
-Product identity القيم الثلاث وضعها في `pubspec.yaml` تحت `msix_config`:
+Product identity القيم الثلاث وضعها كأسرار في GitHub (Settings → Secrets → Actions):
 
-- `identity_name` ← Package/Identity/Name
-- `publisher` ← Package/Identity/Publisher (أضف السطر)
-- `publisher_display_name` ← PublisherDisplayName
+- `MSIX_IDENTITY_NAME` ← Package/Identity/Name
+- `MSIX_PUBLISHER` ← Package/Identity/Publisher (بصيغة `CN=...`)
+- `MSIX_PUBLISHER_DISPLAY_NAME` ← PublisherDisplayName
 
-ثم شغّل Release Builds (أو على جهاز ويندوز:
-`flutter build windows --release && dart run msix:create --store`)
-وارفع ملف `.msix` الناتج في Partner Center.
+ثم شغّل Release Builds؛ يظهر `waqti-vX.Y.Z.msix` جاهزًا للمتجر في الإصدار.
+بدون الأسرار يُنتج السير MSIX اختباريًا بشهادة تجريبية (تثبيت جانبي فقط).
+محليًا على ويندوز: `flutter build windows --release && dart run msix:create --store --publisher "CN=..." --identity-name ...`.
 حزمة `waqti-windows.zip` تعمل مباشرة على أي ويندوز للتجربة خارج المتجر.
 
 ## 4) الويب
