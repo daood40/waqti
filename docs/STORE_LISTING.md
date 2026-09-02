@@ -29,8 +29,13 @@
 • جدول شهري وتقويم سنوي حراري يُظهر التزامك بلمحة
 • إحصاءات: نسبة الإنجاز، الاتجاه الأسبوعي، أفضل عادة وأضعفها
 • سلسلة الالتزام ونقاط الخبرة والمستويات و14 وسامًا متدرجًا
+• درجة استمرارية مرنة لا تُصفَّر بيوم واحد، ويوم راحة، وإنجاز متأخر يحفظ سلسلتك
+• عادات كمية (8 أكواب، 20 صفحة)، عادات إقلاع بعدّاد الأيام، مهام فرعية، ويوميات
+• فترات اليوم، حتى 3 تذكيرات لكل عادة، ساعات هدوء، مؤقت تركيز
+• التاريخ الهجري و12 قالب عادة عربي جاهز
+• نسخة احتياطية محلية تلقائية واستعادة بنقرة، تصدير JSON وCSV
 • عربي بالكامل (من اليمين لليسار) وإنجليزي، فاتح وداكن
-• يعمل بلا إنترنت — بياناتك على جهازك فقط، مع تصدير واستيراد JSON
+• يعمل بلا إنترنت — بياناتك على جهازك فقط
 
 بلا إعلانات، بلا تتبع، بلا حساب إلزامي. ابدأ كزائر خلال ثانية.
 
@@ -44,8 +49,13 @@ Waqti is your daily companion for building habits and getting things done — wi
 • Monthly grid and a year heatmap that show your consistency instantly
 • Stats: completion rate, weekly trend, best and weakest habit
 • Streaks, XP, levels and 14 tiered badges to keep you motivated
+• A flexible habit score that never resets on one bad day, rest days, and late completions that keep your streak
+• Measurable habits (8 cups, 20 pages), quit habits with a days-clean counter, subtasks and a daily journal
+• Time-of-day sections, up to 3 reminders per habit, quiet hours, and a focus timer
+• Hijri date and 12 ready-made Arabic habit templates
+• Automatic local backup with one-tap restore, JSON and CSV export
 • Full Arabic (RTL) and English, light and dark themes
-• Works offline — your data stays on your device, with JSON export/import
+• Works offline — your data stays on your device
 
 No ads, no tracking, no mandatory account. Start as a guest in one second.
 
@@ -55,7 +65,7 @@ No ads, no tracking, no mandatory account. Start as a guest in one second.
 
 ## ملاحظات المراجع (App Review Notes)
 
-The app is fully offline and needs no account: tap "المتابعة كزائر" (Continue as guest) on the first screen. Subscription plans shown under Settings are a UI preview only — no payment is processed in this version.
+The app is fully offline and needs no account: skip the 3-slide intro, then tap "المتابعة كزائر" (Continue as guest). During the launch period every feature is free; the Plans screen shows tiers as "Coming soon" with disabled buttons — no purchase flow exists in this version.
 
 ## لقطات الشاشة
 

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/app_info.dart';
 import '../../core/l10n.dart';
 import '../../core/quotes.dart';
 import '../../core/theme.dart';
@@ -80,7 +81,7 @@ class _HomeTabState extends State<HomeTab> {
         const SizedBox(height: 10),
         _QuoteCard(lang: state.lang),
         const SizedBox(height: 4),
-        if (!state.isPremium) ...[
+        if (!state.isPremium && !kLaunchMode) ...[
           const SizedBox(height: 4),
           WqCard(
             onTap: () => SubscriptionScreen.push(context),

@@ -224,7 +224,10 @@ class SettingsTab extends StatelessWidget {
                               ),
                               child: Text(
                                 switch (state.tier) {
-                                  PlanTier.free => s.freeTag,
+                                  PlanTier.free =>
+                                    kLaunchMode
+                                        ? '🎉 ${s.launchTag}'
+                                        : s.freeTag,
                                   PlanTier.bronze => '🥉 ${s.bronzePlan}',
                                   PlanTier.silver => '🥈 ${s.silverPlan}',
                                   PlanTier.gold => '🥇 ${s.goldPlan}',
@@ -282,7 +285,11 @@ class SettingsTab extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    state.isPremium ? s.manageSubscription : s.upgradeNow,
+                    kLaunchMode
+                        ? s.comingSoon
+                        : (state.isPremium
+                              ? s.manageSubscription
+                              : s.upgradeNow),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/app_info.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../models/models.dart';
@@ -93,6 +94,22 @@ class SubscriptionScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
             children: [
+              if (kLaunchMode) ...[
+                WqCard(
+                  borderColor: wq.primary,
+                  padding: const EdgeInsets.all(14),
+                  child: Text(
+                    s.launchFreeNote,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: wq.primaryDark,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 260),
@@ -118,12 +135,13 @@ class SubscriptionScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
               ],
-              Center(
-                child: Text(
-                  s.simulatedNote,
-                  style: TextStyle(fontSize: 11.5, color: wq.textMuted),
+              if (!kLaunchMode)
+                Center(
+                  child: Text(
+                    s.simulatedNote,
+                    style: TextStyle(fontSize: 11.5, color: wq.textMuted),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -241,7 +259,9 @@ class _PlanCard extends StatelessWidget {
                 _FeatureRow(text: feature, included: false),
               if (plan.tier != PlanTier.free) ...[
                 const SizedBox(height: 16),
-                if (current)
+                if (kLaunchMode)
+                  FilledButton(onPressed: null, child: Text(strings.comingSoon))
+                else if (current)
                   ElevatedButton(
                     onPressed: onCancel,
                     style: ElevatedButton.styleFrom(backgroundColor: wq.missed),

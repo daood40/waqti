@@ -125,6 +125,9 @@ class AppStrings {
     required this.featTasks15,
     required this.featPrioritySupport,
     required this.subscribedTier,
+    required this.comingSoon,
+    required this.launchFreeNote,
+    required this.launchTag,
     required this.habitScore,
     required this.habitScoreHint,
     required this.bestStreak2,
@@ -390,6 +393,9 @@ class AppStrings {
   final String featTasks15;
   final String featPrioritySupport;
   final String subscribedTier;
+  final String comingSoon;
+  final String launchFreeNote;
+  final String launchTag;
   final String habitScore;
   final String habitScoreHint;
   final String bestStreak2;
@@ -677,6 +683,9 @@ class AppStrings {
     featTasks15: 'حتى 15 مهمة وعادة',
     featPrioritySupport: 'أولوية في الدعم',
     subscribedTier: 'تم تفعيل باقتك بنجاح 🎉 (محاكاة — بدون دفع فعلي)',
+    comingSoon: 'قريبًا',
+    launchFreeNote: '🎉 فترة الإطلاق: كل المزايا مجانية للجميع بلا حدود',
+    launchTag: 'إطلاق',
     habitScore: 'درجة الاستمرارية',
     habitScoreHint: 'تهبط تدريجيًا مع الفوات ولا تُصفَّر — لا قلق سلسلة',
     bestStreak2: 'أطول سلسلة',
@@ -970,6 +979,10 @@ class AppStrings {
     featTasks15: 'Up to 15 tasks & habits',
     featPrioritySupport: 'Priority support',
     subscribedTier: 'Your plan is active 🎉 (simulated — no real payment)',
+    comingSoon: 'Coming soon',
+    launchFreeNote:
+        '🎉 Launch period: every feature is free for everyone, no limits',
+    launchTag: 'Launch',
     habitScore: 'Consistency score',
     habitScoreHint: 'Drops gradually on misses, never resets to zero',
     bestStreak2: 'Best streak',

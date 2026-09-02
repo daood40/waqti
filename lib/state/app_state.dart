@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/app_info.dart';
 import '../models/models.dart';
 
 /// إحصائيات شهر واحد.
@@ -337,7 +338,11 @@ class AppState extends ChangeNotifier {
   // المهام
   // =======================================================================
 
+  /// قابل للتعديل في الاختبارات؛ الافتراضي من [kLaunchMode].
+  static bool launchMode = kLaunchMode;
+
   bool get canAddTask {
+    if (launchMode) return true;
     final limit = tier.taskLimit;
     return limit == null || tasks.length < limit;
   }

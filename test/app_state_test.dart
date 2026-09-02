@@ -20,6 +20,8 @@ void main() {
   });
 
   test('free plan allows at most 5 tasks; premium is unlimited', () async {
+    AppState.launchMode = false; // نختبر منطق الحدود خارج وضع الإطلاق
+    addTearDown(() => AppState.launchMode = true);
     final state = await freshState();
     for (var i = 0; i < 5; i++) {
       expect(state.addTask(TaskItem(id: 't$i', name: 'مهمة $i')), isTrue);
@@ -146,6 +148,8 @@ void main() {
   // ---------- اختبارات إضافية للمزايا الجديدة ----------
 
   test('seedDemoData seeds within the free plan limit and only once', () async {
+    AppState.launchMode = false;
+    addTearDown(() => AppState.launchMode = true);
     final state = await freshState();
     state.seedDemoData();
     expect(state.tasks, hasLength(5));
@@ -304,6 +308,8 @@ void main() {
   );
 
   test('plan tiers gate task limits and persist', () async {
+    AppState.launchMode = false;
+    addTearDown(() => AppState.launchMode = true);
     final state = await freshState();
     // برونزي: 15 حدًا أقصى
     state.setTier(PlanTier.bronze);
