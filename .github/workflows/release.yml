@@ -5,6 +5,11 @@ name: Release Builds
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "إصدار للنشر كـ GitHub Release (مثال v1.1.0) — اتركه فارغًا لبناء الحِزم فقط"
+        required: false
+        default: ""
   push:
     tags: ["v*"]
 
@@ -109,9 +114,11 @@ jobs:
 
   # عند وسم vX.Y.Z: يجمع الحِزم الأربع في GitHub Release بروابط تحميل مباشرة.
   publish:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.version != ''
     needs: [android, windows, web, ios]
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version != '' && inputs.version || github.ref_name }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -119,6 +126,7 @@ jobs:
       - name: Rename for direct links
         run: |
           set -e
+          GITHUB_REF_NAME="$VERSION"
           mkdir -p out
           cp dist/waqti-android/bundle/release/app-release.aab out/waqti-${GITHUB_REF_NAME}.aab 2>/dev/null || cp $(find dist -name '*.aab' | head -1) out/waqti-${GITHUB_REF_NAME}.aab
           cp $(find dist -name 'app-release.apk' | head -1) out/waqti-${GITHUB_REF_NAME}.apk
@@ -129,8 +137,10 @@ jobs:
           ls -la out
       - uses: softprops/action-gh-release@v2
         with:
-          name: وقتي ${{ github.ref_name }}
+          tag_name: ${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: وقتي ${{ env.VERSION }}
           body: |
-            حِزم الإصدار ${{ github.ref_name }} — أندرويد (APK للتجربة، AAB للمتجر)، ويندوز (zip + MSIX)، ويب، iOS بلا توقيع.
+            حِزم الإصدار ${{ env.VERSION }} — أندرويد (APK للتجربة، AAB للمتجر)، ويندوز (zip + MSIX)، ويب، iOS بلا توقيع.
             الويب مباشرة: https://daood40.github.io/waqti/
           files: out/*
