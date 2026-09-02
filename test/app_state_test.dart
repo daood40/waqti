@@ -29,21 +29,26 @@ void main() {
     expect(state.addTask(TaskItem(id: 't5', name: 'زيادة')), isTrue);
   });
 
-  test('cycleStatus cycles pending → done → late → missed → pending', () async {
-    final state = await freshState();
-    final task = TaskItem(id: 't1', name: 'قراءة');
-    state.addTask(task);
-    final date = DateTime(2026, 8, 10);
+  test(
+    'cycleStatus cycles pending → done → late → missed → skipped → pending',
+    () async {
+      final state = await freshState();
+      final task = TaskItem(id: 't1', name: 'قراءة');
+      state.addTask(task);
+      final date = DateTime(2026, 8, 10);
 
-    state.cycleStatus('t1', date);
-    expect(task.statusOn(date), TaskStatus.done);
-    state.cycleStatus('t1', date);
-    expect(task.statusOn(date), TaskStatus.doneLate);
-    state.cycleStatus('t1', date);
-    expect(task.statusOn(date), TaskStatus.missed);
-    state.cycleStatus('t1', date);
-    expect(task.statusOn(date), isNull);
-  });
+      state.cycleStatus('t1', date);
+      expect(task.statusOn(date), TaskStatus.done);
+      state.cycleStatus('t1', date);
+      expect(task.statusOn(date), TaskStatus.doneLate);
+      state.cycleStatus('t1', date);
+      expect(task.statusOn(date), TaskStatus.missed);
+      state.cycleStatus('t1', date);
+      expect(task.statusOn(date), TaskStatus.skipped);
+      state.cycleStatus('t1', date);
+      expect(task.statusOn(date), isNull);
+    },
+  );
 
   test('monthStats counts applicable and done occurrences', () async {
     final state = await freshState();
@@ -319,5 +324,127 @@ void main() {
     });
     restored = await AppState.load();
     expect(restored.tier, PlanTier.gold);
+  });
+
+  test(
+    'skipped day is neutral: excluded from stats and keeps streak',
+    () async {
+      final state = await freshState();
+      final task = TaskItem(id: 't1', name: 'قراءة');
+      state.addTask(task);
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = DateTime(today.year, today.month, today.day - 1);
+      final before = DateTime(today.year, today.month, today.day - 2);
+      task.setStatusOn(before, TaskStatus.done);
+      task.setStatusOn(yesterday, TaskStatus.skipped);
+      task.setStatusOn(today, TaskStatus.done);
+      expect(state.currentStreak(), 2);
+      final stats = state.monthStats(today.year, today.month);
+      expect(stats.applicable, greaterThan(0));
+      // يوم الراحة ليس ضمن المستحق ولا الفائت.
+      expect(stats.missed, 0);
+      expect(state.dailyCompletionPct(yesterday), -1);
+    },
+  );
+
+  test('late completion rescues the streak; missed breaks it', () async {
+    final state = await freshState();
+    final task = TaskItem(id: 't1', name: 'قراءة');
+    state.addTask(task);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final d1 = DateTime(today.year, today.month, today.day - 1);
+    final d2 = DateTime(today.year, today.month, today.day - 2);
+    task.setStatusOn(d2, TaskStatus.done);
+    task.setStatusOn(d1, TaskStatus.doneLate);
+    task.setStatusOn(today, TaskStatus.done);
+    expect(state.currentStreak(), 3);
+    task.setStatusOn(d1, TaskStatus.missed);
+    expect(state.currentStreak(), 1);
+  });
+
+  test('cycleStatus passes through skipped then clears', () async {
+    final state = await freshState();
+    state.addTask(TaskItem(id: 't1', name: 'قراءة'));
+    final date = DateTime(2026, 8, 10);
+    for (var i = 0; i < 4; i++) {
+      state.cycleStatus('t1', date);
+    }
+    expect(state.taskById('t1')!.statusOn(date), TaskStatus.skipped);
+    state.cycleStatus('t1', date);
+    expect(state.taskById('t1')!.statusOn(date), isNull);
+  });
+
+  test('measurable habit: progress increments up to target = done', () async {
+    final state = await freshState();
+    final task = TaskItem(id: 'w', name: 'ماء', target: 3, unit: 'كوب');
+    state.addTask(task);
+    final date = DateTime(2026, 8, 10);
+    state.incrementProgress('w', date);
+    state.incrementProgress('w', date);
+    expect(task.progressOn(date), 2);
+    expect(task.statusOn(date), isNull);
+    state.incrementProgress('w', date);
+    expect(task.progressOn(date), 3);
+    expect(task.statusOn(date), TaskStatus.done);
+    // مسح الحالة يصفّر التقدم؛ الإنجاز المباشر يملأ الهدف.
+    state.setStatus('w', date, null);
+    expect(task.progressOn(date), 0);
+    state.setStatus('w', date, TaskStatus.done);
+    expect(task.progressOn(date), 3);
+  });
+
+  test('target/unit/progress/pausedAt/reminder survive JSON', () async {
+    final task = TaskItem(
+      id: 'w',
+      name: 'ماء',
+      target: 8,
+      unit: 'كوب',
+      reminderMinutes: 510,
+      pausedAt: DateTime(2026, 8, 20),
+    )..setProgressOn(DateTime(2026, 8, 10), 5);
+    final copy = TaskItem.fromJson(task.toJson());
+    expect(copy.target, 8);
+    expect(copy.unit, 'كوب');
+    expect(copy.reminderMinutes, 510);
+    expect(copy.pausedAt, DateTime(2026, 8, 20));
+    expect(copy.progressOn(DateTime(2026, 8, 10)), 5);
+    // بيانات قديمة بلا الحقول الجديدة تبقى صالحة.
+    final legacy = TaskItem.fromJson({'id': 'x', 'name': 'قديم'});
+    expect(legacy.target, 1);
+    expect(legacy.isMeasurable, isFalse);
+    expect(legacy.isPaused, isFalse);
+  });
+
+  test(
+    'paused task is not applicable from pausedAt on, history kept',
+    () async {
+      final state = await freshState();
+      final task = TaskItem(id: 't1', name: 'قراءة');
+      state.addTask(task);
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = DateTime(today.year, today.month, today.day - 1);
+      task.setStatusOn(yesterday, TaskStatus.done);
+      state.setPaused('t1', true);
+      expect(task.isApplicableOn(today), isFalse);
+      expect(task.isApplicableOn(yesterday), isTrue);
+      expect(state.overdueEntries(), isEmpty);
+      state.setPaused('t1', false);
+      expect(task.isApplicableOn(today), isTrue);
+    },
+  );
+
+  test('focus minutes accumulate per day and persist', () async {
+    final state = await freshState();
+    final date = DateTime(2026, 8, 10);
+    state.addFocusMinutes(25, date: date);
+    state.addFocusMinutes(15, date: date);
+    expect(state.focusMinutesOn(date), 40);
+    expect(state.focusMinutesInMonth(2026, 8), 40);
+    expect(state.focusMinutesInMonth(2026, 7), 0);
+    final reloaded = await AppState.load();
+    expect(reloaded.focusMinutesOn(date), 40);
   });
 }

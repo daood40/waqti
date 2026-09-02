@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/l10n.dart';
@@ -10,6 +11,7 @@ import '../../state/app_state.dart';
 import '../../widgets/common.dart';
 import '../../widgets/task_detail_sheet.dart';
 import '../../widgets/trend_chart.dart';
+import '../focus_screen.dart';
 import '../shell_screen.dart';
 import '../subscription_screen.dart';
 
@@ -436,6 +438,7 @@ class _Legend extends StatelessWidget {
         item(wq.done, strings.done),
         item(wq.late, strings.late),
         item(wq.missed, strings.missed),
+        item(wq.textMuted.withValues(alpha: .55), strings.skipped),
         item(wq.none, strings.none, outlined: true),
       ],
     );
@@ -460,11 +463,17 @@ class _TodayCard extends StatelessWidget {
     );
     if (todayTasks.isEmpty) return const SizedBox.shrink();
 
-    final doneCount = todayTasks
-        .where((t) => t.statusOn(today) == TaskStatus.done)
+    // يوم الراحة لا يُحسب مع المستحق؛ الإنجاز المتأخر يُحسب إنجازًا.
+    final counted = todayTasks
+        .where((t) => t.statusOn(today) != TaskStatus.skipped)
+        .toList(growable: false);
+    final doneCount = counted
+        .where((t) => t.statusOn(today)?.isCompleted ?? false)
         .length;
-    final allDone = doneCount == todayTasks.length;
-    final pct = ((doneCount / todayTasks.length) * 100).round();
+    final allDone = counted.isEmpty || doneCount == counted.length;
+    final pct = counted.isEmpty
+        ? 100
+        : ((doneCount / counted.length) * 100).round();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -483,13 +492,29 @@ class _TodayCard extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                Text(
-                  '$doneCount / ${todayTasks.length}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: allDone ? wq.done : wq.textMuted,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '$doneCount / ${counted.length}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: allDone ? wq.done : wq.textMuted,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Tooltip(
+                      message: strings.focusTimer,
+                      child: WqIconButton(
+                        onTap: () => FocusScreen.push(context),
+                        child: Icon(
+                          Icons.timer_outlined,
+                          size: 17,
+                          color: wq.primaryDark,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -543,14 +568,23 @@ class _TodayChip extends StatelessWidget {
       TaskStatus.done => (wq.done.withValues(alpha: .15), wq.done),
       TaskStatus.doneLate => (wq.late.withValues(alpha: .15), wq.late),
       TaskStatus.missed => (wq.missed.withValues(alpha: .15), wq.missed),
+      TaskStatus.skipped => (wq.surfaceAlt, wq.textMuted),
       null => (wq.surfaceAlt, pendingFg),
     };
+    // عادة قابلة للقياس بلا حالة: كل نقرة تزيد التقدم خطوة حتى الهدف.
+    final measurablePending = task.isMeasurable && status == null;
+    final progressLabel = measurablePending
+        ? ' ${task.progressOn(date)}/${task.target}'
+              '${task.unit.isEmpty ? '' : ' ${task.unit}'}'
+        : '';
     return Material(
       color: bg,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () => state.cycleStatus(task.id, date),
+        onTap: () => measurablePending
+            ? state.incrementProgress(task.id, date)
+            : state.cycleStatus(task.id, date),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           child: Row(
@@ -559,7 +593,7 @@ class _TodayChip extends StatelessWidget {
               Text(task.icon, style: const TextStyle(fontSize: 13)),
               const SizedBox(width: 6),
               Text(
-                task.name,
+                '${task.name}$progressLabel',
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -577,10 +611,14 @@ class _TodayChip extends StatelessWidget {
                     TaskStatus.done => Icons.check_circle,
                     TaskStatus.doneLate => Icons.error,
                     TaskStatus.missed => Icons.cancel,
+                    TaskStatus.skipped => Icons.remove_circle_outline,
                   },
                   size: 14,
                   color: fg,
                 ),
+              ] else if (measurablePending) ...[
+                const SizedBox(width: 5),
+                Icon(Icons.add_circle_outline, size: 14, color: fg),
               ],
             ],
           ),
@@ -631,6 +669,11 @@ class _TodayHeaderState extends State<_TodayHeader> {
     final time =
         '${now.hour.toString().padLeft(2, '0')}:'
         '${now.minute.toString().padLeft(2, '0')}';
+    // التاريخ الهجري — ميزة يفتقدها أغلب المنافسين في السوق العربي.
+    HijriCalendar.language = s == AppStrings.ar ? 'ar' : 'en';
+    final hijri = HijriCalendar.fromDate(now);
+    final hijriLabel =
+        '${hijri.hDay} ${hijri.getLongMonthName()} ${hijri.hYear} ${s.hijriSuffix}';
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -651,6 +694,10 @@ class _TodayHeaderState extends State<_TodayHeader> {
                 '${s.weekdays[now.weekday % 7]}، '
                 '${now.day} ${s.months[now.month - 1]} ${now.year}',
                 style: TextStyle(fontSize: 13, color: wq.textMuted),
+              ),
+              Text(
+                hijriLabel,
+                style: TextStyle(fontSize: 12, color: wq.primaryDark),
               ),
             ],
           ),
@@ -704,9 +751,12 @@ class _OverdueCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Text(
-                  strings.overdueHint,
-                  style: TextStyle(fontSize: 11, color: wq.textMuted),
+                Flexible(
+                  child: Text(
+                    '${strings.overdueHint} · ${strings.overdueRescue}',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 11, color: wq.textMuted),
+                  ),
                 ),
               ],
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/l10n.dart';
+import '../core/templates.dart';
 import '../core/theme.dart';
 import '../models/models.dart';
 import '../screens/subscription_screen.dart';
@@ -41,6 +42,9 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
   late TaskPriority _priority;
   late Recurrence _recurrence;
   late bool _notificationsOn;
+  late final TextEditingController _targetController;
+  late final TextEditingController _unitController;
+  int? _reminderMinutes;
   String? _nameError;
   String? _formError;
 
@@ -61,6 +65,9 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     _priority = existing?.priority ?? TaskPriority.medium;
     _recurrence = existing?.recurrence ?? const Recurrence();
     _notificationsOn = existing?.notificationsOn ?? true;
+    _targetController = TextEditingController(text: '${existing?.target ?? 1}');
+    _unitController = TextEditingController(text: existing?.unit ?? '');
+    _reminderMinutes = existing?.reminderMinutes;
   }
 
   @override
@@ -68,7 +75,37 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     _nameController.dispose();
     _descController.dispose();
     _customIconController.dispose();
+    _targetController.dispose();
+    _unitController.dispose();
     super.dispose();
+  }
+
+  int get _target =>
+      (int.tryParse(_targetController.text.trim()) ?? 1).clamp(1, 100000);
+
+  /// يملأ الحقول من قالب جاهز بنقرة واحدة.
+  void _applyTemplate(HabitTemplate t, AppState state) {
+    setState(() {
+      _nameController.text = t.name(state.lang);
+      _icon = t.icon;
+      _priority = t.priority;
+      _targetController.text = '${t.target}';
+      _unitController.text = t.unit(state.lang);
+      if (state.categoryById(t.categoryId) != null) {
+        _categoryId = t.categoryId;
+      }
+      _nameError = null;
+    });
+  }
+
+  Future<void> _pickReminder() async {
+    final initial = _reminderMinutes ?? 8 * 60;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: initial ~/ 60, minute: initial % 60),
+    );
+    if (picked == null) return;
+    setState(() => _reminderMinutes = picked.hour * 60 + picked.minute);
   }
 
   void _save() {
@@ -92,7 +129,10 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
         ..categoryId = _categoryId
         ..priority = _priority
         ..recurrence = _recurrence
-        ..notificationsOn = _notificationsOn;
+        ..notificationsOn = _notificationsOn
+        ..target = _target
+        ..unit = _unitController.text.trim()
+        ..reminderMinutes = _reminderMinutes;
       state.updateTask(task);
     } else {
       final task = TaskItem(
@@ -105,6 +145,9 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
         priority: _priority,
         recurrence: _recurrence,
         notificationsOn: _notificationsOn,
+        target: _target,
+        unit: _unitController.text.trim(),
+        reminderMinutes: _reminderMinutes,
       );
       if (!state.addTask(task)) {
         // Snackbar يظهر خلف النافذة المنبثقة ولا يُرى —
@@ -261,6 +304,26 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 16),
+            if (!_isEditing) ...[
+              _FieldLabel(s.quickSuggestions),
+              SizedBox(
+                height: 38,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: kHabitTemplates.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 6),
+                  itemBuilder: (context, i) {
+                    final t = kHabitTemplates[i];
+                    return ActionChip(
+                      label: Text('${t.icon} ${t.name(state.lang)}'),
+                      labelStyle: const TextStyle(fontSize: 12),
+                      onPressed: () => _applyTemplate(t, state),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 14),
+            ],
             _FieldLabel(s.name),
             TextField(
               controller: _nameController,
@@ -410,6 +473,40 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                   setState(() => _priority = TaskPriority.values[i]),
             ),
             const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _FieldLabel(s.dailyTarget),
+                      TextField(
+                        controller: _targetController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(hintText: s.targetHint),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _FieldLabel(s.unit),
+                      TextField(
+                        controller: _unitController,
+                        enabled: _target > 1,
+                        decoration: InputDecoration(hintText: s.unitHint),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
             _FieldLabel(s.recurrence),
             _DropdownField<RecurrenceType>(
               value: _recurrence.type,
@@ -460,6 +557,44 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                 ),
               ],
             ),
+            if (_notificationsOn)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    s.reminderTime,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: wq.textMuted,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      TextButton.icon(
+                        onPressed: _pickReminder,
+                        icon: const Icon(Icons.alarm, size: 16),
+                        label: Text(
+                          _reminderMinutes == null
+                              ? s.noReminder
+                              : '${(_reminderMinutes! ~/ 60).toString().padLeft(2, '0')}:'
+                                    '${(_reminderMinutes! % 60).toString().padLeft(2, '0')}',
+                          textDirection: TextDirection.ltr,
+                        ),
+                      ),
+                      if (_reminderMinutes != null)
+                        WqIconButton(
+                          onTap: () => setState(() => _reminderMinutes = null),
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: wq.textMuted,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             if (_formError != null) ...[
               const SizedBox(height: 10),
               Container(

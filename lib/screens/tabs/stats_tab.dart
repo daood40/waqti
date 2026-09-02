@@ -27,6 +27,7 @@ class StatsTab extends StatelessWidget {
     final best = state.bestHabit(cursor.year, cursor.month);
     final worst = state.worstHabit(cursor.year, cursor.month);
     final weeks = state.weeklyBuckets(cursor.year, cursor.month);
+    final focusMinutes = state.focusMinutesInMonth(cursor.year, cursor.month);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
@@ -76,7 +77,10 @@ class StatsTab extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _InfoBox(value: '$streak', label: s.bestStreak),
+                child: _InfoBox(
+                  value: '$focusMinutes ${s.minutesShort}',
+                  label: s.focusMinutesMonth,
+                ),
               ),
             ],
           ),

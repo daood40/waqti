@@ -4,18 +4,27 @@ import 'dart:math';
 enum TaskStatus {
   done,
   doneLate,
-  missed;
+  missed,
+
+  /// يوم راحة: لا يُحسب مع المستحق ولا يكسر السلسلة (مرض، سفر…).
+  skipped;
 
   String get key => switch (this) {
     TaskStatus.done => 'done',
     TaskStatus.doneLate => 'late',
     TaskStatus.missed => 'missed',
+    TaskStatus.skipped => 'skip',
   };
+
+  /// أُنجزت (في وقتها أو متأخرة).
+  bool get isCompleted =>
+      this == TaskStatus.done || this == TaskStatus.doneLate;
 
   static TaskStatus? fromKey(String? key) => switch (key) {
     'done' => TaskStatus.done,
     'late' => TaskStatus.doneLate,
     'missed' => TaskStatus.missed,
+    'skip' => TaskStatus.skipped,
     _ => null,
   };
 }
@@ -184,9 +193,15 @@ class TaskItem {
     this.priority = TaskPriority.medium,
     this.recurrence = const Recurrence(),
     this.notificationsOn = true,
+    this.target = 1,
+    this.unit = '',
+    this.pausedAt,
+    this.reminderMinutes,
     Map<String, TaskStatus>? statuses,
+    Map<String, int>? progress,
     DateTime? createdAt,
   }) : statuses = statuses ?? {},
+       progress = progress ?? {},
        createdAt = createdAt ?? DateTime.now();
 
   final String id;
@@ -199,6 +214,26 @@ class TaskItem {
   Recurrence recurrence;
   bool notificationsOn;
 
+  /// الهدف اليومي للعادات القابلة للقياس (8 أكواب، 20 صفحة…).
+  /// 1 = عادة عادية تُنجز بنقرة.
+  int target;
+
+  /// وحدة القياس الاختيارية (كوب، صفحة، دقيقة…).
+  String unit;
+
+  /// إيقاف مؤقت: المهمة غير مستحقة من هذا التاريخ فصاعدًا مع
+  /// الاحتفاظ بسجلها السابق. `null` = نشطة.
+  DateTime? pausedAt;
+
+  /// وقت التذكير اليومي بالدقائق منذ منتصف الليل (مثال 8:30 = 510).
+  int? reminderMinutes;
+
+  /// التقدم اليومي للعادات القابلة للقياس مفهرسًا بمفتاح التاريخ.
+  final Map<String, int> progress;
+
+  bool get isMeasurable => target > 1;
+  bool get isPaused => pausedAt != null;
+
   /// تاريخ إنشاء المهمة — يحدّ حساب المتأخرات فلا تُحسب أيام
   /// ما قبل وجود المهمة.
   final DateTime createdAt;
@@ -210,6 +245,11 @@ class TaskItem {
 
   /// هل تنطبق المهمة على هذا اليوم بحسب قاعدة تكرارها؟
   bool isApplicableOn(DateTime date) {
+    final paused = pausedAt;
+    if (paused != null) {
+      final since = DateTime(paused.year, paused.month, paused.day);
+      if (!date.isBefore(since)) return false;
+    }
     final r = recurrence;
     final sundayBased = date.weekday % 7; // الأحد = 0 … السبت = 6
     return switch (r.type) {
@@ -226,6 +266,17 @@ class TaskItem {
   }
 
   TaskStatus? statusOn(DateTime date) => statuses[DateKey.fromDate(date)];
+
+  int progressOn(DateTime date) => progress[DateKey.fromDate(date)] ?? 0;
+
+  void setProgressOn(DateTime date, int value) {
+    final key = DateKey.fromDate(date);
+    if (value <= 0) {
+      progress.remove(key);
+    } else {
+      progress[key] = value;
+    }
+  }
 
   void setStatusOn(DateTime date, TaskStatus? status) {
     final key = DateKey.fromDate(date);
@@ -246,7 +297,12 @@ class TaskItem {
     priority: priority,
     recurrence: recurrence,
     notificationsOn: notificationsOn,
+    target: target,
+    unit: unit,
+    pausedAt: pausedAt,
+    reminderMinutes: reminderMinutes,
     statuses: Map.of(statuses),
+    progress: Map.of(progress),
     createdAt: createdAt,
   );
 
@@ -260,8 +316,13 @@ class TaskItem {
     'priority': priority.name,
     'recurrence': recurrence.toJson(),
     'notif': notificationsOn,
+    if (target > 1) 'target': target,
+    if (unit.isNotEmpty) 'unit': unit,
+    if (pausedAt != null) 'pausedAt': DateKey.fromDate(pausedAt!),
+    if (reminderMinutes != null) 'reminder': reminderMinutes,
     'createdAt': DateKey.fromDate(createdAt),
     'statuses': statuses.map((k, v) => MapEntry(k, v.key)),
+    if (progress.isNotEmpty) 'progress': progress,
   };
 
   factory TaskItem.fromJson(Map<String, dynamic> json) {
@@ -270,6 +331,11 @@ class TaskItem {
     rawStatuses.forEach((key, value) {
       final status = TaskStatus.fromKey(value as String?);
       if (status != null) statuses[key as String] = status;
+    });
+    final rawProgress = (json['progress'] as Map?) ?? const {};
+    final progress = <String, int>{};
+    rawProgress.forEach((key, value) {
+      if (value is num) progress[key as String] = value.toInt();
     });
     return TaskItem(
       id: json['id'] as String,
@@ -283,6 +349,11 @@ class TaskItem {
           ? Recurrence.fromJson(json['recurrence'] as Map<String, dynamic>)
           : const Recurrence(),
       notificationsOn: json['notif'] as bool? ?? true,
+      target: ((json['target'] as num?)?.toInt() ?? 1).clamp(1, 100000),
+      unit: json['unit'] as String? ?? '',
+      pausedAt: DateKey.tryParse(json['pausedAt'] as String?),
+      reminderMinutes: (json['reminder'] as num?)?.toInt(),
+      progress: progress,
       // بيانات قديمة بلا createdAt: نعتبرها موجودة منذ زمن حتى لا
       // تختفي متأخراتها الحقيقية.
       createdAt:

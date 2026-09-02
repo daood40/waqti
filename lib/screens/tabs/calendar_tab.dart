@@ -99,7 +99,7 @@ class CalendarTab extends StatelessWidget {
                       .where((t) => t.isApplicableOn(date))
                       .toList(growable: false);
                   final doneCount = dayTasks
-                      .where((t) => t.statusOn(date) == TaskStatus.done)
+                      .where((t) => t.statusOn(date)?.isCompleted ?? false)
                       .length;
 
                   return Container(
@@ -148,6 +148,8 @@ class CalendarTab extends StatelessWidget {
                                         TaskStatus.done => wq.done,
                                         TaskStatus.doneLate => wq.late,
                                         TaskStatus.missed => wq.missed,
+                                        TaskStatus.skipped =>
+                                          wq.textMuted.withValues(alpha: .5),
                                         null => wq.none,
                                       },
                                     ),

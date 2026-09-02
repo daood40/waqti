@@ -5,6 +5,7 @@ import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../models/models.dart';
 import '../state/app_state.dart';
+import '../screens/focus_screen.dart';
 import 'common.dart';
 import 'task_editor_sheet.dart';
 
@@ -50,14 +51,18 @@ class TaskDetailSheet extends StatelessWidget {
     final history = <({int day, TaskStatus status})>[];
     for (var d = 1; d <= dim; d++) {
       final date = DateTime(year, month, d);
-      if (!task.isApplicableOn(date)) continue;
-      applicable++;
       final status = task.statusOn(date);
+      if (status != null) history.add((day: d, status: status));
+      if (!task.isApplicableOn(date) || status == TaskStatus.skipped) continue;
+      applicable++;
       if (status == TaskStatus.done) done++;
       if (status == TaskStatus.missed) missed++;
-      if (status != null) history.add((day: d, status: status));
     }
     final pct = applicable > 0 ? ((done / applicable) * 100).round() : 0;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dueToday = task.isApplicableOn(today);
+    final skippedToday = task.statusOn(today) == TaskStatus.skipped;
 
     return ListView(
       shrinkWrap: true,
@@ -87,6 +92,9 @@ class TaskDetailSheet extends StatelessWidget {
                 ),
               ),
             ),
+            if (task.isPaused) WqChip('⏸ ${s.pausedTag}', color: wq.late),
+            if (task.isMeasurable)
+              WqChip('🎯 ${task.target} ${task.unit}'.trim()),
           ],
         ),
         if (task.description.isNotEmpty) ...[
@@ -114,6 +122,52 @@ class TaskDetailSheet extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         LevelBar(pct: pct, color: Color(task.colorValue)),
+        const SizedBox(height: 14),
+        // إجراءات سريعة: يوم راحة اليوم، إيقاف/استئناف، تركيز.
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (dueToday)
+              Tooltip(
+                message: s.skipHint,
+                child: FilledButton.icon(
+                  onPressed: () => state.setStatus(
+                    task.id,
+                    today,
+                    skippedToday ? null : TaskStatus.skipped,
+                  ),
+                  icon: Icon(
+                    skippedToday ? Icons.undo_rounded : Icons.bedtime_outlined,
+                    size: 16,
+                  ),
+                  label: Text(skippedToday ? s.cancel : s.skipDay),
+                ),
+              ),
+            Tooltip(
+              message: s.pausedHint,
+              child: FilledButton.icon(
+                onPressed: () => state.setPaused(task.id, !task.isPaused),
+                icon: Icon(
+                  task.isPaused
+                      ? Icons.play_arrow_rounded
+                      : Icons.pause_rounded,
+                  size: 16,
+                ),
+                label: Text(task.isPaused ? s.resumeTask : s.pauseTask),
+              ),
+            ),
+            FilledButton.icon(
+              onPressed: () {
+                final navigator = Navigator.of(context);
+                navigator.pop();
+                FocusScreen.push(navigator.context, taskId: task.id);
+              },
+              icon: const Icon(Icons.timer_outlined, size: 16),
+              label: Text(s.focusTimer),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         Text(
           s.history,

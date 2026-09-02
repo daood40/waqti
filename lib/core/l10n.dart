@@ -125,6 +125,36 @@ class AppStrings {
     required this.featTasks15,
     required this.featPrioritySupport,
     required this.subscribedTier,
+    required this.skipped,
+    required this.skipDay,
+    required this.skipHint,
+    required this.dailyTarget,
+    required this.targetHint,
+    required this.unit,
+    required this.unitHint,
+    required this.quickSuggestions,
+    required this.pauseTask,
+    required this.resumeTask,
+    required this.pausedTag,
+    required this.pausedHint,
+    required this.focusTimer,
+    required this.focusStart,
+    required this.focusPause,
+    required this.focusResume,
+    required this.focusReset,
+    required this.focusDoneTitle,
+    required this.focusMinutes,
+    required this.focusMinutesMonth,
+    required this.focusHint,
+    required this.markDone,
+    required this.chooseTaskOptional,
+    required this.noTaskFocus,
+    required this.minutesShort,
+    required this.overdueRescue,
+    required this.reminderTime,
+    required this.noReminder,
+    required this.hijriSuffix,
+    required this.todayFocus,
     required this.monthlyPlan,
     required this.yearlyPlan,
     required this.saveBadge,
@@ -313,6 +343,36 @@ class AppStrings {
   final String featTasks15;
   final String featPrioritySupport;
   final String subscribedTier;
+  final String skipped;
+  final String skipDay;
+  final String skipHint;
+  final String dailyTarget;
+  final String targetHint;
+  final String unit;
+  final String unitHint;
+  final String quickSuggestions;
+  final String pauseTask;
+  final String resumeTask;
+  final String pausedTag;
+  final String pausedHint;
+  final String focusTimer;
+  final String focusStart;
+  final String focusPause;
+  final String focusResume;
+  final String focusReset;
+  final String focusDoneTitle;
+  final String focusMinutes;
+  final String focusMinutesMonth;
+  final String focusHint;
+  final String markDone;
+  final String chooseTaskOptional;
+  final String noTaskFocus;
+  final String minutesShort;
+  final String overdueRescue;
+  final String reminderTime;
+  final String noReminder;
+  final String hijriSuffix;
+  final String todayFocus;
   final String monthlyPlan;
   final String yearlyPlan;
   final String saveBadge;
@@ -523,6 +583,36 @@ class AppStrings {
     featTasks15: 'حتى 15 مهمة وعادة',
     featPrioritySupport: 'أولوية في الدعم',
     subscribedTier: 'تم تفعيل باقتك بنجاح 🎉 (محاكاة — بدون دفع فعلي)',
+    skipped: 'راحة',
+    skipDay: 'يوم راحة',
+    skipHint: 'لا يُحسب ولا يكسر السلسلة',
+    dailyTarget: 'الهدف اليومي',
+    targetHint: '1 = نقرة واحدة، أو رقم مثل 8',
+    unit: 'الوحدة (اختياري)',
+    unitHint: 'كوب، صفحة، دقيقة…',
+    quickSuggestions: '⚡ اقتراحات سريعة',
+    pauseTask: 'إيقاف مؤقت',
+    resumeTask: 'استئناف',
+    pausedTag: 'موقوفة',
+    pausedHint: 'العادة الموقوفة لا تُحسب ولا تظهر في اليوم حتى تستأنفها',
+    focusTimer: 'مؤقت التركيز',
+    focusStart: 'ابدأ',
+    focusPause: 'إيقاف',
+    focusResume: 'متابعة',
+    focusReset: 'إعادة',
+    focusDoneTitle: 'أحسنت! جلسة تركيز مكتملة 🎉',
+    focusMinutes: 'دقائق التركيز',
+    focusMinutesMonth: 'دقائق التركيز هذا الشهر',
+    focusHint: 'اختر مدة، ابدأ، وابتعد عن الهاتف. تُسجَّل الدقائق تلقائيًا.',
+    markDone: 'تحديد كمنجزة',
+    chooseTaskOptional: 'التركيز على (اختياري)',
+    noTaskFocus: 'بدون مهمة',
+    minutesShort: 'د',
+    overdueRescue: 'أنجزها الآن لتحمي سلسلتك',
+    reminderTime: 'وقت التذكير',
+    noReminder: 'بدون تذكير',
+    hijriSuffix: 'هـ',
+    todayFocus: 'تركيز',
     monthlyPlan: 'شهري',
     yearlyPlan: 'سنوي',
     saveBadge: 'وفّر 33%',
@@ -736,6 +826,37 @@ class AppStrings {
     featTasks15: 'Up to 15 tasks & habits',
     featPrioritySupport: 'Priority support',
     subscribedTier: 'Your plan is active 🎉 (simulated — no real payment)',
+    skipped: 'Skipped',
+    skipDay: 'Rest day',
+    skipHint: 'Not counted, streak stays safe',
+    dailyTarget: 'Daily target',
+    targetHint: '1 = one tap, or a number like 8',
+    unit: 'Unit (optional)',
+    unitHint: 'cup, page, minute…',
+    quickSuggestions: '⚡ Quick suggestions',
+    pauseTask: 'Pause',
+    resumeTask: 'Resume',
+    pausedTag: 'Paused',
+    pausedHint: 'Paused habits are not counted or shown until you resume them',
+    focusTimer: 'Focus timer',
+    focusStart: 'Start',
+    focusPause: 'Pause',
+    focusResume: 'Resume',
+    focusReset: 'Reset',
+    focusDoneTitle: 'Well done! Focus session complete 🎉',
+    focusMinutes: 'Focus minutes',
+    focusMinutesMonth: 'Focus minutes this month',
+    focusHint:
+        'Pick a length, start, put the phone down. Minutes are logged automatically.',
+    markDone: 'Mark as done',
+    chooseTaskOptional: 'Focus on (optional)',
+    noTaskFocus: 'No task',
+    minutesShort: 'min',
+    overdueRescue: 'Do it now to protect your streak',
+    reminderTime: 'Reminder time',
+    noReminder: 'No reminder',
+    hijriSuffix: 'AH',
+    todayFocus: 'Focus',
     monthlyPlan: 'Monthly',
     yearlyPlan: 'Yearly',
     saveBadge: 'Save 33%',

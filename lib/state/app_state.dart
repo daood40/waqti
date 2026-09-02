@@ -75,6 +75,9 @@ class AppState extends ChangeNotifier {
   List<String> customIcons = [];
   List<int> customColors = [];
 
+  /// دقائق التركيز (مؤقت بومودورو) مفهرسة بمفتاح التاريخ.
+  Map<String, int> focusLog = {};
+
   static Future<AppState> load() async {
     final prefs = await SharedPreferences.getInstance();
     final state = AppState._(prefs);
@@ -136,6 +139,10 @@ class AppState extends ChangeNotifier {
       customColors = ((json['customColors'] as List?) ?? const [])
           .map((e) => (e as num).toInt())
           .toList();
+      focusLog = {};
+      ((json['focus'] as Map?) ?? const {}).forEach((k, v) {
+        if (v is num) focusLog[k as String] = v.toInt();
+      });
       if (categories.isEmpty && tasks.isEmpty) {
         categories = _defaultCategories();
       }
@@ -164,6 +171,7 @@ class AppState extends ChangeNotifier {
       'tasks': tasks.map((t) => t.toJson()).toList(),
       'customIcons': customIcons,
       'customColors': customColors,
+      'focus': focusLog,
     };
     await _prefs.setString(_storageKey, jsonEncode(json));
   }
@@ -380,7 +388,7 @@ class AppState extends ChangeNotifier {
     _commit();
   }
 
-  /// يقلّب حالة اليوم: بدون حالة ← منجز ← متأخر ← فائت ← بدون حالة.
+  /// يقلّب حالة اليوم: بدون حالة ← منجز ← متأخر ← فائت ← راحة ← بدون حالة.
   void cycleStatus(String taskId, DateTime date) {
     final task = taskById(taskId);
     if (task == null || !task.isApplicableOn(date)) return;
@@ -388,10 +396,75 @@ class AppState extends ChangeNotifier {
       null => TaskStatus.done,
       TaskStatus.done => TaskStatus.doneLate,
       TaskStatus.doneLate => TaskStatus.missed,
-      TaskStatus.missed => null,
+      TaskStatus.missed => TaskStatus.skipped,
+      TaskStatus.skipped => null,
     };
-    task.setStatusOn(date, next);
+    _applyStatus(task, date, next);
     _commit();
+  }
+
+  /// يضبط حالة يوم مباشرةً (من نافذة التفاصيل مثلًا).
+  void setStatus(String taskId, DateTime date, TaskStatus? status) {
+    final task = taskById(taskId);
+    if (task == null || !task.isApplicableOn(date)) return;
+    _applyStatus(task, date, status);
+    _commit();
+  }
+
+  void _applyStatus(TaskItem task, DateTime date, TaskStatus? status) {
+    task.setStatusOn(date, status);
+    if (!task.isMeasurable) return;
+    // التقدم الكمي يتبع الحالة: منجز = الهدف كاملًا، بلا حالة = صفر.
+    if (status == null) {
+      task.setProgressOn(date, 0);
+    } else if (status.isCompleted) {
+      task.setProgressOn(date, task.target);
+    }
+  }
+
+  /// عادة قابلة للقياس: زيادة تقدم اليوم بخطوة؛ بلوغ الهدف يعني الإنجاز.
+  void incrementProgress(String taskId, DateTime date, {int step = 1}) {
+    final task = taskById(taskId);
+    if (task == null || !task.isApplicableOn(date)) return;
+    final next = (task.progressOn(date) + step).clamp(0, task.target);
+    task.setProgressOn(date, next);
+    if (next >= task.target) {
+      task.setStatusOn(date, TaskStatus.done);
+    } else if (task.statusOn(date)?.isCompleted ?? false) {
+      task.setStatusOn(date, null);
+    }
+    _commit();
+  }
+
+  /// إيقاف مؤقت / استئناف مع الاحتفاظ بالسجل السابق.
+  void setPaused(String taskId, bool paused) {
+    final task = taskById(taskId);
+    if (task == null) return;
+    final now = DateTime.now();
+    task.pausedAt = paused ? DateTime(now.year, now.month, now.day) : null;
+    _commit();
+  }
+
+  // =======================================================================
+  // مؤقت التركيز
+  // =======================================================================
+
+  void addFocusMinutes(int minutes, {DateTime? date}) {
+    if (minutes <= 0) return;
+    final key = DateKey.fromDate(date ?? DateTime.now());
+    focusLog[key] = (focusLog[key] ?? 0) + minutes;
+    _commit();
+  }
+
+  int focusMinutesOn(DateTime date) => focusLog[DateKey.fromDate(date)] ?? 0;
+
+  int focusMinutesInMonth(int year, int month) {
+    var total = 0;
+    focusLog.forEach((key, minutes) {
+      final d = DateKey.tryParse(key);
+      if (d != null && d.year == year && d.month == month) total += minutes;
+    });
+    return total;
   }
 
   void addCustomIcon(String icon) {
@@ -485,15 +558,17 @@ class AppState extends ChangeNotifier {
       for (var d = 1; d <= dim; d++) {
         final date = DateTime(year, month, d);
         if (!task.isApplicableOn(date)) continue;
+        final status = task.statusOn(date);
+        if (status == TaskStatus.skipped) continue; // يوم راحة لا يُحسب
         applicable++;
-        switch (task.statusOn(date)) {
+        switch (status) {
           case TaskStatus.done:
             done++;
           case TaskStatus.doneLate:
             late++;
           case TaskStatus.missed:
             missed++;
-          case null:
+          case TaskStatus.skipped || null:
             break;
         }
       }
@@ -507,18 +582,22 @@ class AppState extends ChangeNotifier {
   }
 
   /// عدد الأيام المتتالية (انتهاءً باليوم) التي أُنجزت فيها كل المهام
-  /// المستحقة. الأيام بلا مهام مستحقة لا تقطع التتابع.
+  /// المستحقة. الإنجاز المتأخر يُنقذ السلسلة، ويوم الراحة لا يقطعها
+  /// ولا يُحسب، والأيام بلا مهام مستحقة لا تقطع التتابع.
   int currentStreak() {
     var date = DateTime.now();
     var streak = 0;
     for (var i = 0; i < 730; i++) {
       final day = DateTime(date.year, date.month, date.day);
-      final applicable = tasks
-          .where((t) => t.isApplicableOn(day))
+      final relevant = tasks
+          .where(
+            (t) =>
+                t.isApplicableOn(day) && t.statusOn(day) != TaskStatus.skipped,
+          )
           .toList(growable: false);
-      if (applicable.isNotEmpty) {
-        final allDone = applicable.every(
-          (t) => t.statusOn(day) == TaskStatus.done,
+      if (relevant.isNotEmpty) {
+        final allDone = relevant.every(
+          (t) => t.statusOn(day)?.isCompleted ?? false,
         );
         if (!allDone) break;
         streak++;
@@ -570,8 +649,10 @@ class AppState extends ChangeNotifier {
     for (var d = 1; d <= dim; d++) {
       final date = DateTime(year, month, d);
       if (!task.isApplicableOn(date)) continue;
+      final status = task.statusOn(date);
+      if (status == TaskStatus.skipped) continue;
       applicable++;
-      if (task.statusOn(date) == TaskStatus.done) done++;
+      if (status == TaskStatus.done) done++;
     }
     return applicable > 0 ? ((done / applicable) * 100).round() : 0;
   }
@@ -591,8 +672,10 @@ class AppState extends ChangeNotifier {
     var applicable = 0, done = 0;
     for (final task in tasks) {
       if (!task.isApplicableOn(date)) continue;
+      final status = task.statusOn(date);
+      if (status == TaskStatus.skipped) continue;
       applicable++;
-      if (task.statusOn(date) == TaskStatus.done) done++;
+      if (status == TaskStatus.done) done++;
     }
     if (applicable == 0) return -1;
     return ((done / applicable) * 100).round();
@@ -609,8 +692,10 @@ class AppState extends ChangeNotifier {
         for (var d = start; d <= end; d++) {
           final date = DateTime(year, month, d);
           if (!task.isApplicableOn(date)) continue;
+          final status = task.statusOn(date);
+          if (status == TaskStatus.skipped) continue;
           applicable++;
-          if (task.statusOn(date) == TaskStatus.done) done++;
+          if (status == TaskStatus.done) done++;
         }
       }
       buckets.add((

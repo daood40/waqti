@@ -152,6 +152,10 @@ class TasksTab extends StatelessWidget {
                           category.name,
                           color: Color(category.colorValue),
                         ),
+                      if (task.isPaused)
+                        WqChip('⏸ ${s.pausedTag}', color: wq.late),
+                      if (task.isMeasurable)
+                        WqChip('🎯 ${task.target} ${task.unit}'.trim()),
                       WqChip(_recurrenceLabel(task.recurrence, s)),
                       WqChip(
                         switch (task.priority) {

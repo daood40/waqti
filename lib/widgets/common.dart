@@ -163,6 +163,7 @@ class StatusDot extends StatelessWidget {
     TaskStatus.done => s.done,
     TaskStatus.doneLate => s.late,
     TaskStatus.missed => s.missed,
+    TaskStatus.skipped => s.skipped,
     null => applicable ? s.remaining : s.none,
   };
 
@@ -177,6 +178,11 @@ class StatusDot extends StatelessWidget {
         Icons.priority_high_rounded,
       ),
       TaskStatus.missed => (wq.missed, Colors.transparent, Icons.close_rounded),
+      TaskStatus.skipped => (
+        wq.textMuted.withValues(alpha: .55),
+        Colors.transparent,
+        Icons.remove_rounded,
+      ),
       null => (Colors.transparent, wq.none, null),
     };
 
