@@ -20,6 +20,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.1
+  msix: ^3.16.8
 
 flutter_launcher_icons:
   android: true
@@ -33,6 +34,18 @@ flutter_launcher_icons:
     image_path: "assets/branding/app_icon.png"
     background_color: "#F6F7F1"
     theme_color: "#6E8F72"
+
+# حزمة متجر مايكروسوفت: dart run msix:create --store
+# القيم الثلاث publisher/identity/publisher_display_name تُستبدل
+# بقيم Partner Center قبل الرفع (انظر docs/RELEASE.md).
+msix_config:
+  display_name: وقتي
+  publisher_display_name: Waqti
+  identity_name: com.waqti.waqti
+  msix_version: 1.1.0.0
+  logo_path: assets/branding/app_icon.png
+  languages: ar, en
+  capabilities: ""
 
 flutter:
   uses-material-design: true
