@@ -59,6 +59,14 @@ class AppState extends ChangeNotifier {
   bool morningRecap = true;
   bool eveningRecap = false;
 
+  /// ساعات الهدوء: لا تذكيرات بين البداية والنهاية (بالدقائق منذ منتصف الليل).
+  bool quietHoursOn = true;
+  int quietStart = 22 * 60;
+  int quietEnd = 7 * 60;
+
+  /// هل شاهد المستخدم الجولة التعريفية؟
+  bool onboarded = false;
+
   // ---------- الحساب ----------
   bool loggedIn = false;
   UserProfile? user;
@@ -114,6 +122,10 @@ class AppState extends ChangeNotifier {
       notifMaster = json['notifMaster'] as bool? ?? true;
       morningRecap = json['morningRecap'] as bool? ?? true;
       eveningRecap = json['eveningRecap'] as bool? ?? false;
+      quietHoursOn = json['quietOn'] as bool? ?? true;
+      quietStart = (json['quietStart'] as num?)?.toInt() ?? 22 * 60;
+      quietEnd = (json['quietEnd'] as num?)?.toInt() ?? 7 * 60;
+      onboarded = json['onboarded'] as bool? ?? false;
       loggedIn = json['loggedIn'] as bool? ?? false;
       user = json['user'] is Map<String, dynamic>
           ? UserProfile.fromJson(json['user'] as Map<String, dynamic>)
@@ -163,6 +175,10 @@ class AppState extends ChangeNotifier {
       'notifMaster': notifMaster,
       'morningRecap': morningRecap,
       'eveningRecap': eveningRecap,
+      'quietOn': quietHoursOn,
+      'quietStart': quietStart,
+      'quietEnd': quietEnd,
+      'onboarded': onboarded,
       'loggedIn': loggedIn,
       if (user != null) 'user': user!.toJson(),
       'tier': tier.name,
@@ -173,7 +189,44 @@ class AppState extends ChangeNotifier {
       'customColors': customColors,
       'focus': focusLog,
     };
-    await _prefs.setString(_storageKey, jsonEncode(json));
+    final encoded = jsonEncode(json);
+    await _prefs.setString(_storageKey, encoded);
+    _rollDailyBackup(encoded);
+  }
+
+  static const _backupKey = 'waqti.backup.v1';
+  static const _backupDateKey = 'waqti.backup.date';
+
+  /// نسخة احتياطية محلية واحدة يوميًا (أول حفظ في اليوم يحفظ حالة
+  /// اليوم السابق) — تحمي من الحذف الخاطئ أو استيراد ملف تالف.
+  void _rollDailyBackup(String encoded) {
+    try {
+      final today = DateKey.fromDate(DateTime.now());
+      if (_prefs.getString(_backupDateKey) == today) return;
+      _prefs.setString(_backupKey, encoded);
+      _prefs.setString(_backupDateKey, today);
+    } catch (_) {}
+  }
+
+  /// تاريخ آخر نسخة احتياطية محلية إن وُجدت.
+  DateTime? get backupDate {
+    try {
+      return DateKey.tryParse(_prefs.getString(_backupDateKey));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// يستعيد النسخة الاحتياطية المحلية. يرجع `false` إن لم توجد.
+  bool restoreBackup() {
+    final String? raw;
+    try {
+      raw = _prefs.getString(_backupKey);
+    } catch (_) {
+      return false;
+    }
+    if (raw == null) return false;
+    return importJson(raw, full: true);
   }
 
   void _commit() {
@@ -216,6 +269,28 @@ class AppState extends ChangeNotifier {
 
   void setEveningRecap(bool value) {
     eveningRecap = value;
+    _commit();
+  }
+
+  void setQuietHours({bool? on, int? start, int? end}) {
+    quietHoursOn = on ?? quietHoursOn;
+    quietStart = start ?? quietStart;
+    quietEnd = end ?? quietEnd;
+    _commit();
+  }
+
+  /// هل الدقيقة [minuteOfDay] داخل ساعات الهدوء؟ (يدعم النطاق العابر لمنتصف الليل)
+  bool isQuietAt(int minuteOfDay) {
+    if (!quietHoursOn) return false;
+    if (quietStart <= quietEnd) {
+      return minuteOfDay >= quietStart && minuteOfDay < quietEnd;
+    }
+    return minuteOfDay >= quietStart || minuteOfDay < quietEnd;
+  }
+
+  void setOnboarded() {
+    if (onboarded) return;
+    onboarded = true;
     _commit();
   }
 
@@ -445,6 +520,38 @@ class AppState extends ChangeNotifier {
     _commit();
   }
 
+  /// يوميات: ملاحظة يوم لمهمة.
+  void setNote(String taskId, DateTime date, String text) {
+    final task = taskById(taskId);
+    if (task == null) return;
+    task.setNoteOn(date, text);
+    _commit();
+  }
+
+  void toggleSubtask(String taskId, int index) {
+    final task = taskById(taskId);
+    if (task == null || index < 0 || index >= task.subtasks.length) return;
+    task.subtasks[index].done = !task.subtasks[index].done;
+    _commit();
+  }
+
+  /// عادة إقلاع: عدد الأيام منذ آخر زلّة (أو منذ الإنشاء إن لم تحدث).
+  int daysSinceSlip(TaskItem task) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    DateTime? lastSlip;
+    task.statuses.forEach((key, status) {
+      if (status != TaskStatus.missed) return;
+      final d = DateKey.tryParse(key);
+      if (d != null && (lastSlip == null || d.isAfter(lastSlip!))) lastSlip = d;
+    });
+    final from =
+        lastSlip ??
+        DateTime(task.createdAt.year, task.createdAt.month, task.createdAt.day);
+    final days = today.difference(from).inDays;
+    return days < 0 ? 0 : days;
+  }
+
   // =======================================================================
   // مؤقت التركيز
   // =======================================================================
@@ -529,6 +636,8 @@ class AppState extends ChangeNotifier {
     for (var back = 1; back <= lookBackDays; back++) {
       final date = DateTime(now.year, now.month, now.day - back);
       for (final task in sortedByPriority(tasks)) {
+        // عادة الإقلاع: يوم بلا تسجيل = بلا زلّة، فلا تُعدّ متأخرة.
+        if (task.isQuit) continue;
         final created = DateTime(
           task.createdAt.year,
           task.createdAt.month,
@@ -599,8 +708,16 @@ class AppState extends ChangeNotifier {
         final allDone = relevant.every(
           (t) => t.statusOn(day)?.isCompleted ?? false,
         );
-        if (!allDone) break;
-        streak++;
+        if (!allDone) {
+          // اليوم الحالي وما زال مفتوحًا (لا فوات مسجّل) لا يكسر السلسلة —
+          // وإلا لظهر "0" كل صباح قبل أول إنجاز.
+          final todayStillOpen =
+              i == 0 &&
+              relevant.every((t) => t.statusOn(day) != TaskStatus.missed);
+          if (!todayStillOpen) break;
+        } else {
+          streak++;
+        }
       }
       // نطرح يومًا بمكوّنات التاريخ لا بـ Duration حتى لا يُقفَز
       // فوق يوم عند تحول التوقيت الصيفي.
@@ -620,6 +737,116 @@ class AppState extends ChangeNotifier {
       }
     }
     return count;
+  }
+
+  /// درجة عادة مرنة (نموذج Loop): متوسط أسّي على آخر 60 يومًا مستحقًا؛
+  /// اليوم الفائت يُنقص الدرجة تدريجيًا بدل تصفير كل شيء. 0–100.
+  int habitScore(TaskItem task, {DateTime? asOf}) {
+    final now = asOf ?? DateTime.now();
+    var score = 0.0;
+    const alpha = 0.12; // 1 - 0.88: نصف عمر ≈ 5 أيام مستحقة
+    var counted = 0;
+    var date = DateTime(now.year, now.month, now.day - 120);
+    final today = DateTime(now.year, now.month, now.day);
+    while (!date.isAfter(today)) {
+      final created = DateTime(
+        task.createdAt.year,
+        task.createdAt.month,
+        task.createdAt.day,
+      );
+      if (!date.isBefore(created) && task.isApplicableOn(date)) {
+        final status = task.statusOn(date);
+        if (status != TaskStatus.skipped) {
+          final isToday = date == today;
+          // اليوم الحالي غير المكتمل بعد لا يُحسب ضده.
+          if (!(isToday && status == null)) {
+            final value = (status?.isCompleted ?? false) ? 1.0 : 0.0;
+            score = score * (1 - alpha) + value * alpha;
+            counted++;
+          }
+        }
+      }
+      date = DateTime(date.year, date.month, date.day + 1);
+    }
+    if (counted == 0) return 0;
+    // تطبيع: بعد n أيام يكون أقصى ممكن (1-(1-a)^n)؛ نقسم عليه حتى تبدأ
+    // العادة الجديدة من درجة عادلة.
+    final maxPossible = 1 - _pow(1 - alpha, counted);
+    return ((score / maxPossible) * 100).round().clamp(0, 100);
+  }
+
+  static double _pow(double base, int exp) {
+    var r = 1.0;
+    for (var i = 0; i < exp; i++) {
+      r *= base;
+    }
+    return r;
+  }
+
+  /// متوسط درجات العادات النشطة.
+  int overallScore() {
+    final active = tasks.where((t) => !t.isPaused).toList(growable: false);
+    if (active.isEmpty) return 0;
+    final total = active.fold<int>(0, (sum, t) => sum + habitScore(t));
+    return (total / active.length).round();
+  }
+
+  /// أطول سلسلة لمهمة واحدة عبر كل الوقت (أيام مستحقة متتالية مكتملة؛
+  /// يوم الراحة لا يقطع).
+  int taskBestStreak(TaskItem task) {
+    final keys = task.statuses.keys.map(DateKey.tryParse).whereType<DateTime>();
+    if (keys.isEmpty) return 0;
+    var date = keys.reduce((a, b) => a.isBefore(b) ? a : b);
+    final now = DateTime.now();
+    final end = DateTime(now.year, now.month, now.day);
+    var best = 0, run = 0;
+    while (!date.isAfter(end)) {
+      if (task.isApplicableOn(date)) {
+        final status = task.statusOn(date);
+        if (status?.isCompleted ?? false) {
+          run++;
+          if (run > best) best = run;
+        } else if (status != TaskStatus.skipped && date != end) {
+          run = 0;
+        }
+      }
+      date = DateTime(date.year, date.month, date.day + 1);
+    }
+    return best;
+  }
+
+  /// أطول سلسلة إجمالية (كل المهام المستحقة مكتملة) عبر كل الوقت.
+  int longestStreak() {
+    DateTime? first;
+    for (final t in tasks) {
+      for (final k in t.statuses.keys) {
+        final d = DateKey.tryParse(k);
+        if (d != null && (first == null || d.isBefore(first))) first = d;
+      }
+    }
+    if (first == null) return 0;
+    final now = DateTime.now();
+    final end = DateTime(now.year, now.month, now.day);
+    var date = first;
+    var best = 0, run = 0;
+    while (!date.isAfter(end)) {
+      final relevant = tasks.where(
+        (t) => t.isApplicableOn(date) && t.statusOn(date) != TaskStatus.skipped,
+      );
+      if (relevant.isNotEmpty) {
+        final allDone = relevant.every(
+          (t) => t.statusOn(date)?.isCompleted ?? false,
+        );
+        if (allDone) {
+          run++;
+          if (run > best) best = run;
+        } else if (date != end) {
+          run = 0;
+        }
+      }
+      date = DateTime(date.year, date.month, date.day + 1);
+    }
+    return best;
   }
 
   int totalXp() {
@@ -741,10 +968,33 @@ class AppState extends ChangeNotifier {
     return const JsonEncoder.withIndent('  ').convert(payload);
   }
 
-  /// يرجع `true` عند نجاح الاستيراد.
-  bool importJson(String raw) {
+  /// تصدير CSV: صف لكل (مهمة، يوم) له حالة — يُفتح في Excel/Sheets.
+  String exportCsv() {
+    final buffer = StringBuffer('task,date,status,progress,note\n');
+    String esc(String v) => '"${v.replaceAll('"', '""')}"';
+    for (final task in tasks) {
+      final keys = task.statuses.keys.toList()..sort();
+      for (final key in keys) {
+        final status = task.statuses[key]!.key;
+        final progress = task.progress[key]?.toString() ?? '';
+        final note = task.notes[key] ?? '';
+        buffer.writeln('${esc(task.name)},$key,$status,$progress,${esc(note)}');
+      }
+    }
+    return buffer.toString();
+  }
+
+  /// يرجع `true` عند نجاح الاستيراد. مع [full] يستعيد الإعدادات أيضًا
+  /// (للنسخة الاحتياطية المحلية).
+  bool importJson(String raw, {bool full = false}) {
     try {
       final json = jsonDecode(raw) as Map<String, dynamic>;
+      if (full) {
+        focusLog = {};
+        ((json['focus'] as Map?) ?? const {}).forEach((k, v) {
+          if (v is num) focusLog[k as String] = v.toInt();
+        });
+      }
       final newCategories = ((json['categories'] as List?) ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(TaskCategory.fromJson)

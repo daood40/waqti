@@ -123,7 +123,7 @@ class NotificationService {
           );
         }
       }
-      if (state.morningRecap) {
+      if (state.morningRecap && !state.isQuietAt(_morningHour * 60)) {
         await _scheduleDaily(
           _morningId,
           _morningHour,
@@ -135,7 +135,7 @@ class NotificationService {
           now,
         );
       }
-      if (state.eveningRecap) {
+      if (state.eveningRecap && !state.isQuietAt(_eveningHour * 60)) {
         await _scheduleDaily(
           _eveningId,
           _eveningHour,

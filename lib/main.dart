@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/notification_service.dart';
 import 'core/theme.dart';
 import 'screens/auth_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/shell_screen.dart';
 import 'state/app_state.dart';
 
@@ -41,7 +42,11 @@ class WaqtiApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: state.loggedIn ? const ShellScreen() : const AuthScreen(),
+          home: !state.onboarded
+              ? const OnboardingScreen()
+              : state.loggedIn
+              ? const ShellScreen()
+              : const AuthScreen(),
         ),
       ),
     );

@@ -44,7 +44,11 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
   late bool _notificationsOn;
   late final TextEditingController _targetController;
   late final TextEditingController _unitController;
-  int? _reminderMinutes;
+  final _subtaskController = TextEditingController();
+  late List<int> _reminders;
+  late List<Subtask> _subtasks;
+  late TimeSlot _timeSlot;
+  late bool _isQuit;
   String? _nameError;
   String? _formError;
 
@@ -67,7 +71,13 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     _notificationsOn = existing?.notificationsOn ?? true;
     _targetController = TextEditingController(text: '${existing?.target ?? 1}');
     _unitController = TextEditingController(text: existing?.unit ?? '');
-    _reminderMinutes = existing?.reminderMinutes;
+    _reminders = List.of(existing?.reminders ?? const []);
+    _subtasks = [
+      for (final st in existing?.subtasks ?? const <Subtask>[])
+        Subtask(title: st.title, done: st.done),
+    ];
+    _timeSlot = existing?.timeSlot ?? TimeSlot.any;
+    _isQuit = existing?.isQuit ?? false;
   }
 
   @override
@@ -77,6 +87,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     _customIconController.dispose();
     _targetController.dispose();
     _unitController.dispose();
+    _subtaskController.dispose();
     super.dispose();
   }
 
@@ -91,6 +102,8 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
       _priority = t.priority;
       _targetController.text = '${t.target}';
       _unitController.text = t.unit(state.lang);
+      _timeSlot = t.timeSlot;
+      _isQuit = t.isQuit;
       if (state.categoryById(t.categoryId) != null) {
         _categoryId = t.categoryId;
       }
@@ -98,15 +111,47 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     });
   }
 
-  Future<void> _pickReminder() async {
-    final initial = _reminderMinutes ?? 8 * 60;
+  void _addSubtask() {
+    final text = _subtaskController.text.trim();
+    if (text.isEmpty) return;
+    setState(() {
+      _subtasks.add(Subtask(title: text));
+      _subtaskController.clear();
+    });
+  }
+
+  /// وقت افتراضي بحسب فترة اليوم حتى يكون الاقتراح منطقيًا.
+  int get _defaultReminder => switch (_timeSlot) {
+    TimeSlot.morning => 7 * 60,
+    TimeSlot.afternoon => 13 * 60,
+    TimeSlot.evening => 20 * 60,
+    TimeSlot.any => 9 * 60,
+  };
+
+  Future<void> _pickReminder({int? replaceIndex}) async {
+    final initial = replaceIndex == null
+        ? _defaultReminder
+        : _reminders[replaceIndex];
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(hour: initial ~/ 60, minute: initial % 60),
     );
     if (picked == null) return;
-    setState(() => _reminderMinutes = picked.hour * 60 + picked.minute);
+    final minutes = picked.hour * 60 + picked.minute;
+    setState(() {
+      if (replaceIndex == null) {
+        if (!_reminders.contains(minutes) && _reminders.length < 3) {
+          _reminders.add(minutes);
+        }
+      } else {
+        _reminders[replaceIndex] = minutes;
+      }
+      _reminders.sort();
+    });
   }
+
+  static String _hhmm(int m) =>
+      '${(m ~/ 60).toString().padLeft(2, '0')}:${(m % 60).toString().padLeft(2, '0')}';
 
   void _save() {
     final s = AppStrings.of(context.read<AppState>().lang);
@@ -132,7 +177,12 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
         ..notificationsOn = _notificationsOn
         ..target = _target
         ..unit = _unitController.text.trim()
-        ..reminderMinutes = _reminderMinutes;
+        ..timeSlot = _timeSlot
+        ..isQuit = _isQuit
+        ..reminders.clear()
+        ..reminders.addAll(_reminders)
+        ..subtasks.clear()
+        ..subtasks.addAll(_subtasks);
       state.updateTask(task);
     } else {
       final task = TaskItem(
@@ -147,7 +197,10 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
         notificationsOn: _notificationsOn,
         target: _target,
         unit: _unitController.text.trim(),
-        reminderMinutes: _reminderMinutes,
+        timeSlot: _timeSlot,
+        isQuit: _isQuit,
+        reminders: _reminders,
+        subtasks: _subtasks,
       );
       if (!state.addTask(task)) {
         // Snackbar يظهر خلف النافذة المنبثقة ولا يُرى —
@@ -334,7 +387,12 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
             ),
             const SizedBox(height: 14),
             _FieldLabel(s.description),
-            TextField(controller: _descController, minLines: 2, maxLines: 4),
+            TextField(
+              controller: _descController,
+              minLines: 2,
+              maxLines: 4,
+              decoration: InputDecoration(hintText: s.whyHint),
+            ),
             const SizedBox(height: 14),
             _FieldLabel(s.icon),
             Wrap(
@@ -473,6 +531,81 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                   setState(() => _priority = TaskPriority.values[i]),
             ),
             const SizedBox(height: 14),
+            _FieldLabel(s.timeSlot),
+            SegmentedPills(
+              options: [
+                s.slotAny,
+                s.slotMorning,
+                s.slotAfternoon,
+                s.slotEvening,
+              ],
+              selectedIndex: _timeSlot.index,
+              onSelected: (i) => setState(() => _timeSlot = TimeSlot.values[i]),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '🚭 ${s.quitHabit}',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        s.quitHint,
+                        style: TextStyle(fontSize: 11, color: wq.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: _isQuit,
+                  onChanged: (v) => setState(() => _isQuit = v),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            _FieldLabel(s.subtasks),
+            for (var i = 0; i < _subtasks.length; i++)
+              Row(
+                children: [
+                  Icon(Icons.drag_indicator, size: 16, color: wq.textMuted),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      _subtasks[i].title,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                  WqIconButton(
+                    onTap: () => setState(() => _subtasks.removeAt(i)),
+                    child: Icon(Icons.close, size: 14, color: wq.textMuted),
+                  ),
+                ],
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _subtaskController,
+                    decoration: InputDecoration(hintText: s.subtaskHint),
+                    onSubmitted: (_) => _addSubtask(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: _addSubtask,
+                  child: const Icon(Icons.add, size: 18),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -557,44 +690,34 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                 ),
               ],
             ),
-            if (_notificationsOn)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            if (_notificationsOn) ...[
+              const SizedBox(height: 6),
+              _FieldLabel(s.reminders),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text(
-                    s.reminderTime,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: wq.textMuted,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      TextButton.icon(
-                        onPressed: _pickReminder,
-                        icon: const Icon(Icons.alarm, size: 16),
-                        label: Text(
-                          _reminderMinutes == null
-                              ? s.noReminder
-                              : '${(_reminderMinutes! ~/ 60).toString().padLeft(2, '0')}:'
-                                    '${(_reminderMinutes! % 60).toString().padLeft(2, '0')}',
-                          textDirection: TextDirection.ltr,
-                        ),
+                  for (var i = 0; i < _reminders.length; i++)
+                    InputChip(
+                      avatar: const Icon(Icons.alarm, size: 15),
+                      label: Text(
+                        _hhmm(_reminders[i]),
+                        textDirection: TextDirection.ltr,
                       ),
-                      if (_reminderMinutes != null)
-                        WqIconButton(
-                          onTap: () => setState(() => _reminderMinutes = null),
-                          child: Icon(
-                            Icons.close,
-                            size: 14,
-                            color: wq.textMuted,
-                          ),
-                        ),
-                    ],
-                  ),
+                      onPressed: () => _pickReminder(replaceIndex: i),
+                      onDeleted: () => setState(() => _reminders.removeAt(i)),
+                    ),
+                  if (_reminders.length < 3)
+                    ActionChip(
+                      label: Text(
+                        _reminders.isEmpty ? s.noReminder : s.addReminder,
+                      ),
+                      onPressed: () => _pickReminder(),
+                    ),
                 ],
               ),
+            ],
             if (_formError != null) ...[
               const SizedBox(height: 10),
               Container(

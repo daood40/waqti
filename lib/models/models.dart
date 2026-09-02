@@ -66,6 +66,36 @@ enum PlanTier {
   };
 }
 
+/// فترة اليوم المفضلة للعادة — تُجمّع بها بطاقة اليوم.
+enum TimeSlot {
+  any,
+  morning,
+  afternoon,
+  evening;
+
+  static TimeSlot fromKey(String? key) => switch (key) {
+    'morning' => TimeSlot.morning,
+    'afternoon' => TimeSlot.afternoon,
+    'evening' => TimeSlot.evening,
+    _ => TimeSlot.any,
+  };
+}
+
+/// مهمة فرعية داخل قائمة تحقق.
+class Subtask {
+  Subtask({required this.title, this.done = false});
+
+  String title;
+  bool done;
+
+  Map<String, dynamic> toJson() => {'t': title, if (done) 'd': true};
+
+  factory Subtask.fromJson(Map<String, dynamic> json) => Subtask(
+    title: json['t'] as String? ?? '',
+    done: json['d'] as bool? ?? false,
+  );
+}
+
 /// نوع تكرار المهمة.
 enum RecurrenceType {
   once,
@@ -196,12 +226,19 @@ class TaskItem {
     this.target = 1,
     this.unit = '',
     this.pausedAt,
-    this.reminderMinutes,
+    this.timeSlot = TimeSlot.any,
+    this.isQuit = false,
+    List<int>? reminders,
+    List<Subtask>? subtasks,
     Map<String, TaskStatus>? statuses,
     Map<String, int>? progress,
+    Map<String, String>? notes,
     DateTime? createdAt,
-  }) : statuses = statuses ?? {},
+  }) : reminders = reminders ?? [],
+       subtasks = subtasks ?? [],
+       statuses = statuses ?? {},
        progress = progress ?? {},
+       notes = notes ?? {},
        createdAt = createdAt ?? DateTime.now();
 
   final String id;
@@ -225,14 +262,42 @@ class TaskItem {
   /// الاحتفاظ بسجلها السابق. `null` = نشطة.
   DateTime? pausedAt;
 
-  /// وقت التذكير اليومي بالدقائق منذ منتصف الليل (مثال 8:30 = 510).
-  int? reminderMinutes;
+  /// أوقات التذكير اليومية بالدقائق منذ منتصف الليل (8:30 = 510) —
+  /// حتى ثلاثة أوقات في اليوم.
+  final List<int> reminders;
+
+  /// فترة اليوم (صباح/ظهر/مساء) — تجميع بصري وافتراضي للتذكير.
+  TimeSlot timeSlot;
+
+  /// عادة إقلاع (تدخين، سهر…): الإنجاز = "قاومتُ اليوم"، والفوات = زلّة.
+  bool isQuit;
+
+  /// قائمة تحقق فرعية (خطوات).
+  final List<Subtask> subtasks;
 
   /// التقدم اليومي للعادات القابلة للقياس مفهرسًا بمفتاح التاريخ.
   final Map<String, int> progress;
 
+  /// يوميات: ملاحظة نصية لكل يوم.
+  final Map<String, String> notes;
+
   bool get isMeasurable => target > 1;
   bool get isPaused => pausedAt != null;
+
+  /// توافق: أول وقت تذكير أو لا شيء.
+  int? get reminderMinutes => reminders.isEmpty ? null : reminders.first;
+
+  String noteOn(DateTime date) => notes[DateKey.fromDate(date)] ?? '';
+
+  void setNoteOn(DateTime date, String text) {
+    final key = DateKey.fromDate(date);
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) {
+      notes.remove(key);
+    } else {
+      notes[key] = trimmed;
+    }
+  }
 
   /// تاريخ إنشاء المهمة — يحدّ حساب المتأخرات فلا تُحسب أيام
   /// ما قبل وجود المهمة.
@@ -300,9 +365,15 @@ class TaskItem {
     target: target,
     unit: unit,
     pausedAt: pausedAt,
-    reminderMinutes: reminderMinutes,
+    timeSlot: timeSlot,
+    isQuit: isQuit,
+    reminders: List.of(reminders),
+    subtasks: [
+      for (final st in subtasks) Subtask(title: st.title, done: st.done),
+    ],
     statuses: Map.of(statuses),
     progress: Map.of(progress),
+    notes: Map.of(notes),
     createdAt: createdAt,
   );
 
@@ -319,10 +390,15 @@ class TaskItem {
     if (target > 1) 'target': target,
     if (unit.isNotEmpty) 'unit': unit,
     if (pausedAt != null) 'pausedAt': DateKey.fromDate(pausedAt!),
-    if (reminderMinutes != null) 'reminder': reminderMinutes,
+    if (reminders.isNotEmpty) 'reminders': reminders,
+    if (timeSlot != TimeSlot.any) 'slot': timeSlot.name,
+    if (isQuit) 'quit': true,
+    if (subtasks.isNotEmpty)
+      'subtasks': subtasks.map((e) => e.toJson()).toList(),
     'createdAt': DateKey.fromDate(createdAt),
     'statuses': statuses.map((k, v) => MapEntry(k, v.key)),
     if (progress.isNotEmpty) 'progress': progress,
+    if (notes.isNotEmpty) 'notes': notes,
   };
 
   factory TaskItem.fromJson(Map<String, dynamic> json) {
@@ -337,6 +413,23 @@ class TaskItem {
     rawProgress.forEach((key, value) {
       if (value is num) progress[key as String] = value.toInt();
     });
+    final notes = <String, String>{};
+    ((json['notes'] as Map?) ?? const {}).forEach((key, value) {
+      if (value is String && value.isNotEmpty) notes[key as String] = value;
+    });
+    // ترحيل: 'reminder' المفرد القديم → قائمة.
+    final reminders = <int>[
+      ...((json['reminders'] as List?) ?? const []).whereType<num>().map(
+        (e) => e.toInt(),
+      ),
+    ];
+    if (reminders.isEmpty && json['reminder'] is num) {
+      reminders.add((json['reminder'] as num).toInt());
+    }
+    final subtasks = ((json['subtasks'] as List?) ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(Subtask.fromJson)
+        .toList();
     return TaskItem(
       id: json['id'] as String,
       name: json['name'] as String? ?? '',
@@ -352,8 +445,12 @@ class TaskItem {
       target: ((json['target'] as num?)?.toInt() ?? 1).clamp(1, 100000),
       unit: json['unit'] as String? ?? '',
       pausedAt: DateKey.tryParse(json['pausedAt'] as String?),
-      reminderMinutes: (json['reminder'] as num?)?.toInt(),
+      timeSlot: TimeSlot.fromKey(json['slot'] as String?),
+      isQuit: json['quit'] as bool? ?? false,
+      reminders: reminders,
+      subtasks: subtasks,
       progress: progress,
+      notes: notes,
       // بيانات قديمة بلا createdAt: نعتبرها موجودة منذ زمن حتى لا
       // تختفي متأخراتها الحقيقية.
       createdAt:

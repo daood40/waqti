@@ -13,10 +13,22 @@ import '../shell_screen.dart';
 
 /// تبويب المهام والعادات: القائمة الكاملة مع الإدارة
 /// وإعادة الترتيب بالسحب والإفلات.
-class TasksTab extends StatelessWidget {
+class TasksTab extends StatefulWidget {
   const TasksTab({super.key, required this.query});
 
   final String query;
+
+  @override
+  State<TasksTab> createState() => _TasksTabState();
+}
+
+enum _Sort { manual, priority, name, score }
+
+class _TasksTabState extends State<TasksTab> {
+  String? _categoryFilter; // null = الكل
+  _Sort _sort = _Sort.manual;
+
+  String get query => widget.query;
 
   Future<void> _deleteWithUndo(
     BuildContext context,
@@ -100,7 +112,7 @@ class TasksTab extends StatelessWidget {
             ),
           ],
         ),
-        if (showReorderHint)
+        if (showReorderHint && _sort == _Sort.manual && _categoryFilter == null)
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
@@ -108,7 +120,60 @@ class TasksTab extends StatelessWidget {
               style: TextStyle(fontSize: 11.5, color: wq.textMuted),
             ),
           ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
+        // تصفية بالتصنيف + فرز — ما يطلبه مستخدمو Todoist/TickTick.
+        if (state.tasks.length > 1)
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 34,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      ChoiceChip(
+                        label: Text(s.filterAll),
+                        selected: _categoryFilter == null,
+                        onSelected: (_) =>
+                            setState(() => _categoryFilter = null),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      for (final c in state.categories) ...[
+                        const SizedBox(width: 6),
+                        ChoiceChip(
+                          label: Text(c.name),
+                          selected: _categoryFilter == c.id,
+                          selectedColor: Color(
+                            c.colorValue,
+                          ).withValues(alpha: .25),
+                          onSelected: (_) =>
+                              setState(() => _categoryFilter = c.id),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              PopupMenuButton<_Sort>(
+                tooltip: s.sortManual,
+                initialValue: _sort,
+                onSelected: (v) => setState(() => _sort = v),
+                icon: Icon(Icons.sort, size: 20, color: wq.textMuted),
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: _Sort.manual, child: Text(s.sortManual)),
+                  PopupMenuItem(
+                    value: _Sort.priority,
+                    child: Text(s.sortPriority),
+                  ),
+                  PopupMenuItem(value: _Sort.name, child: Text(s.sortName)),
+                  PopupMenuItem(value: _Sort.score, child: Text(s.sortScore)),
+                ],
+              ),
+            ],
+          ),
+        const SizedBox(height: 10),
       ],
     );
   }
@@ -156,6 +221,12 @@ class TasksTab extends StatelessWidget {
                         WqChip('⏸ ${s.pausedTag}', color: wq.late),
                       if (task.isMeasurable)
                         WqChip('🎯 ${task.target} ${task.unit}'.trim()),
+                      if (task.isQuit)
+                        WqChip(
+                          '🚭 ${state.daysSinceSlip(task)} ${s.daysClean}',
+                          color: wq.done,
+                        ),
+                      WqChip('📈 ${state.habitScore(task)}%'),
                       WqChip(_recurrenceLabel(task.recurrence, s)),
                       WqChip(
                         switch (task.priority) {
@@ -214,16 +285,25 @@ class TasksTab extends StatelessWidget {
     final s = AppStrings.of(state.lang);
 
     final trimmed = query.trim().toLowerCase();
-    final searching = trimmed.isNotEmpty;
-    final tasks = searching
-        ? state.tasks
-              .where(
-                (t) =>
-                    t.name.toLowerCase().contains(trimmed) ||
-                    t.description.toLowerCase().contains(trimmed),
-              )
-              .toList()
-        : state.tasks;
+    final filtering = _categoryFilter != null || _sort != _Sort.manual;
+    final searching = trimmed.isNotEmpty || filtering;
+    var tasks = state.tasks
+        .where(
+          (t) =>
+              (trimmed.isEmpty ||
+                  t.name.toLowerCase().contains(trimmed) ||
+                  t.description.toLowerCase().contains(trimmed)) &&
+              (_categoryFilter == null || t.categoryId == _categoryFilter),
+        )
+        .toList();
+    tasks = switch (_sort) {
+      _Sort.manual => tasks,
+      _Sort.priority => AppState.sortedByPriority(tasks),
+      _Sort.name => (tasks..sort((a, b) => a.name.compareTo(b.name))),
+      _Sort.score =>
+        (tasks
+          ..sort((a, b) => state.habitScore(b).compareTo(state.habitScore(a)))),
+    };
 
     const padding = EdgeInsets.fromLTRB(18, 8, 18, 24);
 

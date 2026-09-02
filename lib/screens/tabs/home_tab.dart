@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/l10n.dart';
+import '../../core/quotes.dart';
 import '../../core/theme.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
@@ -75,7 +77,9 @@ class _HomeTabState extends State<HomeTab> {
       padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
       children: [
         _TodayHeader(strings: s),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
+        _QuoteCard(lang: state.lang),
+        const SizedBox(height: 4),
         if (!state.isPremium) ...[
           const SizedBox(height: 4),
           WqCard(
@@ -531,17 +535,96 @@ class _TodayCard extends StatelessWidget {
                 ),
               )
             else
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final task in todayTasks)
-                    _TodayChip(task: task, date: today),
-                ],
-              ),
+              ..._groupedChips(context, todayTasks, today),
           ],
         ),
       ),
+    );
+  }
+
+  /// يجمّع شرائح اليوم بفترة اليوم عندما تكون محددة لأي عادة؛
+  /// وإلا يعرضها كتلة واحدة.
+  List<Widget> _groupedChips(
+    BuildContext context,
+    List<TaskItem> tasks,
+    DateTime today,
+  ) {
+    final hasSlots = tasks.any((t) => t.timeSlot != TimeSlot.any);
+    if (!hasSlots) {
+      return [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [for (final t in tasks) _TodayChip(task: t, date: today)],
+        ),
+      ];
+    }
+    final wq = context.wq;
+    final widgets = <Widget>[];
+    for (final slot in const [
+      TimeSlot.morning,
+      TimeSlot.afternoon,
+      TimeSlot.evening,
+      TimeSlot.any,
+    ]) {
+      final group = tasks.where((t) => t.timeSlot == slot).toList();
+      if (group.isEmpty) continue;
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 6),
+          child: Text(
+            switch (slot) {
+              TimeSlot.morning => strings.slotMorning,
+              TimeSlot.afternoon => strings.slotAfternoon,
+              TimeSlot.evening => strings.slotEvening,
+              TimeSlot.any => strings.slotAny,
+            },
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              color: wq.textMuted,
+            ),
+          ),
+        ),
+      );
+      widgets.add(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [for (final t in group) _TodayChip(task: t, date: today)],
+        ),
+      );
+    }
+    return widgets;
+  }
+}
+
+/// حكمة اليوم — تتبدّل يوميًا وتُقرأ في ثانية.
+class _QuoteCard extends StatelessWidget {
+  const _QuoteCard({required this.lang});
+
+  final String lang;
+
+  @override
+  Widget build(BuildContext context) {
+    final wq = context.wq;
+    final quote = DailyQuote.forDate(DateTime.now());
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('💡', style: TextStyle(fontSize: 14)),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            quote.text(lang),
+            style: TextStyle(
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              color: wq.textMuted,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -576,15 +659,23 @@ class _TodayChip extends StatelessWidget {
     final progressLabel = measurablePending
         ? ' ${task.progressOn(date)}/${task.target}'
               '${task.unit.isEmpty ? '' : ' ${task.unit}'}'
-        : '';
+        : (task.isQuit && status == null
+              ? ' · ${state.daysSinceSlip(task)}🛡'
+              : '');
     return Material(
       color: bg,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () => measurablePending
-            ? state.incrementProgress(task.id, date)
-            : state.cycleStatus(task.id, date),
+        onTap: () {
+          // ردّ لمسي خفيف عند كل إنجاز (تشجيع بلا ضجيج).
+          HapticFeedback.lightImpact();
+          if (measurablePending) {
+            state.incrementProgress(task.id, date);
+          } else {
+            state.cycleStatus(task.id, date);
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           child: Row(

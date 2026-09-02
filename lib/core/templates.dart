@@ -11,6 +11,8 @@ class HabitTemplate {
     this.unitAr = '',
     this.unitEn = '',
     this.priority = TaskPriority.medium,
+    this.isQuit = false,
+    this.timeSlot = TimeSlot.any,
   });
 
   final String nameAr;
@@ -23,6 +25,8 @@ class HabitTemplate {
   final String unitAr;
   final String unitEn;
   final TaskPriority priority;
+  final bool isQuit;
+  final TimeSlot timeSlot;
 
   String name(String lang) => lang == 'ar' ? nameAr : nameEn;
   String unit(String lang) => lang == 'ar' ? unitAr : unitEn;
@@ -37,6 +41,7 @@ const kHabitTemplates = <HabitTemplate>[
     icon: '🕌',
     categoryId: 'c1',
     priority: TaskPriority.high,
+    timeSlot: TimeSlot.morning,
   ),
   HabitTemplate(
     nameAr: 'ورد القرآن',
@@ -81,6 +86,7 @@ const kHabitTemplates = <HabitTemplate>[
     nameEn: 'Sleep before 11',
     icon: '😴',
     categoryId: 'c2',
+    timeSlot: TimeSlot.evening,
   ),
   HabitTemplate(
     nameAr: 'قراءة',
@@ -117,5 +123,28 @@ const kHabitTemplates = <HabitTemplate>[
     nameEn: 'Plan tomorrow',
     icon: '🗓️',
     categoryId: 'c4',
+    timeSlot: TimeSlot.evening,
+  ),
+  HabitTemplate(
+    nameAr: 'الإقلاع عن التدخين',
+    nameEn: 'Quit smoking',
+    icon: '🚭',
+    categoryId: 'c2',
+    isQuit: true,
+    priority: TaskPriority.high,
+  ),
+  HabitTemplate(
+    nameAr: 'بلا سكر مضاف',
+    nameEn: 'No added sugar',
+    icon: '🍬',
+    categoryId: 'c2',
+    isQuit: true,
+  ),
+  HabitTemplate(
+    nameAr: 'بلا تصفح بلا هدف',
+    nameEn: 'No doomscrolling',
+    icon: '📱',
+    categoryId: 'c4',
+    isQuit: true,
   ),
 ];

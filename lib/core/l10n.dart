@@ -125,6 +125,53 @@ class AppStrings {
     required this.featTasks15,
     required this.featPrioritySupport,
     required this.subscribedTier,
+    required this.habitScore,
+    required this.habitScoreHint,
+    required this.bestStreak2,
+    required this.currentStreak,
+    required this.subtasks,
+    required this.subtaskHint,
+    required this.dayNote,
+    required this.dayNoteHint,
+    required this.timeSlot,
+    required this.slotAny,
+    required this.slotMorning,
+    required this.slotAfternoon,
+    required this.slotEvening,
+    required this.reminders,
+    required this.addReminder,
+    required this.quitHabit,
+    required this.quitHint,
+    required this.daysClean,
+    required this.resisted,
+    required this.quietHours,
+    required this.quietHoursHint,
+    required this.from,
+    required this.to,
+    required this.restoreBackup,
+    required this.backupOf,
+    required this.noBackup,
+    required this.restored,
+    required this.restoreConfirm,
+    required this.exportCsv,
+    required this.csvCopied,
+    required this.filterAll,
+    required this.sortManual,
+    required this.sortPriority,
+    required this.sortName,
+    required this.sortScore,
+    required this.quoteOfDay,
+    required this.onb1Title,
+    required this.onb1Body,
+    required this.onb2Title,
+    required this.onb2Body,
+    required this.onb3Title,
+    required this.onb3Body,
+    required this.onbStart,
+    required this.onbSkip,
+    required this.onbNext,
+    required this.whyHint,
+    required this.step,
     required this.skipped,
     required this.skipDay,
     required this.skipHint,
@@ -343,6 +390,53 @@ class AppStrings {
   final String featTasks15;
   final String featPrioritySupport;
   final String subscribedTier;
+  final String habitScore;
+  final String habitScoreHint;
+  final String bestStreak2;
+  final String currentStreak;
+  final String subtasks;
+  final String subtaskHint;
+  final String dayNote;
+  final String dayNoteHint;
+  final String timeSlot;
+  final String slotAny;
+  final String slotMorning;
+  final String slotAfternoon;
+  final String slotEvening;
+  final String reminders;
+  final String addReminder;
+  final String quitHabit;
+  final String quitHint;
+  final String daysClean;
+  final String resisted;
+  final String quietHours;
+  final String quietHoursHint;
+  final String from;
+  final String to;
+  final String restoreBackup;
+  final String backupOf;
+  final String noBackup;
+  final String restored;
+  final String restoreConfirm;
+  final String exportCsv;
+  final String csvCopied;
+  final String filterAll;
+  final String sortManual;
+  final String sortPriority;
+  final String sortName;
+  final String sortScore;
+  final String quoteOfDay;
+  final String onb1Title;
+  final String onb1Body;
+  final String onb2Title;
+  final String onb2Body;
+  final String onb3Title;
+  final String onb3Body;
+  final String onbStart;
+  final String onbSkip;
+  final String onbNext;
+  final String whyHint;
+  final String step;
   final String skipped;
   final String skipDay;
   final String skipHint;
@@ -583,6 +677,56 @@ class AppStrings {
     featTasks15: 'حتى 15 مهمة وعادة',
     featPrioritySupport: 'أولوية في الدعم',
     subscribedTier: 'تم تفعيل باقتك بنجاح 🎉 (محاكاة — بدون دفع فعلي)',
+    habitScore: 'درجة الاستمرارية',
+    habitScoreHint: 'تهبط تدريجيًا مع الفوات ولا تُصفَّر — لا قلق سلسلة',
+    bestStreak2: 'أطول سلسلة',
+    currentStreak: 'السلسلة الحالية',
+    subtasks: 'قائمة التحقق (خطوات)',
+    subtaskHint: 'خطوة جديدة… ثم Enter',
+    dayNote: 'ملاحظة اليوم',
+    dayNoteHint: 'كيف كان الأمر؟ ماذا تعلمت؟',
+    timeSlot: 'فترة اليوم',
+    slotAny: 'أي وقت',
+    slotMorning: '☀️ صباحًا',
+    slotAfternoon: '🌤️ ظهرًا',
+    slotEvening: '🌙 مساءً',
+    reminders: 'أوقات التذكير (حتى 3)',
+    addReminder: '+ وقت',
+    quitHabit: 'عادة أريد الإقلاع عنها',
+    quitHint: 'الإنجاز = قاومتُ اليوم، والفوات = زلّة تعيد العدّاد',
+    daysClean: 'يومًا بلا زلّة',
+    resisted: 'قاومت اليوم',
+    quietHours: 'ساعات الهدوء',
+    quietHoursHint: 'لا تذكيرات في هذه الفترة',
+    from: 'من',
+    to: 'إلى',
+    restoreBackup: 'استعادة النسخة الاحتياطية المحلية',
+    backupOf: 'نسخة تلقائية من',
+    noBackup: 'لا توجد نسخة احتياطية بعد',
+    restored: 'تمت الاستعادة ✅',
+    restoreConfirm: 'سيتم استبدال بياناتك الحالية بالنسخة الاحتياطية. متابعة؟',
+    exportCsv: 'تصدير CSV',
+    csvCopied: 'تم نسخ CSV إلى الحافظة ✅',
+    filterAll: 'الكل',
+    sortManual: 'ترتيبي',
+    sortPriority: 'الأولوية',
+    sortName: 'الاسم',
+    sortScore: 'الدرجة',
+    quoteOfDay: 'حكمة اليوم',
+    onb1Title: 'مهامك وعاداتك في مكان واحد',
+    onb1Body:
+        'أضف عادة بنقرة، وأنجزها بنقرة. اليوم أولًا: ما عليك الآن، وما تأخر.',
+    onb2Title: 'بلا قلق سلسلة',
+    onb2Body:
+        'إنجاز متأخر يحفظ سلسلتك، يوم راحة لا يكسرها، ودرجة استمرارية تهبط تدريجيًا بدل التصفير.',
+    onb3Title: 'بياناتك على جهازك',
+    onb3Body:
+        'بلا حساب إلزامي، بلا إعلانات، بلا تتبع. نسخة احتياطية تلقائية وتصدير بنقرة.',
+    onbStart: 'ابدأ الآن',
+    onbSkip: 'تخطٍّ',
+    onbNext: 'التالي',
+    whyHint: 'لماذا هذه العادة مهمة لك؟ (يظهر في التذكير)',
+    step: 'خطوة',
     skipped: 'راحة',
     skipDay: 'يوم راحة',
     skipHint: 'لا يُحسب ولا يكسر السلسلة',
@@ -826,6 +970,57 @@ class AppStrings {
     featTasks15: 'Up to 15 tasks & habits',
     featPrioritySupport: 'Priority support',
     subscribedTier: 'Your plan is active 🎉 (simulated — no real payment)',
+    habitScore: 'Consistency score',
+    habitScoreHint: 'Drops gradually on misses, never resets to zero',
+    bestStreak2: 'Best streak',
+    currentStreak: 'Current streak',
+    subtasks: 'Checklist (steps)',
+    subtaskHint: 'New step… then Enter',
+    dayNote: 'Today\'s note',
+    dayNoteHint: 'How did it go? What did you learn?',
+    timeSlot: 'Time of day',
+    slotAny: 'Any time',
+    slotMorning: '☀️ Morning',
+    slotAfternoon: '🌤️ Afternoon',
+    slotEvening: '🌙 Evening',
+    reminders: 'Reminder times (up to 3)',
+    addReminder: '+ time',
+    quitHabit: 'A habit to quit',
+    quitHint: 'Done = I resisted today; a miss resets the counter',
+    daysClean: 'days clean',
+    resisted: 'Resisted today',
+    quietHours: 'Quiet hours',
+    quietHoursHint: 'No reminders during this window',
+    from: 'From',
+    to: 'To',
+    restoreBackup: 'Restore local backup',
+    backupOf: 'Auto backup from',
+    noBackup: 'No backup yet',
+    restored: 'Restored ✅',
+    restoreConfirm:
+        'Your current data will be replaced by the backup. Continue?',
+    exportCsv: 'Export CSV',
+    csvCopied: 'CSV copied to clipboard ✅',
+    filterAll: 'All',
+    sortManual: 'My order',
+    sortPriority: 'Priority',
+    sortName: 'Name',
+    sortScore: 'Score',
+    quoteOfDay: 'Quote of the day',
+    onb1Title: 'Tasks and habits in one place',
+    onb1Body:
+        'Add a habit in one tap, finish it in one tap. Today first: what is due now and what is late.',
+    onb2Title: 'No streak anxiety',
+    onb2Body:
+        'Late completion keeps your streak, rest days never break it, and a consistency score fades instead of resetting.',
+    onb3Title: 'Your data stays on your device',
+    onb3Body:
+        'No mandatory account, no ads, no tracking. Automatic backup and one-tap export.',
+    onbStart: 'Get started',
+    onbSkip: 'Skip',
+    onbNext: 'Next',
+    whyHint: 'Why does this habit matter to you? (shown in reminders)',
+    step: 'step',
     skipped: 'Skipped',
     skipDay: 'Rest day',
     skipHint: 'Not counted, streak stays safe',

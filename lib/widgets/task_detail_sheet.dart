@@ -63,6 +63,9 @@ class TaskDetailSheet extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final dueToday = task.isApplicableOn(today);
     final skippedToday = task.statusOn(today) == TaskStatus.skipped;
+    final score = state.habitScore(task);
+    final bestStreak = state.taskBestStreak(task);
+    final noteController = TextEditingController(text: task.noteOn(today));
 
     return ListView(
       shrinkWrap: true,
@@ -95,6 +98,11 @@ class TaskDetailSheet extends StatelessWidget {
             if (task.isPaused) WqChip('⏸ ${s.pausedTag}', color: wq.late),
             if (task.isMeasurable)
               WqChip('🎯 ${task.target} ${task.unit}'.trim()),
+            if (task.isQuit)
+              WqChip(
+                '🚭 ${state.daysSinceSlip(task)} ${s.daysClean}',
+                color: wq.done,
+              ),
           ],
         ),
         if (task.description.isNotEmpty) ...[
@@ -122,6 +130,112 @@ class TaskDetailSheet extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         LevelBar(pct: pct, color: Color(task.colorValue)),
+        const SizedBox(height: 14),
+        // درجة الاستمرارية (مرنة) + أطول سلسلة — بديل قلق السلسلة.
+        WqCard(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '📈 ${s.habitScore}',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      s.habitScoreHint,
+                      style: TextStyle(fontSize: 10.5, color: wq.textMuted),
+                    ),
+                    const SizedBox(height: 6),
+                    LevelBar(pct: score, height: 8),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                children: [
+                  Text(
+                    '$score%',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: wq.primaryDark,
+                    ),
+                  ),
+                  Text(
+                    '🔥 ${s.bestStreak2}: $bestStreak',
+                    style: TextStyle(fontSize: 11, color: wq.textMuted),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        if (task.subtasks.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          Text(
+            s.subtasks,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: wq.textMuted,
+            ),
+          ),
+          for (var i = 0; i < task.subtasks.length; i++)
+            InkWell(
+              onTap: () => state.toggleSubtask(task.id, i),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      task.subtasks[i].done
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank,
+                      size: 20,
+                      color: task.subtasks[i].done ? wq.done : wq.textMuted,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        task.subtasks[i].title,
+                        style: TextStyle(
+                          fontSize: 13,
+                          decoration: task.subtasks[i].done
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+        const SizedBox(height: 14),
+        Text(
+          '📝 ${s.dayNote}',
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: wq.textMuted,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: noteController,
+          minLines: 1,
+          maxLines: 3,
+          decoration: InputDecoration(hintText: s.dayNoteHint),
+          onSubmitted: (v) => state.setNote(task.id, today, v),
+          onTapOutside: (_) =>
+              state.setNote(task.id, today, noteController.text),
+        ),
         const SizedBox(height: 14),
         // إجراءات سريعة: يوم راحة اليوم، إيقاف/استئناف، تركيز.
         Wrap(

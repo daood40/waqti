@@ -27,6 +27,65 @@ class SettingsTab extends StatelessWidget {
     ).showSnackBar(SnackBar(content: Text(s.exportCopied)));
   }
 
+  Future<void> _exportCsv(
+    BuildContext context,
+    AppState state,
+    AppStrings s,
+  ) async {
+    await Clipboard.setData(ClipboardData(text: state.exportCsv()));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(s.csvCopied)));
+  }
+
+  Future<void> _restoreBackup(
+    BuildContext context,
+    AppState state,
+    AppStrings s,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(s.restoreBackup),
+        content: Text(s.restoreConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(s.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(s.restoreBackup),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final ok = state.restoreBackup();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(ok ? s.restored : s.noBackup)));
+  }
+
+  Future<void> _pickQuiet(
+    BuildContext context,
+    AppState state, {
+    required bool start,
+  }) async {
+    final current = start ? state.quietStart : state.quietEnd;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: current ~/ 60, minute: current % 60),
+    );
+    if (picked == null) return;
+    final m = picked.hour * 60 + picked.minute;
+    state.setQuietHours(start: start ? m : null, end: start ? null : m);
+  }
+
+  static String _hhmm(int m) =>
+      '${(m ~/ 60).toString().padLeft(2, '0')}:${(m % 60).toString().padLeft(2, '0')}';
+
   Future<void> _importData(
     BuildContext context,
     AppState state,
@@ -293,6 +352,44 @@ class SettingsTab extends StatelessWidget {
                 value: state.eveningRecap,
                 onChanged: state.notifMaster ? state.setEveningRecap : null,
               ),
+              Divider(color: wq.border, height: 1),
+              _SwitchRow(
+                label: '🌙 ${s.quietHours}',
+                value: state.quietHoursOn,
+                onChanged: state.notifMaster
+                    ? (v) => state.setQuietHours(on: v)
+                    : null,
+              ),
+              if (state.quietHoursOn && state.notifMaster)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          s.quietHoursHint,
+                          style: TextStyle(fontSize: 11.5, color: wq.textMuted),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            _pickQuiet(context, state, start: true),
+                        child: Text(
+                          '${s.from} ${_hhmm(state.quietStart)}',
+                          textDirection: TextDirection.ltr,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            _pickQuiet(context, state, start: false),
+                        child: Text(
+                          '${s.to} ${_hhmm(state.quietEnd)}',
+                          textDirection: TextDirection.ltr,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
@@ -300,23 +397,59 @@ class SettingsTab extends StatelessWidget {
         // ---------- إدارة البيانات ----------
         _Group(
           title: s.dataMgmt,
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _exportData(context, state, s),
-                  icon: const Icon(Icons.download_rounded, size: 17),
-                  label: Text(s.exportData),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _exportData(context, state, s),
+                      icon: const Icon(Icons.download_rounded, size: 17),
+                      label: Text(s.exportData),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () => _importData(context, state, s),
+                      icon: const Icon(Icons.upload_rounded, size: 17),
+                      label: Text(s.importData),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () => _importData(context, state, s),
-                  icon: const Icon(Icons.upload_rounded, size: 17),
-                  label: Text(s.importData),
-                ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () => _exportCsv(context, state, s),
+                      icon: const Icon(Icons.table_chart_outlined, size: 17),
+                      label: Text(s.exportCsv),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () => _restoreBackup(context, state, s),
+                      icon: const Icon(Icons.history_rounded, size: 17),
+                      label: Text(
+                        s.restoreBackup,
+                        style: const TextStyle(fontSize: 11.5),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              if (state.backupDate case final d?)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    '${s.backupOf} ${d.day}/${d.month}/${d.year}',
+                    style: TextStyle(fontSize: 11, color: wq.textMuted),
+                  ),
+                ),
             ],
           ),
         ),

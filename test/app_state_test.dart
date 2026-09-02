@@ -401,12 +401,13 @@ void main() {
       name: 'ماء',
       target: 8,
       unit: 'كوب',
-      reminderMinutes: 510,
+      reminders: const [510],
       pausedAt: DateTime(2026, 8, 20),
     )..setProgressOn(DateTime(2026, 8, 10), 5);
     final copy = TaskItem.fromJson(task.toJson());
     expect(copy.target, 8);
     expect(copy.unit, 'كوب');
+    expect(copy.reminders, [510]);
     expect(copy.reminderMinutes, 510);
     expect(copy.pausedAt, DateTime(2026, 8, 20));
     expect(copy.progressOn(DateTime(2026, 8, 10)), 5);
@@ -446,5 +447,130 @@ void main() {
     expect(state.focusMinutesInMonth(2026, 7), 0);
     final reloaded = await AppState.load();
     expect(reloaded.focusMinutesOn(date), 40);
+  });
+
+  test('legacy single reminder migrates to reminders list', () async {
+    final t = TaskItem.fromJson({'id': 'x', 'name': 'قديم', 'reminder': 600});
+    expect(t.reminders, [600]);
+  });
+
+  test('subtasks, notes, slot and quit survive JSON', () async {
+    final task = TaskItem(
+      id: 'q',
+      name: 'تدخين',
+      isQuit: true,
+      timeSlot: TimeSlot.evening,
+      subtasks: [Subtask(title: 'رمي العلبة', done: true)],
+    )..setNoteOn(DateTime(2026, 8, 10), 'يوم صعب لكن نجحت');
+    final copy = TaskItem.fromJson(task.toJson());
+    expect(copy.isQuit, isTrue);
+    expect(copy.timeSlot, TimeSlot.evening);
+    expect(copy.subtasks.single.title, 'رمي العلبة');
+    expect(copy.subtasks.single.done, isTrue);
+    expect(copy.noteOn(DateTime(2026, 8, 10)), 'يوم صعب لكن نجحت');
+  });
+
+  test('habit score fades on misses instead of resetting', () async {
+    final state = await freshState();
+    final task = TaskItem(
+      id: 't',
+      name: 'قراءة',
+      createdAt: DateTime(2026, 1, 1),
+    );
+    state.addTask(task);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    for (var i = 1; i <= 30; i++) {
+      task.setStatusOn(
+        DateTime(today.year, today.month, today.day - i),
+        TaskStatus.done,
+      );
+    }
+    final perfect = state.habitScore(task);
+    expect(perfect, greaterThanOrEqualTo(95));
+    // فوات يوم واحد أمس: الدرجة تهبط قليلًا فقط ولا تُصفَّر.
+    task.setStatusOn(
+      DateTime(today.year, today.month, today.day - 1),
+      TaskStatus.missed,
+    );
+    final afterMiss = state.habitScore(task);
+    expect(afterMiss, lessThan(perfect));
+    expect(afterMiss, greaterThan(70));
+  });
+
+  test('best streak per task and longest overall streak', () async {
+    final state = await freshState();
+    final task = TaskItem(
+      id: 't',
+      name: 'قراءة',
+      createdAt: DateTime(2026, 1, 1),
+    );
+    state.addTask(task);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    DateTime back(int d) => DateTime(today.year, today.month, today.day - d);
+    for (final d in [10, 9, 8, 7, 6]) {
+      task.setStatusOn(back(d), TaskStatus.done); // سلسلة 5
+    }
+    task.setStatusOn(back(5), TaskStatus.missed);
+    task.setStatusOn(back(2), TaskStatus.done);
+    task.setStatusOn(back(1), TaskStatus.doneLate); // سلسلة 2
+    expect(state.taskBestStreak(task), 5);
+    expect(state.longestStreak(), 5);
+    expect(state.currentStreak(), 2);
+  });
+
+  test('quiet hours window wraps midnight', () async {
+    final state = await freshState();
+    state.setQuietHours(on: true, start: 22 * 60, end: 7 * 60);
+    expect(state.isQuietAt(23 * 60), isTrue);
+    expect(state.isQuietAt(3 * 60), isTrue);
+    expect(state.isQuietAt(12 * 60), isFalse);
+    state.setQuietHours(on: false);
+    expect(state.isQuietAt(23 * 60), isFalse);
+  });
+
+  test('daysSinceSlip counts from the last missed day', () async {
+    final state = await freshState();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final task = TaskItem(
+      id: 'q',
+      name: 'تدخين',
+      isQuit: true,
+      createdAt: DateTime(today.year, today.month, today.day - 20),
+    );
+    state.addTask(task);
+    expect(state.daysSinceSlip(task), 20);
+    task.setStatusOn(
+      DateTime(today.year, today.month, today.day - 3),
+      TaskStatus.missed,
+    );
+    expect(state.daysSinceSlip(task), 3);
+  });
+
+  test('csv export lists one row per status', () async {
+    final state = await freshState();
+    final task = TaskItem(id: 't', name: 'قراءة "مهمة"');
+    state.addTask(task);
+    task.setStatusOn(DateTime(2026, 8, 1), TaskStatus.done);
+    task.setNoteOn(DateTime(2026, 8, 1), 'ممتاز');
+    final csv = state.exportCsv();
+    expect(csv.split('\n').first, 'task,date,status,progress,note');
+    expect(csv, contains('"قراءة ""مهمة""",2026-08-01,done,,"ممتاز"'));
+  });
+
+  test('daily local backup can be restored', () async {
+    SharedPreferences.setMockInitialValues({});
+    var state = await AppState.load();
+    state.addTask(TaskItem(id: 'a', name: 'أ'));
+    await Future<void>.delayed(Duration.zero);
+    expect(state.backupDate, isNotNull);
+    state.removeTask('a');
+    expect(state.tasks, isEmpty);
+    expect(state.restoreBackup(), isTrue);
+    expect(state.tasks.map((t) => t.id), contains('a'));
+    state = await AppState.load();
+    expect(state.tasks.map((t) => t.id), contains('a'));
   });
 }

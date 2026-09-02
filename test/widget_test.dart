@@ -4,22 +4,28 @@ import 'package:waqti/main.dart';
 import 'package:waqti/state/app_state.dart';
 
 void main() {
-  testWidgets('shows auth screen first, then home shell after guest login', (
-    tester,
-  ) async {
-    SharedPreferences.setMockInitialValues({});
-    final state = await AppState.load();
-    await tester.pumpWidget(WaqtiApp(appState: state));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'shows onboarding, then auth, then home shell after guest login',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final state = await AppState.load();
+      await tester.pumpWidget(WaqtiApp(appState: state));
+      await tester.pumpAndSettle();
 
-    // شاشة الدخول تظهر أولًا.
-    expect(find.text('مرحبًا بعودتك'), findsOneWidget);
+      // الجولة التعريفية تظهر أولًا عند أول تشغيل، ويمكن تخطّيها.
+      expect(find.text('مهامك وعاداتك في مكان واحد'), findsOneWidget);
+      await tester.tap(find.text('تخطٍّ'));
+      await tester.pumpAndSettle();
 
-    // المتابعة كزائر تنقل للرئيسية.
-    await tester.ensureVisible(find.text('المتابعة كزائر'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('المتابعة كزائر'));
-    await tester.pumpAndSettle();
-    expect(find.text('الجدول الشهري'), findsOneWidget);
-  });
+      // ثم شاشة الدخول.
+      expect(find.text('مرحبًا بعودتك'), findsOneWidget);
+
+      // المتابعة كزائر تنقل للرئيسية.
+      await tester.ensureVisible(find.text('المتابعة كزائر'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('المتابعة كزائر'));
+      await tester.pumpAndSettle();
+      expect(find.text('الجدول الشهري'), findsOneWidget);
+    },
+  );
 }
