@@ -8,6 +8,9 @@ on:
   push:
     tags: ["v*"]
 
+permissions:
+  contents: write
+
 jobs:
   android:
     runs-on: ubuntu-latest
@@ -103,3 +106,31 @@ jobs:
         with:
           name: waqti-ios-nosign
           path: waqti-ios-nosign.zip
+
+  # عند وسم vX.Y.Z: يجمع الحِزم الأربع في GitHub Release بروابط تحميل مباشرة.
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [android, windows, web, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Rename for direct links
+        run: |
+          set -e
+          mkdir -p out
+          cp dist/waqti-android/bundle/release/app-release.aab out/waqti-${GITHUB_REF_NAME}.aab 2>/dev/null || cp $(find dist -name '*.aab' | head -1) out/waqti-${GITHUB_REF_NAME}.aab
+          cp $(find dist -name 'app-release.apk' | head -1) out/waqti-${GITHUB_REF_NAME}.apk
+          cp $(find dist -name 'waqti-windows.zip' | head -1) out/waqti-${GITHUB_REF_NAME}-windows.zip
+          MSIX=$(find dist -name '*.msix' | head -1); [ -n "$MSIX" ] && cp "$MSIX" out/waqti-${GITHUB_REF_NAME}.msix || true
+          cp $(find dist -name 'waqti-web.zip' | head -1) out/waqti-${GITHUB_REF_NAME}-web.zip
+          cp $(find dist -name 'waqti-ios-nosign.zip' | head -1) out/waqti-${GITHUB_REF_NAME}-ios-nosign.zip
+          ls -la out
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: وقتي ${{ github.ref_name }}
+          body: |
+            حِزم الإصدار ${{ github.ref_name }} — أندرويد (APK للتجربة، AAB للمتجر)، ويندوز (zip + MSIX)، ويب، iOS بلا توقيع.
+            الويب مباشرة: https://daood40.github.io/waqti/
+          files: out/*
