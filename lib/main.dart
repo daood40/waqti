@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'core/notification_service.dart';
 import 'core/theme.dart';
 import 'screens/auth_screen.dart';
 import 'screens/shell_screen.dart';
@@ -10,6 +11,9 @@ import 'state/app_state.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appState = await AppState.load();
+  // التذكيرات المحلية: تهيئة ثم مزامنة الجدول مع كل تغيير في الحالة.
+  await NotificationService.instance.init();
+  NotificationService.instance.bind(appState);
   runApp(WaqtiApp(appState: appState));
 }
 
