@@ -128,6 +128,10 @@ class AppStrings {
     required this.comingSoon,
     required this.launchFreeNote,
     required this.launchTag,
+    required this.exportSaved,
+    required this.copyFailed,
+    required this.noTasksThatDay,
+    required this.tapToCycle,
     required this.habitScore,
     required this.habitScoreHint,
     required this.bestStreak2,
@@ -396,6 +400,10 @@ class AppStrings {
   final String comingSoon;
   final String launchFreeNote;
   final String launchTag;
+  final String exportSaved;
+  final String copyFailed;
+  final String noTasksThatDay;
+  final String tapToCycle;
   final String habitScore;
   final String habitScoreHint;
   final String bestStreak2;
@@ -686,6 +694,10 @@ class AppStrings {
     comingSoon: 'قريبًا',
     launchFreeNote: '🎉 فترة الإطلاق: كل المزايا مجانية للجميع بلا حدود',
     launchTag: 'إطلاق',
+    exportSaved: 'تم حفظ الملف على جهازك',
+    copyFailed: 'تعذّر النسخ تلقائيًا — حدّد النص وانسخه',
+    noTasksThatDay: 'لا مهام في هذا اليوم',
+    tapToCycle: 'انقر الدائرة لتبديل الحالة',
     habitScore: 'درجة الاستمرارية',
     habitScoreHint: 'تهبط تدريجيًا مع الفوات ولا تُصفَّر — لا قلق سلسلة',
     bestStreak2: 'أطول سلسلة',
@@ -983,6 +995,10 @@ class AppStrings {
     launchFreeNote:
         '🎉 Launch period: every feature is free for everyone, no limits',
     launchTag: 'Launch',
+    exportSaved: 'File saved to your device',
+    copyFailed: 'Automatic copy failed — select the text and copy it',
+    noTasksThatDay: 'No tasks on this day',
+    tapToCycle: 'Tap a circle to cycle its status',
     habitScore: 'Consistency score',
     habitScoreHint: 'Drops gradually on misses, never resets to zero',
     bestStreak2: 'Best streak',

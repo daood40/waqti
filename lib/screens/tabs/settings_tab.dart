@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_info.dart';
+import '../../core/export_file.dart';
 import '../../core/l10n.dart';
 import '../../models/models.dart';
 import '../../core/theme.dart';
@@ -15,28 +16,71 @@ import '../subscription_screen.dart';
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
 
-  Future<void> _exportData(
+  /// تصدير نص: تنزيل ملف على الويب، وإلا نسخ إلى الحافظة،
+  /// ومع فشل النسخ يُعرض النص في نافذة قابلة للتحديد.
+  Future<void> _shareText(
     BuildContext context,
-    AppState state,
-    AppStrings s,
-  ) async {
-    await Clipboard.setData(ClipboardData(text: state.exportJson()));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(s.exportCopied)));
+    AppStrings s, {
+    required String fileName,
+    required String mime,
+    required String text,
+    required String copiedMsg,
+  }) async {
+    if (await saveTextFile(fileName, text, mime: mime)) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(s.exportSaved)));
+      return;
+    }
+    try {
+      await Clipboard.setData(ClipboardData(text: text));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(copiedMsg)));
+    } catch (_) {
+      if (!context.mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(s.copyFailed, style: const TextStyle(fontSize: 14)),
+          content: SingleChildScrollView(
+            child: SelectableText(text, style: const TextStyle(fontSize: 11)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(s.close),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
-  Future<void> _exportCsv(
-    BuildContext context,
-    AppState state,
-    AppStrings s,
-  ) async {
-    await Clipboard.setData(ClipboardData(text: state.exportCsv()));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(
+  Future<void> _exportData(BuildContext context, AppState state, AppStrings s) {
+    final day = DateKey.fromDate(DateTime.now());
+    return _shareText(
       context,
-    ).showSnackBar(SnackBar(content: Text(s.csvCopied)));
+      s,
+      fileName: 'waqti-backup-$day.json',
+      mime: 'application/json',
+      text: state.exportJson(),
+      copiedMsg: s.exportCopied,
+    );
+  }
+
+  Future<void> _exportCsv(BuildContext context, AppState state, AppStrings s) {
+    final day = DateKey.fromDate(DateTime.now());
+    return _shareText(
+      context,
+      s,
+      fileName: 'waqti-$day.csv',
+      mime: 'text/csv',
+      text: state.exportCsv(),
+      copiedMsg: s.csvCopied,
+    );
   }
 
   Future<void> _restoreBackup(

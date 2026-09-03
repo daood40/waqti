@@ -102,68 +102,166 @@ class CalendarTab extends StatelessWidget {
                       .where((t) => t.statusOn(date)?.isCompleted ?? false)
                       .length;
 
-                  return Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: wq.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isToday ? wq.primary : wq.border,
-                        width: isToday ? 2 : 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$day',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: isToday ? wq.primaryDark : wq.text,
-                          ),
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(10),
+                    onTap: () => _showDay(context, date),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: wq.surface,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isToday ? wq.primary : wq.border,
+                          width: isToday ? 2 : 1,
                         ),
-                        if (dayTasks.isNotEmpty) ...[
-                          const SizedBox(height: 3),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            '$doneCount/${dayTasks.length}',
+                            '$day',
                             style: TextStyle(
-                              fontSize: 9.5,
-                              color: wq.textMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: isToday ? wq.primaryDark : wq.text,
                             ),
                           ),
-                          const SizedBox(height: 3),
-                          Expanded(
-                            child: Wrap(
-                              spacing: 2,
-                              runSpacing: 2,
-                              children: [
-                                for (final t in dayTasks.take(6))
-                                  Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: switch (t.statusOn(date)) {
-                                        TaskStatus.done => wq.done,
-                                        TaskStatus.doneLate => wq.late,
-                                        TaskStatus.missed => wq.missed,
-                                        TaskStatus.skipped =>
-                                          wq.textMuted.withValues(alpha: .5),
-                                        null => wq.none,
-                                      },
+                          if (dayTasks.isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              '$doneCount/${dayTasks.length}',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                color: wq.textMuted,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Expanded(
+                              child: Wrap(
+                                spacing: 2,
+                                runSpacing: 2,
+                                children: [
+                                  for (final t in dayTasks.take(6))
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: switch (t.statusOn(date)) {
+                                          TaskStatus.done => wq.done,
+                                          TaskStatus.doneLate => wq.late,
+                                          TaskStatus.missed => wq.missed,
+                                          TaskStatus.skipped =>
+                                            wq.textMuted.withValues(alpha: .5),
+                                          null => wq.none,
+                                        },
+                                      ),
                                     ),
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   );
                 },
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// ورقة اليوم: مهام ذلك التاريخ مع تبديل الحالة بنقرة (لا أيام مستقبلية).
+  void _showDay(BuildContext context, DateTime date) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      constraints: const BoxConstraints(maxWidth: 640),
+      builder: (_) => _DaySheet(date: date),
+    );
+  }
+}
+
+class _DaySheet extends StatelessWidget {
+  const _DaySheet({required this.date});
+
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
+    final s = AppStrings.of(state.lang);
+    final wq = context.wq;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final future = date.isAfter(today);
+    final tasks = state.tasks
+        .where((t) => t.isApplicableOn(date))
+        .toList(growable: false);
+    final done = tasks
+        .where((t) => t.statusOn(date)?.isCompleted ?? false)
+        .length;
+
+    return ListView(
+      shrinkWrap: true,
+      padding: const EdgeInsets.fromLTRB(22, 12, 22, 22),
+      children: [
+        Center(
+          child: Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: wq.none,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          '${date.day} ${s.months[date.month - 1]} ${date.year}',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          tasks.isEmpty
+              ? s.noTasksThatDay
+              : '$done / ${tasks.length}${future ? '' : ' · ${s.tapToCycle}'}',
+          style: TextStyle(fontSize: 12.5, color: wq.textMuted),
+        ),
+        const SizedBox(height: 12),
+        for (final t in tasks)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                Text(t.icon, style: const TextStyle(fontSize: 18)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    t.name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                StatusDot(
+                  status: t.statusOn(date),
+                  onTap: future ? null : () => state.cycleStatus(t.id, date),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 6),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(s.close),
           ),
         ),
       ],

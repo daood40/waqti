@@ -260,7 +260,12 @@ class _PlanCard extends StatelessWidget {
               if (plan.tier != PlanTier.free) ...[
                 const SizedBox(height: 16),
                 if (kLaunchMode)
-                  FilledButton(onPressed: null, child: Text(strings.comingSoon))
+                  FilledButton(
+                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(strings.launchFreeNote)),
+                    ),
+                    child: Text(strings.comingSoon),
+                  )
                 else if (current)
                   ElevatedButton(
                     onPressed: onCancel,

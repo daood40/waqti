@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/app_info.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
@@ -170,39 +171,41 @@ class _AuthScreenState extends State<AuthScreen> {
                           child: Text(_isSignup ? s.signup : s.login),
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(child: Divider(color: wq.border)),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                              child: Text(
-                                s.orContinueWith,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: wq.textMuted,
+                        if (!kLaunchMode) ...[
+                          Row(
+                            children: [
+                              Expanded(child: Divider(color: wq.border)),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(
+                                  s.orContinueWith,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: wq.textMuted,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(child: Divider(color: wq.border)),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _OAuthButton(
-                          label: s.continueGoogle,
-                          icon: '🔴',
-                          onTap: () =>
-                              state.signIn(name: 'Google User', email: ''),
-                        ),
-                        const SizedBox(height: 9),
-                        _OAuthButton(
-                          label: s.continueApple,
-                          icon: '🍎',
-                          onTap: () =>
-                              state.signIn(name: 'Apple User', email: ''),
-                        ),
-                        const SizedBox(height: 14),
+                              Expanded(child: Divider(color: wq.border)),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _OAuthButton(
+                            label: s.continueGoogle,
+                            icon: '🔴',
+                            onTap: () =>
+                                state.signIn(name: 'Google User', email: ''),
+                          ),
+                          const SizedBox(height: 9),
+                          _OAuthButton(
+                            label: s.continueApple,
+                            icon: '🍎',
+                            onTap: () =>
+                                state.signIn(name: 'Apple User', email: ''),
+                          ),
+                          const SizedBox(height: 14),
+                        ],
                         TextButton(
                           onPressed: () => setState(() {
                             _isSignup = !_isSignup;
