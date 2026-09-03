@@ -60,9 +60,14 @@ GitHub → Actions → **Release Builds** → Run workflow → انتظر ~12 د
 | App Store | `ASC_KEY_ID`، `ASC_ISSUER_ID`، `ASC_KEY_P8` | App Store Connect → Users and Access → Integrations → App Store Connect API → Generate (Access: **App Manager**) — Key ID وIssuer ID ظاهران، ومحتوى ملف `.p8` |
 | | `APPLE_TEAM_ID` | developer.apple.com → Membership details |
 | Microsoft Store | `MS_TENANT_ID`، `MS_CLIENT_ID`، `MS_CLIENT_SECRET` | Partner Center → Account settings → User management → Azure AD applications → Add → Create new (Manager) → Add new key |
+| | `MS_SELLER_ID`، `MS_PRODUCT_ID` | Partner Center → Account settings → Legal info → Seller ID؛ والتطبيق → Product identity → Store ID (يبدأ بـ 9) |
 | | `MSIX_PUBLISHER`، `MSIX_IDENTITY_NAME`، `MSIX_PUBLISHER_DISPLAY_NAME` | Partner Center → التطبيق → Product identity (تُستخدم في بناء MSIX للمتجر) |
 
-**ما أفعله بعدها**: أبني سير عمل `publish.yml` يرفع AAB إلى Play (مسار Internal testing أولًا ثم Production بأمرك)، ويوقّع ويرفع IPA إلى TestFlight ثم App Store عبر macOS runner (بلا Mac عندك)، ويرسل MSIX لـ Partner Center. البطاقات (النصوص، اللقطات، الخصوصية) أعبّئها عبر الواجهات البرمجية حيث تسمح، وما لا تسمح به (استبيان التصنيف العمري في Play، App Privacy في آبل) أعطيك الإجابات الجاهزة لتضغط «حفظ» فقط.
+**سير العمل جاهز**: `.github/workflows/publish.yml` — Actions → **Publish to Stores** → Run workflow. اختر المتاجر والمسار (Play: internal أولًا ثم production). كل وظيفة تتحقق من أسرارها وتفشل برسالة تسمّي الناقص.
+- Google Play: يبني AAB موقّعًا بمفتاح الرفع ويرفعه مع نصوص «ما الجديد» من `distribution/whatsnew/`.
+- App Store: يوقّع سحابيًا بمفتاح App Store Connect API (بلا Mac) ويرفع IPA إلى TestFlight/App Store Connect مباشرة.
+- Microsoft Store: يبني MSIX بهوية المتجر ويرسله إلى Partner Center عبر MSStore CLI.
+ما لا تسمح به الواجهات البرمجية (استبيان التصنيف العمري وData safety في Play، App Privacy في آبل) إجاباته جاهزة في `docs/LAUNCH_CHECKLIST.md`.
 
 **ما يبقى بيدك حتمًا** (المتاجر تشترط الحساب المالك): دفع الرسوم، قبول الاتفاقيات (Paid Apps Agreement)، والضغط النهائي على «Submit for review» في App Store إن رغبت بالمراجعة قبل الإرسال.
 

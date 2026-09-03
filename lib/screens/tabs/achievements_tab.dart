@@ -276,8 +276,9 @@ class AchievementsTab extends StatelessWidget {
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            // عرض أقصى للبطاقة: عمودان على الهاتف وأكثر على الأجهزة اللوحية.
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 220,
               mainAxisSpacing: 14,
               crossAxisSpacing: 14,
               childAspectRatio: 1.05,
