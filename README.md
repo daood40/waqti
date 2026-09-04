@@ -34,6 +34,19 @@
 | Streak محصور بالشهر الحالي | يمتد عبر حدود الشهور |
 | خط عبر CDN | خط Tajawal مضمّن (يعمل دون إنترنت) |
 
+## الإعدادات (اختيارية)
+
+بلا إعدادات يعمل التطبيق محليًا كزائر. للحساب والنسخة السحابية وتتبع الأعطال مرّر عند البناء:
+
+```bash
+flutter run --dart-define=SUPABASE_URL=https://xxx.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=sb_publishable_xxx \
+  --dart-define=SENTRY_DSN=https://xxx@sentry.io/1 \
+  --dart-define=GOOGLE_WEB_CLIENT_ID=xxx.apps.googleusercontent.com
+```
+
+مخطط قاعدة البيانات وسياسات RLS في `supabase/migrations/`، والإعداد في `supabase/README.md`.
+
 ## البنية
 
 ```

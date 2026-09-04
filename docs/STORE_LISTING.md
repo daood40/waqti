@@ -33,11 +33,12 @@
 • عادات كمية (8 أكواب، 20 صفحة)، عادات إقلاع بعدّاد الأيام، مهام فرعية، ويوميات
 • فترات اليوم، حتى 3 تذكيرات لكل عادة، ساعات هدوء، مؤقت تركيز
 • التاريخ الهجري و12 قالب عادة عربي جاهز
+• حساب اختياري (بريد/Google/Apple) مع نسخة سحابية تستعيدها على أي جهاز
 • نسخة احتياطية محلية تلقائية واستعادة بنقرة، تصدير JSON وCSV
 • عربي بالكامل (من اليمين لليسار) وإنجليزي، فاتح وداكن
-• يعمل بلا إنترنت — بياناتك على جهازك فقط
+• يعمل بلا إنترنت — بياناتك على جهازك، وسحابيًا فقط إن اخترت الحساب
 
-بلا إعلانات، بلا تتبع، بلا حساب إلزامي. ابدأ كزائر خلال ثانية.
+بلا إعلانات، بلا تتبع سلوكي، بلا حساب إلزامي. ابدأ كزائر خلال ثانية.
 
 **EN**
 
@@ -53,11 +54,12 @@ Waqti is your daily companion for building habits and getting things done — wi
 • Measurable habits (8 cups, 20 pages), quit habits with a days-clean counter, subtasks and a daily journal
 • Time-of-day sections, up to 3 reminders per habit, quiet hours, and a focus timer
 • Hijri date and 12 ready-made Arabic habit templates
+• Optional account (email/Google/Apple) with a cloud backup you can restore on any device
 • Automatic local backup with one-tap restore, JSON and CSV export
 • Full Arabic (RTL) and English, light and dark themes
-• Works offline — your data stays on your device
+• Works offline — data stays on your device, and in the cloud only if you choose an account
 
-No ads, no tracking, no mandatory account. Start as a guest in one second.
+No ads, no behavioural tracking, no mandatory account. Start as a guest in one second.
 
 ## الكلمات المفتاحية (App Store، 100 حرف)
 
@@ -65,7 +67,7 @@ No ads, no tracking, no mandatory account. Start as a guest in one second.
 
 ## ملاحظات المراجع (App Review Notes)
 
-The app is fully offline and needs no account: skip the 3-slide intro, then tap "المتابعة كزائر" (Continue as guest). During the launch period every feature is free; the Plans screen shows tiers as "Coming soon" with disabled buttons — no purchase flow exists in this version.
+The app works fully as a guest with no account: skip the 3-slide intro, then tap "المتابعة كزائر" (Continue as guest). Accounts (email, Google, Apple) are optional and only add a cloud backup; account deletion is available in Settings → حذف الحساب. During the launch period every feature is free; the Plans screen shows tiers as "Coming soon" with disabled buttons — no purchase flow exists in this version.
 
 ## لقطات الشاشة
 

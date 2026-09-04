@@ -21,9 +21,9 @@
 | 03 | UX Research | نعم | ✅ | جولة تعريفية، حالات Empty/Error/Loading في كل شاشة |
 | 04 | Design System | نعم | ✅ | `lib/core/tokens.dart`, `theme.dart`, `WaqtiColors` |
 | 05 | Frontend/Flutter | نعم | ✅ | 51 اختبارًا، RTL/LTR، داكن، تخزين محلي |
-| 06 | Backend | نعم (Supabase) | ⏳ | Auth + Postgres + RLS + Edge Functions عند الحاجة |
-| 07 | Database | نعم | ⏳ | مخطط + migrations في `supabase/migrations/` |
-| 08 | Authentication | نعم | ⏳ | بريد/كلمة مرور، تأكيد، استرجاع، حذف الحساب |
+| 06 | Backend | نعم (Supabase) | 🟡 كود جاهز، ينتظر المشروع | `lib/core/auth/`, `lib/core/cloud_backup_service.dart` |
+| 07 | Database | نعم | 🟡 migration + RLS مكتوبة | `supabase/migrations/20260904000000_init.sql` |
+| 08 | Authentication | نعم | 🟡 مُنفَّذ (بريد/Google/Apple/استرجاع/حذف) | `auth_screen.dart`, 10 اختبارات تدفق |
 | 09 | Authorization | نعم | ⏳ | مالك الصف فقط (RLS)؛ لا أدوار إدارية في v1 |
 | 10 | Security | نعم | 🟡 | `SECURITY_REVIEW.md`، فحص أسرار CI؛ يُضاف اختبار RLS |
 | 11 | Storage/Files | لا (v1) | — | لا رفع ملفات |
@@ -37,7 +37,7 @@
 | 19 | Offline | نعم | ✅ محلي / ⏳ طابور مزامنة | التطبيق يعمل بلا إنترنت أصلًا |
 | 20 | Performance | نعم | 🟡 | Splash فوري؛ قياس بعد Supabase |
 | 21 | Error Handling | نعم | 🟡 | يُوحَّد مع أخطاء الشبكة/المصادقة |
-| 22 | Observability | نعم | ⏳ | Sentry (Flutter) + سجلات Supabase |
+| 22 | Observability | نعم | 🟡 Sentry مدمج، ينتظر DSN | `main.dart` |
 | 23 | Analytics | لا (خصوصية) | — | لا تتبع سلوكي؛ Crash فقط |
 | 24 | Testing | نعم | 🟡 | Unit/Widget ✅؛ يُضاف RLS/API/E2E |
 | 25 | Migrations | نعم | ⏳ | migrations مرقّمة + اختبار على مشروع staging |
@@ -46,7 +46,7 @@
 | 28 | Secrets | نعم | ✅ | GitHub Secrets + dart-define؛ لا مفاتيح في Git |
 | 29 | Infrastructure | نعم | ⏳ | Supabase (DB/Auth)، Pages (ويب)، دومين |
 | 30 | Backup/DR | نعم | 🟡 محلي / ⏳ سحابي | نسخة يومية محلية مختبرة؛ Supabase PITR في الخطة المدفوعة |
-| 31 | Legal/Privacy | نعم | 🟡 | سياسة الخصوصية تُحدَّث (حساب + Sentry)، حذف الحساب |
+| 31 | Legal/Privacy | نعم | ✅ | سياسة الخصوصية محدّثة (حساب + Sentry)، حذف الحساب داخل التطبيق |
 | 32 | Store Prep | نعم | ✅ | `LAUNCH_CHECKLIST.md`، `docs/store/` |
 | 33 | Web Deployment | نعم | ✅ | Pages، OG meta؛ دومين عند توفره |
 | 34 | Release Eng | نعم | ✅ | `release.yml`، whatsnew |

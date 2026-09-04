@@ -121,3 +121,17 @@
 - `docs/AUDIT_2026-09.md`: تدقيق كامل + 8 خطط + خارطة تنفيذ + قرارات مطلوبة من المالك (شاشة الدخول الشكلية، المزامنة، التتبع).
 - المرحلة 1 منجزة: `quality.yml` (format/analyze --fatal-infos/test/فحص أسرار)، tooltips لأزرار التنقل، 3 اختبارات رحلات واجهة (51 اختبارًا).
 
+## Phase — Supabase Auth + Cloud Backup + Sentry (2026-09-04)
+
+- ADR-008؛ `AppConfig` (dart-define)؛ `AuthGateway` + `SupabaseAuthGateway` (بريد/كلمة مرور، Google، Apple، استرجاع، حذف حساب) + `NoAuthGateway`؛ `CloudBackupGateway` (LWW) ؛ شاشة دخول حقيقية بحالات Loading/Error/Sent؛ شاشة كلمة مرور جديدة؛ الإعدادات: حالة السحابة، خروج، حذف الحساب؛ Sentry (بلا PII).
+- SQL: `user_backups` + RLS مالك‑الصف + `delete_own_account()`؛ روابط عميقة `waqti://login-callback/`.
+- سياسة الخصوصية وبطاقة المتجر وإجابات Data safety/App Privacy محدّثة.
+
+```
+AUTH GATE (code)      Status: PASS (pending live project for RLS evidence)
+Unit tests:           60/60
+Widget flows:         4/4
+Integration RLS:      skipped (needs SUPABASE_URL) — test/integration/rls_test.dart
+Analyze --fatal-infos PASS   Format PASS   Web build PASS
+```
+

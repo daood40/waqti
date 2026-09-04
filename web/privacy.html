@@ -17,13 +17,16 @@
 <body>
 <main>
   <h1>سياسة الخصوصية — تطبيق «وقتي»</h1>
-  <small>آخر تحديث: 2 سبتمبر 2026</small>
+  <small>آخر تحديث: 4 سبتمبر 2026</small>
 
   <h2>1. ما البيانات التي نجمعها؟</h2>
-  <p>لا يجمع «وقتي» أي بيانات شخصية ولا يرسلها إلى أي خادم. كل ما تُدخله (المهام، العادات، الفئات، الإعدادات، الاسم الاختياري للحساب) يُخزَّن محليًا على جهازك فقط.</p>
+  <p>بلا حساب: كل ما تُدخله (المهام، العادات، الفئات، الإعدادات) يُخزَّن محليًا على جهازك فقط ولا يُرسل لأي خادم.</p>
+  <p>مع حساب (اختياري): نحفظ بريدك الإلكتروني واسمك ونسخة من بياناتك (المهام والعادات) لتستعيدها على أجهزتك. تُخزَّن لدى مزوّد البنية Supabase على خوادم مشفّرة أثناء النقل وفي التخزين، ولا يطّلع عليها أحد سوى حسابك.</p>
+  <p>تقارير الأعطال: عند تعطّل التطبيق تُرسل معلومات تقنية مجهولة (نوع الخطأ، إصدار التطبيق ونظام التشغيل) إلى خدمة Sentry لإصلاح المشكلة. لا تتضمن اسمك أو بريدك أو محتوى مهامك.</p>
+  <p>لا إعلانات ولا تتبع سلوكي ولا بيع بيانات.</p>
 
   <h2>2. الحسابات</h2>
-  <p>تسجيل الدخول في الإصدار الحالي محلي بالكامل (وضع الزائر أو اسم وبريد اختياريان تُحفظ على الجهاز). لا يُنشأ أي حساب على خوادمنا ولا تُرسل بيانات الدخول لأي طرف.</p>
+  <p>يمكنك استخدام التطبيق كزائر بلا حساب. إن أنشأت حسابًا (بريد وكلمة مرور، أو Google، أو Apple) فإن كلمة المرور لا تُخزَّن لدينا أبدًا بصيغة مقروءة؛ المصادقة تتم عبر Supabase Auth. يمكنك حذف حسابك وكل بياناته السحابية من داخل التطبيق: الإعدادات → حذف الحساب.</p>
 
   <h2>3. التصدير والاستيراد</h2>
   <p>يمكنك تصدير بياناتك كملف JSON ونسخه أو استيراده بنفسك. الملف بحوزتك وحدك.</p>
@@ -47,9 +50,11 @@
 
   <div class="en">
     <h1>Privacy Policy — Waqti</h1>
-    <small>Last updated: September 2, 2026</small>
-    <p><strong>Data collection:</strong> Waqti does not collect or transmit any personal data. Everything you enter (tasks, habits, categories, settings, optional account name) is stored locally on your device only.</p>
-    <p><strong>Accounts:</strong> Sign-in in this version is fully local (guest mode or an optional name/email saved on device). No server account is created.</p>
+    <small>Last updated: September 4, 2026</small>
+    <p><strong>Without an account:</strong> everything you enter (tasks, habits, categories, settings) stays on your device and is never sent to a server.</p>
+    <p><strong>With an account (optional):</strong> we store your email, name and a backup of your data (tasks and habits) so you can restore it on your devices. It is hosted by Supabase, encrypted in transit and at rest, and accessible only to your account. Passwords are never stored in readable form (Supabase Auth; Google/Apple sign-in supported). You can delete your account and all cloud data in-app: Settings → Delete account.</p>
+    <p><strong>Crash reports:</strong> if the app crashes, anonymous technical details (error type, app and OS version) are sent to Sentry so we can fix it. They never include your name, email or task content.</p>
+    <p><strong>No ads, no behavioural tracking, no data selling.</strong></p>
     <p><strong>Export/Import:</strong> You can export your data as a JSON file you fully control.</p>
     <p><strong>Ads &amp; subscriptions:</strong> No third-party ads, trackers, or analytics. Plans shown in-app are a preview in this version and involve no payment.</p>
     <p><strong>Permissions:</strong> No sensitive permissions. Local notifications are optional.</p>

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -5,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/app_info.dart';
+import '../core/auth/auth_gateway.dart';
+import '../core/cloud_backup_service.dart';
+
 import '../models/models.dart';
 
 /// إحصائيات شهر واحد.
@@ -87,6 +91,24 @@ class AppState extends ChangeNotifier {
   /// دقائق التركيز (مؤقت بومودورو) مفهرسة بمفتاح التاريخ.
   Map<String, int> focusLog = {};
 
+  // ---- الحساب والنسخة السحابية (تُحقن من main) ----
+  AuthGateway auth = const NoAuthGateway();
+  CloudBackupGateway cloud = const NoCloudBackupGateway();
+  StreamSubscription<AuthEvent>? _authSub;
+  Timer? _cloudTimer;
+
+  /// آخر تغيير محلي في البيانات (للمقارنة مع السحابي).
+  DateTime? lastChangedAt;
+
+  /// آخر حفظ سحابي ناجح.
+  DateTime? lastCloudSyncAt;
+  CloudStatus cloudStatus = CloudStatus.idle;
+
+  /// وصلنا رابط استرجاع كلمة مرور — تعرض الواجهة شاشة كلمة المرور الجديدة.
+  bool passwordRecoveryPending = false;
+
+  bool get hasAccount => user?.hasAccount ?? false;
+
   static Future<AppState> load() async {
     final prefs = await SharedPreferences.getInstance();
     final state = AppState._(prefs);
@@ -128,6 +150,8 @@ class AppState extends ChangeNotifier {
       quietEnd = (json['quietEnd'] as num?)?.toInt() ?? 7 * 60;
       onboarded = json['onboarded'] as bool? ?? false;
       loggedIn = json['loggedIn'] as bool? ?? false;
+      lastChangedAt = DateTime.tryParse(json['changedAt'] as String? ?? '');
+      lastCloudSyncAt = DateTime.tryParse(json['cloudSyncAt'] as String? ?? '');
       user = json['user'] is Map<String, dynamic>
           ? UserProfile.fromJson(json['user'] as Map<String, dynamic>)
           : null;
@@ -181,6 +205,9 @@ class AppState extends ChangeNotifier {
       'quietEnd': quietEnd,
       'onboarded': onboarded,
       'loggedIn': loggedIn,
+      if (lastChangedAt != null) 'changedAt': lastChangedAt!.toIso8601String(),
+      if (lastCloudSyncAt != null)
+        'cloudSyncAt': lastCloudSyncAt!.toIso8601String(),
       if (user != null) 'user': user!.toJson(),
       'tier': tier.name,
       'billingCycle': billingCycle,
@@ -231,8 +258,17 @@ class AppState extends ChangeNotifier {
   }
 
   void _commit() {
+    lastChangedAt = DateTime.now().toUtc();
     _persist();
     notifyListeners();
+    _scheduleCloudPush();
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    _cloudTimer?.cancel();
+    super.dispose();
   }
 
   static List<TaskCategory> _defaultCategories() => [
@@ -296,14 +332,147 @@ class AppState extends ChangeNotifier {
   }
 
   // =======================================================================
-  // الحساب (محاكاة محلية — لا يوجد خادم)
+  // الحساب: زائر محلي أو حساب حقيقي عبر AuthGateway + نسخة سحابية
   // =======================================================================
 
-  void signIn({required String name, required String email}) {
-    user = UserProfile(name: name, email: email);
+  /// يربط خدمات المصادقة والسحابة (يُستدعى مرة من main). يستعيد جلسة محفوظة.
+  void attachServices({
+    required AuthGateway authGateway,
+    required CloudBackupGateway cloudGateway,
+  }) {
+    auth = authGateway;
+    cloud = cloudGateway;
+    _authSub?.cancel();
+    _authSub = auth.events.listen(_onAuthEvent);
+    final current = auth.currentUser;
+    if (current != null) {
+      unawaited(onSignedIn(current));
+    } else if (hasAccount) {
+      // جلسة الخادم انتهت بينما التطبيق يظن أنه مسجّل — نعود لشاشة الدخول.
+      _clearLocalAccount(wipeData: true);
+    }
+  }
+
+  void _onAuthEvent(AuthEvent event) {
+    switch (event) {
+      case AuthEvent.signedIn:
+        final u = auth.currentUser;
+        if (u != null && (user?.id != u.id || !loggedIn)) {
+          unawaited(onSignedIn(u));
+        }
+      case AuthEvent.signedOut:
+        if (hasAccount) _clearLocalAccount(wipeData: true);
+      case AuthEvent.passwordRecovery:
+        passwordRecoveryPending = true;
+        notifyListeners();
+      case AuthEvent.userUpdated:
+        final u = auth.currentUser;
+        if (u != null && hasAccount) {
+          user = UserProfile(
+            name: u.name,
+            email: u.email,
+            id: u.id,
+            provider: u.provider,
+          );
+          _commit();
+        }
+    }
+  }
+
+  /// بعد دخول حقيقي: حفظ الملف الشخصي ثم مصالحة البيانات مع السحابة.
+  Future<void> onSignedIn(AuthUser u) async {
+    user = UserProfile(
+      name: u.name,
+      email: u.email,
+      id: u.id,
+      provider: u.provider,
+    );
     loggedIn = true;
     _commit();
+    await syncWithCloud();
   }
+
+  /// مصالحة الدخول: السحابي أحدث → استيراد؛ المحلي أحدث → رفع.
+  Future<void> syncWithCloud() async {
+    if (!hasAccount || !cloud.isAvailable) return;
+    cloudStatus = CloudStatus.syncing;
+    notifyListeners();
+    try {
+      final remote = await cloud.fetch();
+      final decision = decideSync(
+        remoteUpdatedAt: remote?.updatedAt,
+        localChangedAt: lastCloudSyncAt == null ? lastChangedAt : lastChangedAt,
+        localHasData: tasks.isNotEmpty,
+      );
+      switch (decision) {
+        case SyncDecision.pullRemote:
+          _applyCloudPayload(remote!.payload);
+          lastCloudSyncAt = remote.updatedAt;
+          lastChangedAt = remote.updatedAt;
+          await _persist();
+        case SyncDecision.pushLocal:
+          lastCloudSyncAt = await cloud.push(
+            cloudPayload(),
+            appVersion: kAppVersion,
+          );
+          await _persist();
+        case SyncDecision.nothing:
+          lastCloudSyncAt ??= remote?.updatedAt;
+      }
+      cloudStatus = CloudStatus.synced;
+    } catch (_) {
+      cloudStatus = CloudStatus.error;
+    }
+    notifyListeners();
+  }
+
+  /// ملف السحابة: البيانات فقط (لا إعدادات الجهاز ولا حالة الدخول).
+  String cloudPayload() => jsonEncode({
+    'v': 1,
+    'categories': categories.map((c) => c.toJson()).toList(),
+    'tasks': tasks.map((t) => t.toJson()).toList(),
+    'customIcons': customIcons,
+    'customColors': customColors,
+    'focus': focusLog,
+  });
+
+  void _applyCloudPayload(String payload) {
+    importJson(payload, full: true);
+    try {
+      final json = jsonDecode(payload) as Map<String, dynamic>;
+      customIcons = ((json['customIcons'] as List?) ?? const [])
+          .whereType<String>()
+          .toList();
+      customColors = ((json['customColors'] as List?) ?? const [])
+          .whereType<num>()
+          .map((n) => n.toInt())
+          .toList();
+    } catch (_) {}
+  }
+
+  /// رفع مؤجَّل (3 ث) بعد كل تغيير — يدمج التغييرات المتتالية في طلب واحد.
+  void _scheduleCloudPush() {
+    if (!hasAccount || !cloud.isAvailable) return;
+    _cloudTimer?.cancel();
+    _cloudTimer = Timer(const Duration(seconds: 3), () async {
+      cloudStatus = CloudStatus.syncing;
+      notifyListeners();
+      try {
+        lastCloudSyncAt = await cloud.push(
+          cloudPayload(),
+          appVersion: kAppVersion,
+        );
+        cloudStatus = CloudStatus.synced;
+        await _persist();
+      } catch (_) {
+        cloudStatus = CloudStatus.error;
+      }
+      notifyListeners();
+    });
+  }
+
+  /// يُستدعى بعد فشل سابق أو من زر «إعادة المحاولة».
+  void retryCloudPush() => _scheduleCloudPush();
 
   void signInAsGuest(String guestLabel) {
     user = UserProfile(name: guestLabel);
@@ -311,10 +480,52 @@ class AppState extends ChangeNotifier {
     _commit();
   }
 
-  void signOut() {
+  /// خروج: حساب حقيقي → إنهاء الجلسة ومسح النسخة المحلية؛ زائر → إبقاء البيانات.
+  Future<void> signOut() async {
+    if (hasAccount) {
+      _cloudTimer?.cancel();
+      try {
+        if (cloud.isAvailable && lastChangedAt != null) {
+          lastCloudSyncAt = await cloud.push(
+            cloudPayload(),
+            appVersion: kAppVersion,
+          );
+        }
+      } catch (_) {}
+      await auth.signOut();
+      _clearLocalAccount(wipeData: true);
+      return;
+    }
     loggedIn = false;
     user = null;
     _commit();
+  }
+
+  Future<void> deleteAccount() async {
+    _cloudTimer?.cancel();
+    await auth.deleteAccount();
+    _clearLocalAccount(wipeData: true);
+  }
+
+  void _clearLocalAccount({required bool wipeData}) {
+    loggedIn = false;
+    user = null;
+    passwordRecoveryPending = false;
+    cloudStatus = CloudStatus.idle;
+    lastCloudSyncAt = null;
+    if (wipeData) {
+      tasks = [];
+      categories = _defaultCategories();
+      focusLog = {};
+      lastChangedAt = null;
+    }
+    _commit();
+  }
+
+  Future<void> completePasswordRecovery(String newPassword) async {
+    await auth.updatePassword(newPassword);
+    passwordRecoveryPending = false;
+    notifyListeners();
   }
 
   // =======================================================================
@@ -1018,3 +1229,6 @@ class AppState extends ChangeNotifier {
     }
   }
 }
+
+/// حالة النسخة السحابية للعرض في الإعدادات.
+enum CloudStatus { idle, syncing, synced, error }

@@ -54,6 +54,7 @@ GitHub → Actions → **Release Builds** → Run workflow → انتظر ~12 د
 
 | المتجر | ما تضيفه أنت (Secrets) | كيف تحصل عليه |
 |---|---|---|
+| الخدمات | `SUPABASE_URL`، `SUPABASE_ANON_KEY`، `SENTRY_DSN`، `GOOGLE_WEB_CLIENT_ID`، `GOOGLE_IOS_CLIENT_ID` | Supabase → Settings → API؛ Sentry → Project → DSN؛ Google Cloud → Credentials (انظر `docs/LAUNCH_CHECKLIST.md` §0) |
 | Google Play | `PLAY_SERVICE_ACCOUNT_JSON` | Play Console → Setup → API access → Create service account (Google Cloud) → JSON key → ارجع وامنحه **Release manager** |
 | | `ANDROID_KEYSTORE_BASE64` | ناتج `base64 -w0 upload-keystore.jks` (ويندوز: `certutil -encode` ثم احذف السطرين الأول والأخير) |
 | | `ANDROID_KEY_PROPERTIES` | محتوى ملف key.properties الذي أرسلته |

@@ -9,7 +9,7 @@
 | التطبيق: مزايا 100 تطبيق، وضع الإطلاق (كل شيء مجاني)، 48 اختبارًا، مراجعة أمنية، تدقيق أزرار آلي | ✅ |
 | الويب منشور | ✅ <https://daood40.github.io/waqti/> |
 | حِزم الإصدار (APK/AAB/Windows zip+MSIX/Web/iOS) | ✅ <https://github.com/daood40/waqti/releases/latest> |
-| سياسة الخصوصية (عربي/إنجليزي) | ✅ <https://daood40.github.io/waqti/privacy.html> |
+| سياسة الخصوصية (عربي/إنجليزي، تشمل الحساب وSentry) | ✅ <https://daood40.github.io/waqti/privacy.html> |
 | بطاقة المتجر: الاسم، الوصف القصير/الكامل، الكلمات المفتاحية، ملاحظة المراجع | ✅ `docs/STORE_LISTING.md` |
 | لقطات هاتف 1290×2796 (5) | ✅ `docs/screenshots/` |
 | لقطات iPad 13" 2064×2752 (4) | ✅ `docs/store/ipad-*.png` |
@@ -21,12 +21,19 @@
 
 ## 🟡 بيدك (مرة واحدة، ~ساعة إجمالًا)
 
+### 0. Supabase + Sentry + Google/Apple (قبل رفع أي حزمة)
+1. **Supabase**: supabase.com → New project (Frankfurt/Bahrain) → SQL Editor → الصق `supabase/migrations/20260904000000_init.sql` → Run. ثم Authentication → URL Configuration (Site URL + Redirect URLs كما في `supabase/README.md`). Settings → API → أرسل لي **Project URL** و**Publishable/anon key**.
+2. **Sentry**: sentry.io → Create project (Flutter) → انسخ **DSN** → أرسله لي.
+3. **Google**: console.cloud.google.com → OAuth consent screen (External) → Credentials → OAuth client: **Web** (Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`) و**iOS** (Bundle `com.waqti.waqti`) و**Android** (SHA‑1 من مفتاح الرفع). ضع Web Client ID/Secret في Supabase → Providers → Google، وأرسل لي Web Client ID وiOS Client ID.
+4. **Apple**: developer.apple.com → Identifiers → App ID `com.waqti.waqti` مع Sign in with Apple ✔ → Services ID (`com.waqti.waqti.web`, Return URL = Supabase callback) → Key (Sign in with Apple) `.p8`. ضعها في Supabase → Providers → Apple.
+5. الأسرار في GitHub: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SENTRY_DSN`, `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID`.
+
 ### 1. Google Play (25$ مرة واحدة)
 1. أنشئ حساب مطور في <https://play.google.com/console> → Create app: «وقتي»، App، Free، اللغة الافتراضية العربية.
 2. **Set up your app** — الإجابات:
    - App access: *All functionality is available without special access*.
    - Ads: **No**. Content rating: استبيان IARC → فئة Utility/Productivity → كل الإجابات **No** → Everyone.
-   - Target audience: 13+ (ليس موجّهًا للأطفال). News app: No. Data safety: **Does not collect or share any user data** — البيانات على الجهاز فقط، ولا تُنقل.
+   - Target audience: 13+ (ليس موجّهًا للأطفال). News app: No. Data safety: **Collects**: Personal info → Email address, Name (App functionality, Account management; optional; deletable); App activity → App interactions? **No**; Crash logs + Diagnostics (App functionality) — collected, not shared; **Data is encrypted in transit** ✔؛ **Users can request deletion** ✔ (داخل التطبيق: الإعدادات → حذف الحساب).
    - Government app: No. Financial features: None. Health: None. Privacy policy: <https://daood40.github.io/waqti/privacy.html>.
 3. Store listing: انسخ النصوص من `docs/STORE_LISTING.md`، الأيقونة 512 (صغّر `app_icon.png`)، الرسم المميز، اللقطات.
 4. Setup → API access → Create service account → Grant access (Release manager) → أضف مفتاح JSON كسر `PLAY_SERVICE_ACCOUNT_JSON` + مفتاح الرفع (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_PROPERTIES`).
@@ -38,7 +45,7 @@
 3. App Store Connect → My Apps → + → New App: iOS، «وقتي»، Bundle ID أعلاه، SKU `waqti`.
 4. Users and Access → Integrations → App Store Connect API → Generate key (Access: App Manager) → الأسرار `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8` + `APPLE_TEAM_ID` (Membership).
 5. Actions → Publish to Stores → ios ✔ → يظهر البناء في TestFlight خلال دقائق.
-6. في App Store Connect: App Information (Category: Productivity)، Pricing: Free، App Privacy: **Data Not Collected**، Age Rating: كلها None → 4+، اللقطات (6.7" من `docs/screenshots/`، iPad 13" من `docs/store/`)، النصوص، اختر البناء، App Review notes من `docs/STORE_LISTING.md` → **Submit for Review**.
+6. في App Store Connect: App Information (Category: Productivity)، Pricing: Free، App Privacy: **Data Linked to You**: Contact Info (Email) + Name + User Content (backup) لغرض App Functionality؛ **Data Not Linked to You**: Diagnostics (Crash Data). Tracking: **No**، Age Rating: كلها None → 4+، اللقطات (6.7" من `docs/screenshots/`، iPad 13" من `docs/store/`)، النصوص، اختر البناء، App Review notes من `docs/STORE_LISTING.md` → **Submit for Review**.
 
 ### 3. Microsoft Store (19$ مرة واحدة)
 1. <https://partner.microsoft.com/dashboard> → Apps and games → New product → MSIX → احجز «وقتي».

@@ -469,16 +469,36 @@ class TaskItem {
 
 /// بيانات المستخدم المسجّل محليًا.
 class UserProfile {
-  const UserProfile({required this.name, this.email = ''});
+  const UserProfile({
+    required this.name,
+    this.email = '',
+    this.id,
+    this.provider = 'local',
+  });
 
   final String name;
   final String email;
 
-  Map<String, dynamic> toJson() => {'name': name, 'email': email};
+  /// معرّف الحساب الحقيقي (Supabase). null = زائر محلي.
+  final String? id;
+
+  /// email | google | apple | local
+  final String provider;
+
+  bool get hasAccount => id != null;
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'email': email,
+    if (id != null) 'id': id,
+    'provider': provider,
+  };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
     name: json['name'] as String? ?? '',
     email: json['email'] as String? ?? '',
+    id: json['id'] as String?,
+    provider: json['provider'] as String? ?? 'local',
   );
 }
 

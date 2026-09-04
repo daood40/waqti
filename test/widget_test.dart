@@ -17,8 +17,9 @@ void main() {
       await tester.tap(find.text('تخطٍّ'));
       await tester.pumpAndSettle();
 
-      // ثم شاشة الدخول.
-      expect(find.text('مرحبًا بعودتك'), findsOneWidget);
+      // ثم شاشة الدخول — بلا خادم مُهيّأ تعرض المتابعة كزائر فقط.
+      expect(find.text('المتابعة كزائر'), findsOneWidget);
+      expect(find.text('مرحبًا بعودتك'), findsNothing);
 
       // المتابعة كزائر تنقل للرئيسية.
       await tester.ensureVisible(find.text('المتابعة كزائر'));

@@ -9,6 +9,7 @@ import '../../models/models.dart';
 import '../../core/theme.dart';
 import '../../state/app_state.dart';
 import '../../widgets/common.dart';
+import '../auth_screen.dart';
 import '../subscription_screen.dart';
 
 /// تبويب الإعدادات: الحساب، الاشتراك، اللغة، المظهر،
@@ -176,7 +177,9 @@ class SettingsTab extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(s.logout),
-        content: Text(s.logoutConfirm),
+        content: Text(
+          state.hasAccount ? s.signOutAccountConfirm : s.logoutConfirm,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -189,7 +192,47 @@ class SettingsTab extends StatelessWidget {
         ],
       ),
     );
-    if (confirmed == true) state.signOut();
+    if (confirmed == true) await state.signOut();
+  }
+
+  Future<void> _deleteAccount(
+    BuildContext context,
+    AppState state,
+    AppStrings s,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(s.deleteAccount),
+        content: Text(s.deleteAccountConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(s.cancel),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(dialogContext).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(s.deleteAccount),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    try {
+      await state.deleteAccount();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(s.deleteAccountDone)));
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(s.errUnknown)));
+    }
   }
 
   @override
@@ -308,6 +351,32 @@ class SettingsTab extends StatelessWidget {
                 onPressed: () => _logout(context, state, s),
                 child: Text('🚪 ${s.logout}'),
               ),
+              if (state.hasAccount) ...[
+                const SizedBox(height: 8),
+                _CloudStatusRow(state: state, s: s),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => _deleteAccount(context, state, s),
+                  style: TextButton.styleFrom(foregroundColor: wq.missed),
+                  child: Text(s.deleteAccount),
+                ),
+              ] else if (state.auth.isAvailable) ...[
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const AuthScreen()),
+                  ),
+                  icon: const Icon(Icons.cloud_outlined, size: 18),
+                  label: Text(s.createAccountCta),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    s.cloudSignedOut,
+                    style: TextStyle(fontSize: 11.5, color: wq.textMuted),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -587,6 +656,47 @@ class _SwitchRow extends StatelessWidget {
           Switch(value: value, onChanged: onChanged),
         ],
       ),
+    );
+  }
+}
+
+/// سطر حالة النسخة السحابية مع إعادة المحاولة عند الفشل.
+class _CloudStatusRow extends StatelessWidget {
+  const _CloudStatusRow({required this.state, required this.s});
+
+  final AppState state;
+  final AppStrings s;
+
+  @override
+  Widget build(BuildContext context) {
+    final wq = context.wq;
+    final (icon, text, color) = switch (state.cloudStatus) {
+      CloudStatus.syncing => (
+        Icons.cloud_sync_outlined,
+        s.cloudSyncing,
+        wq.textMuted,
+      ),
+      CloudStatus.synced => (Icons.cloud_done_outlined, s.cloudSynced, wq.done),
+      CloudStatus.error => (
+        Icons.cloud_off_outlined,
+        s.cloudSyncError,
+        wq.missed,
+      ),
+      CloudStatus.idle => (Icons.cloud_outlined, s.cloudBackup, wq.textMuted),
+    };
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(text, style: TextStyle(fontSize: 12.5, color: color)),
+        ),
+        if (state.cloudStatus == CloudStatus.error)
+          TextButton(
+            onPressed: state.retryCloudPush,
+            child: Text(s.retry, style: const TextStyle(fontSize: 12)),
+          ),
+      ],
     );
   }
 }

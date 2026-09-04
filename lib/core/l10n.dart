@@ -136,6 +136,36 @@ class AppStrings {
     required this.nextMonth,
     required this.prevWeek,
     required this.nextWeek,
+    required this.authUnavailable,
+    required this.forgotTitle,
+    required this.sendResetLink,
+    required this.resetEmailSent,
+    required this.backToLogin,
+    required this.confirmEmailTitle,
+    required this.confirmEmailBody,
+    required this.errInvalidCredentials,
+    required this.errEmailTaken,
+    required this.errWeakPassword,
+    required this.errEmailNotConfirmed,
+    required this.errNetwork,
+    required this.errRateLimited,
+    required this.errUnknown,
+    required this.newPasswordTitle,
+    required this.savePassword,
+    required this.passwordUpdated,
+    required this.deleteAccount,
+    required this.deleteAccountConfirm,
+    required this.deleteAccountDone,
+    required this.cloudBackup,
+    required this.cloudSynced,
+    required this.cloudSyncing,
+    required this.cloudSyncError,
+    required this.cloudSignedOut,
+    required this.signOutAccountConfirm,
+    required this.createAccountCta,
+    required this.signedInAs,
+    required this.cancelled,
+    required this.retry,
     required this.habitScore,
     required this.habitScoreHint,
     required this.bestStreak2,
@@ -412,6 +442,36 @@ class AppStrings {
   final String nextMonth;
   final String prevWeek;
   final String nextWeek;
+  final String authUnavailable;
+  final String forgotTitle;
+  final String sendResetLink;
+  final String resetEmailSent;
+  final String backToLogin;
+  final String confirmEmailTitle;
+  final String confirmEmailBody;
+  final String errInvalidCredentials;
+  final String errEmailTaken;
+  final String errWeakPassword;
+  final String errEmailNotConfirmed;
+  final String errNetwork;
+  final String errRateLimited;
+  final String errUnknown;
+  final String newPasswordTitle;
+  final String savePassword;
+  final String passwordUpdated;
+  final String deleteAccount;
+  final String deleteAccountConfirm;
+  final String deleteAccountDone;
+  final String cloudBackup;
+  final String cloudSynced;
+  final String cloudSyncing;
+  final String cloudSyncError;
+  final String cloudSignedOut;
+  final String signOutAccountConfirm;
+  final String createAccountCta;
+  final String signedInAs;
+  final String cancelled;
+  final String retry;
   final String habitScore;
   final String habitScoreHint;
   final String bestStreak2;
@@ -710,6 +770,38 @@ class AppStrings {
     nextMonth: 'الشهر التالي',
     prevWeek: 'الأسبوع السابق',
     nextWeek: 'الأسبوع التالي',
+    authUnavailable: 'الحساب غير متاح في هذه النسخة — تابع كزائر',
+    forgotTitle: 'استرجاع كلمة المرور',
+    sendResetLink: 'أرسل رابط الاسترجاع',
+    resetEmailSent: 'أرسلنا رابط الاسترجاع إلى بريدك',
+    backToLogin: 'العودة لتسجيل الدخول',
+    confirmEmailTitle: 'أكّد بريدك',
+    confirmEmailBody: 'أرسلنا رابط تأكيد إلى بريدك. افتحه ثم عد وسجّل الدخول.',
+    errInvalidCredentials: 'البريد أو كلمة المرور غير صحيحة',
+    errEmailTaken: 'هذا البريد مسجَّل مسبقًا — جرّب تسجيل الدخول',
+    errWeakPassword: 'كلمة المرور ضعيفة (6 أحرف على الأقل)',
+    errEmailNotConfirmed: 'أكّد بريدك أولًا من الرابط الذي أرسلناه',
+    errNetwork: 'لا اتصال بالإنترنت — حاول لاحقًا',
+    errRateLimited: 'محاولات كثيرة — انتظر دقيقة ثم أعد المحاولة',
+    errUnknown: 'حدث خطأ غير متوقع — حاول مجددًا',
+    newPasswordTitle: 'كلمة مرور جديدة',
+    savePassword: 'حفظ كلمة المرور',
+    passwordUpdated: 'تم تحديث كلمة المرور',
+    deleteAccount: 'حذف الحساب',
+    deleteAccountConfirm:
+        'سيُحذف حسابك ونسختك السحابية نهائيًا ولا يمكن التراجع. بياناتك على هذا الجهاز ستُمسح أيضًا.',
+    deleteAccountDone: 'تم حذف الحساب',
+    cloudBackup: 'النسخة السحابية',
+    cloudSynced: 'محفوظة سحابيًا',
+    cloudSyncing: 'جارٍ الحفظ…',
+    cloudSyncError: 'تعذّر الحفظ السحابي — سيُعاد تلقائيًا',
+    cloudSignedOut: 'سجّل الدخول لحفظ بياناتك سحابيًا',
+    signOutAccountConfirm:
+        'بياناتك محفوظة في حسابك. عند الخروج تُمسح النسخة المحلية من هذا الجهاز.',
+    createAccountCta: 'إنشاء حساب / تسجيل الدخول',
+    signedInAs: 'مسجَّل بـ',
+    cancelled: 'أُلغيت العملية',
+    retry: 'إعادة المحاولة',
     habitScore: 'درجة الاستمرارية',
     habitScoreHint: 'تهبط تدريجيًا مع الفوات ولا تُصفَّر — لا قلق سلسلة',
     bestStreak2: 'أطول سلسلة',
@@ -1015,6 +1107,40 @@ class AppStrings {
     nextMonth: 'Next month',
     prevWeek: 'Previous week',
     nextWeek: 'Next week',
+    authUnavailable:
+        'Accounts are not available in this build — continue as guest',
+    forgotTitle: 'Reset your password',
+    sendResetLink: 'Send reset link',
+    resetEmailSent: 'We sent a reset link to your email',
+    backToLogin: 'Back to login',
+    confirmEmailTitle: 'Confirm your email',
+    confirmEmailBody:
+        'We sent a confirmation link to your email. Open it, then come back and log in.',
+    errInvalidCredentials: 'Incorrect email or password',
+    errEmailTaken: 'This email is already registered — try logging in',
+    errWeakPassword: 'Password is too weak (at least 6 characters)',
+    errEmailNotConfirmed: 'Confirm your email first using the link we sent',
+    errNetwork: 'No internet connection — try again later',
+    errRateLimited: 'Too many attempts — wait a minute and retry',
+    errUnknown: 'Something went wrong — please try again',
+    newPasswordTitle: 'New password',
+    savePassword: 'Save password',
+    passwordUpdated: 'Password updated',
+    deleteAccount: 'Delete account',
+    deleteAccountConfirm:
+        'Your account and cloud backup will be permanently deleted. This cannot be undone. Data on this device will be erased too.',
+    deleteAccountDone: 'Account deleted',
+    cloudBackup: 'Cloud backup',
+    cloudSynced: 'Saved to cloud',
+    cloudSyncing: 'Saving…',
+    cloudSyncError: 'Cloud save failed — will retry automatically',
+    cloudSignedOut: 'Log in to back up your data to the cloud',
+    signOutAccountConfirm:
+        'Your data is saved in your account. Logging out removes the local copy from this device.',
+    createAccountCta: 'Create account / Log in',
+    signedInAs: 'Signed in with',
+    cancelled: 'Cancelled',
+    retry: 'Retry',
     habitScore: 'Consistency score',
     habitScoreHint: 'Drops gradually on misses, never resets to zero',
     bestStreak2: 'Best streak',
