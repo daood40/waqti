@@ -150,6 +150,7 @@ class _HomeTabState extends State<HomeTab> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     WqIconButton(
+                      tooltip: s.prevMonth,
                       onTap: () => cursor.shift(-1),
                       child: Icon(
                         Icons.chevron_left,
@@ -166,6 +167,7 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                     ),
                     WqIconButton(
+                      tooltip: s.nextMonth,
                       onTap: () => cursor.shift(1),
                       child: Icon(
                         Icons.chevron_right,
@@ -184,6 +186,7 @@ class _HomeTabState extends State<HomeTab> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     WqIconButton(
+                      tooltip: s.prevWeek,
                       onTap: _windowStart > 1
                           ? () => setState(
                               () => _windowStart = (_windowStart - 7).clamp(
@@ -208,6 +211,7 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                     ),
                     WqIconButton(
+                      tooltip: s.nextWeek,
                       onTap: _windowStart < maxStart
                           ? () => setState(
                               () => _windowStart = (_windowStart + 7).clamp(

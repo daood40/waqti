@@ -132,6 +132,10 @@ class AppStrings {
     required this.copyFailed,
     required this.noTasksThatDay,
     required this.tapToCycle,
+    required this.prevMonth,
+    required this.nextMonth,
+    required this.prevWeek,
+    required this.nextWeek,
     required this.habitScore,
     required this.habitScoreHint,
     required this.bestStreak2,
@@ -404,6 +408,10 @@ class AppStrings {
   final String copyFailed;
   final String noTasksThatDay;
   final String tapToCycle;
+  final String prevMonth;
+  final String nextMonth;
+  final String prevWeek;
+  final String nextWeek;
   final String habitScore;
   final String habitScoreHint;
   final String bestStreak2;
@@ -698,6 +706,10 @@ class AppStrings {
     copyFailed: 'تعذّر النسخ تلقائيًا — حدّد النص وانسخه',
     noTasksThatDay: 'لا مهام في هذا اليوم',
     tapToCycle: 'انقر الدائرة لتبديل الحالة',
+    prevMonth: 'الشهر السابق',
+    nextMonth: 'الشهر التالي',
+    prevWeek: 'الأسبوع السابق',
+    nextWeek: 'الأسبوع التالي',
     habitScore: 'درجة الاستمرارية',
     habitScoreHint: 'تهبط تدريجيًا مع الفوات ولا تُصفَّر — لا قلق سلسلة',
     bestStreak2: 'أطول سلسلة',
@@ -999,6 +1011,10 @@ class AppStrings {
     copyFailed: 'Automatic copy failed — select the text and copy it',
     noTasksThatDay: 'No tasks on this day',
     tapToCycle: 'Tap a circle to cycle its status',
+    prevMonth: 'Previous month',
+    nextMonth: 'Next month',
+    prevWeek: 'Previous week',
+    nextWeek: 'Next week',
     habitScore: 'Consistency score',
     habitScoreHint: 'Drops gradually on misses, never resets to zero',
     bestStreak2: 'Best streak',

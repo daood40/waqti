@@ -1,0 +1,33 @@
+# بوابة الجودة — تعمل مع كل push وPR: تنسيق، تحليل ثابت، اختبارات.
+# لا تنشر شيئًا؛ هدفها إيقاف الأحمر قبل النشر.
+name: Quality Gate
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.35.1
+          cache: true
+      - run: flutter pub get
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze (warnings are errors)
+        run: flutter analyze --fatal-infos
+      - name: Tests
+        run: flutter test --reporter expanded
+      - name: Secrets scan (no keys in repo)
+        run: |
+          if grep -rnE "AIza[0-9A-Za-z_-]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY|storePassword=" --include=*.dart --include=*.yaml --include=*.json --include=*.kts --include=*.properties --include=*.plist --include=*.xml . ; then
+            echo "::error::secret-like string found"; exit 1; fi

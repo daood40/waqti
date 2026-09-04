@@ -35,6 +35,7 @@ class CalendarTab extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   WqIconButton(
+                    tooltip: s.prevMonth,
                     onTap: () => cursor.shift(-1),
                     child: Icon(
                       Icons.chevron_left,
@@ -51,6 +52,7 @@ class CalendarTab extends StatelessWidget {
                     ),
                   ),
                   WqIconButton(
+                    tooltip: s.nextMonth,
                     onTap: () => cursor.shift(1),
                     child: Icon(
                       Icons.chevron_right,
