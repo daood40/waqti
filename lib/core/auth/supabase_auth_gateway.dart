@@ -42,7 +42,8 @@ class SupabaseAuthGateway implements AuthGateway {
 
   @override
   bool get supportsApple =>
-      kIsWeb || (!kIsWeb && (Platform.isIOS || Platform.isMacOS));
+      AppConfig.hasApple &&
+      (kIsWeb || (!kIsWeb && (Platform.isIOS || Platform.isMacOS)));
 
   @override
   AuthUser? get currentUser => _map(_client.auth.currentUser);

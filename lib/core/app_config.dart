@@ -14,6 +14,9 @@ abstract final class AppConfig {
   static const googleIosClientId = String.fromEnvironment(
     'GOOGLE_IOS_CLIENT_ID',
   );
+
+  /// يُفعَّل بعد إعداد مزوّد Apple في Supabase (Services ID + Key).
+  static const appleSignInEnabled = bool.fromEnvironment('APPLE_SIGNIN');
   static const environment = String.fromEnvironment(
     'APP_ENV',
     defaultValue: 'production',
@@ -27,4 +30,5 @@ abstract final class AppConfig {
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
   static bool get hasSentry => sentryDsn.isNotEmpty;
   static bool get hasGoogle => googleWebClientId.isNotEmpty;
+  static bool get hasApple => appleSignInEnabled;
 }
