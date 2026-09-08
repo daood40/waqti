@@ -90,7 +90,12 @@ class _ShellScreenState extends State<ShellScreen> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      18,
+                      14,
+                      18,
+                      8,
+                    ),
                     child: Row(
                       children: [
                         _Brand(appName: s.appName),
@@ -269,7 +274,11 @@ class _BottomNav extends StatelessWidget {
 
     return Container(
       height: 66 + bottomInset,
-      padding: EdgeInsets.only(bottom: bottomInset, left: 6, right: 6),
+      padding: EdgeInsetsDirectional.only(
+        bottom: bottomInset,
+        start: 6,
+        end: 6,
+      ),
       decoration: BoxDecoration(
         color: wq.surface,
         border: Border(top: BorderSide(color: wq.border)),

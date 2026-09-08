@@ -29,6 +29,11 @@ abstract final class WqType {
   static const double body = 14; // المحتوى الأساسي
   static const double label = 12.5; // تسميات الحقول والتلميحات
   static const double caption = 11; // شروح صغيرة
+
+  // ارتفاع السطر للعربية (الحركات والنقاط تحتاج متنفسًا).
+  static const double bodyHeight = 1.6;
+  static const double labelHeight = 1.4;
+  static const double titleHeight = 1.3;
 }
 
 /// أدنى بعد لهدف لمس مريح (إرشادات الإتاحة).

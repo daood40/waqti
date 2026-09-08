@@ -13,6 +13,8 @@ class FakeAuth implements AuthGateway {
   final controller = StreamController<AuthEvent>.broadcast();
   bool deleted = false;
 
+  Future<void> dispose() => controller.close();
+
   @override
   bool get isAvailable => true;
   @override
@@ -86,7 +88,7 @@ Future<AppState> _fresh() async {
 
 void main() {
   group('decideSync (last write wins)', () {
-    final t1 = DateTime.utc(2026, 9, 1);
+    final t1 = DateTime.utc(2026, 9);
     final t2 = DateTime.utc(2026, 9, 2);
     test('no remote + local data → push', () {
       expect(

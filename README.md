@@ -45,6 +45,12 @@ flutter run --dart-define=SUPABASE_URL=https://xxx.supabase.co \
   --dart-define=GOOGLE_WEB_CLIENT_ID=xxx.apps.googleusercontent.com
 ```
 
+أو انسخ `env/example.json` إلى `env/dev.json` (متجاهَل في git) ثم:
+
+```bash
+flutter run --dart-define-from-file=env/dev.json
+```
+
 مخطط قاعدة البيانات وسياسات RLS في `supabase/migrations/`، والإعداد في `supabase/README.md`.
 
 ## البنية

@@ -1,0 +1,3 @@
+tags:
+  integration:
+    description: Needs SUPABASE_URL / SUPABASE_ANON_KEY (skipped otherwise).

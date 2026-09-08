@@ -1,0 +1,9 @@
+{
+  "SUPABASE_URL": "https://YOUR-PROJECT.supabase.co",
+  "SUPABASE_ANON_KEY": "sb_publishable_...",
+  "SENTRY_DSN": "https://...@o0.ingest.sentry.io/0",
+  "GOOGLE_WEB_CLIENT_ID": "",
+  "GOOGLE_IOS_CLIENT_ID": "",
+  "APPLE_SIGNIN": "false",
+  "APP_ENV": "dev"
+}

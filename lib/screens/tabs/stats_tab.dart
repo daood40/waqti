@@ -30,7 +30,7 @@ class StatsTab extends StatelessWidget {
     final focusMinutes = state.focusMinutesInMonth(cursor.year, cursor.month);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 18, 24),
       children: [
         SectionTitle(
           s.stats,
@@ -114,7 +114,7 @@ class StatsTab extends StatelessWidget {
         ),
         SectionTitle(s.weeklyChart),
         WqCard(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 10),
           child: weeks.every((w) => w.pct == 0)
               ? EmptyHint(s.noData)
               : WeeklyBars(buckets: weeks),
@@ -127,7 +127,6 @@ class StatsTab extends StatelessWidget {
           ),
         ),
         WqCard(
-          padding: const EdgeInsets.all(16),
           child: state.tasks.isEmpty
               ? EmptyHint(s.noData)
               : YearHeatmap(
@@ -199,7 +198,6 @@ class _InfoBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WqCard(
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

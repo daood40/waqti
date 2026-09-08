@@ -56,7 +56,7 @@ void main() {
     final state = await freshState();
     final task = TaskItem(id: 't1', name: 'قراءة');
     state.addTask(task);
-    task.setStatusOn(DateTime(2026, 8, 1), TaskStatus.done);
+    task.setStatusOn(DateTime(2026, 8), TaskStatus.done);
     task.setStatusOn(DateTime(2026, 8, 2), TaskStatus.doneLate);
     task.setStatusOn(DateTime(2026, 8, 3), TaskStatus.missed);
 
@@ -73,7 +73,7 @@ void main() {
     final task = TaskItem(id: 't1', name: 'قراءة');
     state.addTask(task);
     task.setStatusOn(DateTime(2026, 7, 30), TaskStatus.done);
-    task.setStatusOn(DateTime(2026, 8, 1), TaskStatus.doneLate);
+    task.setStatusOn(DateTime(2026, 8), TaskStatus.doneLate);
     task.setStatusOn(DateTime(2026, 8, 2), TaskStatus.missed);
     expect(state.totalDone(), 2);
   });
@@ -82,7 +82,7 @@ void main() {
     final state = await freshState();
     final task = TaskItem(id: 't1', name: 'قراءة');
     state.addTask(task);
-    task.setStatusOn(DateTime(2026, 8, 1), TaskStatus.done);
+    task.setStatusOn(DateTime(2026, 8), TaskStatus.done);
     task.setStatusOn(DateTime(2026, 8, 2), TaskStatus.done);
     task.setStatusOn(DateTime(2026, 8, 3), TaskStatus.doneLate);
     task.setStatusOn(DateTime(2026, 8, 4), TaskStatus.missed);
@@ -121,7 +121,7 @@ void main() {
     final state = await freshState();
     state.addTask(
       TaskItem(id: 't1', name: 'قراءة')
-        ..setStatusOn(DateTime(2026, 8, 1), TaskStatus.done),
+        ..setStatusOn(DateTime(2026, 8), TaskStatus.done),
     );
     final exported = state.exportJson();
 
@@ -129,7 +129,7 @@ void main() {
     expect(other.importJson(exported), isTrue);
     expect(other.tasks, hasLength(1));
     expect(other.tasks.first.name, 'قراءة');
-    expect(other.tasks.first.statusOn(DateTime(2026, 8, 1)), TaskStatus.done);
+    expect(other.tasks.first.statusOn(DateTime(2026, 8)), TaskStatus.done);
     expect(other.importJson('ليس JSON'), isFalse);
   });
 
@@ -292,7 +292,7 @@ void main() {
       final state = await freshState();
       state.setPremium(true);
       state.addTask(TaskItem(id: 'n1', name: 'جديدة'));
-      expect(state.overdueEntries(lookBackDays: 7), isEmpty);
+      expect(state.overdueEntries(), isEmpty);
 
       final old = TaskItem(
         id: 'n2',
@@ -478,11 +478,7 @@ void main() {
 
   test('habit score fades on misses instead of resetting', () async {
     final state = await freshState();
-    final task = TaskItem(
-      id: 't',
-      name: 'قراءة',
-      createdAt: DateTime(2026, 1, 1),
-    );
+    final task = TaskItem(id: 't', name: 'قراءة', createdAt: DateTime(2026));
     state.addTask(task);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -506,11 +502,7 @@ void main() {
 
   test('best streak per task and longest overall streak', () async {
     final state = await freshState();
-    final task = TaskItem(
-      id: 't',
-      name: 'قراءة',
-      createdAt: DateTime(2026, 1, 1),
-    );
+    final task = TaskItem(id: 't', name: 'قراءة', createdAt: DateTime(2026));
     state.addTask(task);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -559,8 +551,8 @@ void main() {
     final state = await freshState();
     final task = TaskItem(id: 't', name: 'قراءة "مهمة"');
     state.addTask(task);
-    task.setStatusOn(DateTime(2026, 8, 1), TaskStatus.done);
-    task.setNoteOn(DateTime(2026, 8, 1), 'ممتاز');
+    task.setStatusOn(DateTime(2026, 8), TaskStatus.done);
+    task.setNoteOn(DateTime(2026, 8), 'ممتاز');
     final csv = state.exportCsv();
     expect(csv.split('\n').first, 'task,date,status,progress,note');
     expect(csv, contains('"قراءة ""مهمة""",2026-08-01,done,,"ممتاز"'));

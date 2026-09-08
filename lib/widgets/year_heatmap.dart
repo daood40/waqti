@@ -34,7 +34,7 @@ class YearHeatmap extends StatelessWidget {
     final wq = context.wq;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    final firstDay = DateTime(year, 1, 1);
+    final firstDay = DateTime(year);
     final lastDay = DateTime(year, 12, 31);
     // نبدأ الشبكة من أحد الأسبوع الذي يحوي أول يوم في السنة.
     // نبني التاريخ بمكوّناته (لا بطرح Duration) حتى لا ينزاح

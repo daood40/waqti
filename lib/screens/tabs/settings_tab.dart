@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import '../../core/app_info.dart';
 import '../../core/export_file.dart';
 import '../../core/l10n.dart';
-import '../../models/models.dart';
 import '../../core/theme.dart';
+import '../../models/models.dart';
 import '../../state/app_state.dart';
 import '../../widgets/common.dart';
 import '../auth_screen.dart';
@@ -247,7 +247,7 @@ class SettingsTab extends StatelessWidget {
     final initial = displayName.characters.first.toUpperCase();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 18, 24),
       children: [
         SectionTitle(s.settings, topPadding: 0),
 
@@ -265,8 +265,8 @@ class SettingsTab extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                        begin: AlignmentDirectional.topStart,
+                        end: AlignmentDirectional.bottomEnd,
                         colors: [wq.primary, wq.primaryDark],
                       ),
                       shape: BoxShape.circle,

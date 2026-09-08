@@ -82,7 +82,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: ListView(
         shrinkWrap: true,
-        padding: const EdgeInsets.fromLTRB(22, 12, 22, 22),
+        padding: const EdgeInsetsDirectional.fromSTEB(22, 12, 22, 22),
         children: [
           Center(
             child: Container(

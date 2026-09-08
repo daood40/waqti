@@ -305,7 +305,7 @@ class _TasksTabState extends State<TasksTab> {
           ..sort((a, b) => state.habitScore(b).compareTo(state.habitScore(a)))),
     };
 
-    const padding = EdgeInsets.fromLTRB(18, 8, 18, 24);
+    const padding = EdgeInsetsDirectional.fromSTEB(18, 8, 18, 24);
 
     if (tasks.isEmpty) {
       return ListView(
@@ -329,7 +329,7 @@ class _TasksTabState extends State<TasksTab> {
 
     // بدون بحث: قائمة قابلة لإعادة الترتيب بالسحب.
     return ReorderableListView(
-      padding: padding,
+      padding: padding.resolve(Directionality.of(context)),
       header: _header(context, state, s),
       onReorder: state.reorderTask,
       proxyDecorator: (child, index, animation) =>

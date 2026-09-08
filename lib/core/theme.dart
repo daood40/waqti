@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'tokens.dart';
 
 /// ألوان "وقتي" الإضافية التي لا يغطيها [ColorScheme]
 /// (ألوان الحالات، الحدود، النصوص الثانوية…).
@@ -156,10 +157,29 @@ abstract final class WaqtiTheme {
       splashFactory: InkSparkle.splashFactory,
     );
 
-    final textTheme = base.textTheme.apply(
+    // النص العربي يحتاج ارتفاع سطر أعلى (flutter-arabic-rtl): 1.6 للنصوص
+    // الجارية، 1.3 للعناوين حتى لا تتلاصق الحركات والنقاط.
+    final applied = base.textTheme.apply(
       bodyColor: c.text,
       displayColor: c.text,
       fontFamily: _fontFamily,
+    );
+    final textTheme = applied.copyWith(
+      bodyLarge: applied.bodyLarge?.copyWith(height: WqType.bodyHeight),
+      bodyMedium: applied.bodyMedium?.copyWith(height: WqType.bodyHeight),
+      bodySmall: applied.bodySmall?.copyWith(height: WqType.bodyHeight),
+      labelLarge: applied.labelLarge?.copyWith(height: WqType.labelHeight),
+      labelMedium: applied.labelMedium?.copyWith(height: WqType.labelHeight),
+      labelSmall: applied.labelSmall?.copyWith(height: WqType.labelHeight),
+      titleLarge: applied.titleLarge?.copyWith(height: WqType.titleHeight),
+      titleMedium: applied.titleMedium?.copyWith(height: WqType.titleHeight),
+      titleSmall: applied.titleSmall?.copyWith(height: WqType.titleHeight),
+      headlineSmall: applied.headlineSmall?.copyWith(
+        height: WqType.titleHeight,
+      ),
+      headlineMedium: applied.headlineMedium?.copyWith(
+        height: WqType.titleHeight,
+      ),
     );
 
     return base.copyWith(

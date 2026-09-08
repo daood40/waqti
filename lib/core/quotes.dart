@@ -8,7 +8,7 @@ class DailyQuote {
   String text(String lang) => lang == 'ar' ? ar : en;
 
   static DailyQuote forDate(DateTime date) {
-    final dayOfYear = date.difference(DateTime(date.year, 1, 1)).inDays;
+    final dayOfYear = date.difference(DateTime(date.year)).inDays;
     return kQuotes[dayOfYear % kQuotes.length];
   }
 }

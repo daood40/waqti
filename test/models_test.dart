@@ -5,7 +5,7 @@ void main() {
   group('Recurrence.isApplicableOn', () {
     test('daily applies every day', () {
       final task = TaskItem(id: 't1', name: 'قراءة');
-      expect(task.isApplicableOn(DateTime(2026, 8, 1)), isTrue);
+      expect(task.isApplicableOn(DateTime(2026, 8)), isTrue);
       expect(task.isApplicableOn(DateTime(2026, 8, 28)), isTrue);
     });
 
@@ -13,7 +13,7 @@ void main() {
       final task = TaskItem(
         id: 't1',
         name: 'رياضة',
-        recurrence: const Recurrence(type: RecurrenceType.weekly, weekday: 0),
+        recurrence: const Recurrence(type: RecurrenceType.weekly),
       );
       // 2026-08-30 يوم أحد.
       expect(task.isApplicableOn(DateTime(2026, 8, 30)), isTrue);
@@ -86,7 +86,6 @@ void main() {
         name: 'الصلاة في وقتها',
         description: 'وصف',
         icon: '🙏',
-        colorValue: 0xFF6E8F72,
         categoryId: 'c1',
         priority: TaskPriority.high,
         recurrence: const Recurrence(

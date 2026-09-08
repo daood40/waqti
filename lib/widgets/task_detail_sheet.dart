@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
 import '../models/models.dart';
-import '../state/app_state.dart';
 import '../screens/focus_screen.dart';
+import '../state/app_state.dart';
 import 'common.dart';
 import 'task_editor_sheet.dart';
 
@@ -69,7 +69,7 @@ class TaskDetailSheet extends StatelessWidget {
 
     return ListView(
       shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(22, 12, 22, 22),
+      padding: const EdgeInsetsDirectional.fromSTEB(22, 12, 22, 22),
       children: [
         Center(
           child: Container(

@@ -259,7 +259,7 @@ class SupabaseAuthGateway implements AuthGateway {
   Future<void> deleteAccount() async {
     try {
       // دالة SQL بصلاحية المُعرِّف تحذف auth.users للمستخدم الحالي فقط.
-      await _client.rpc('delete_own_account');
+      await _client.rpc<void>('delete_own_account');
       await _client.auth.signOut();
     } catch (e) {
       throw _fail(e);

@@ -75,7 +75,7 @@ class _HomeTabState extends State<HomeTab> {
     final stats = state.monthStats(cursor.year, cursor.month);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 18, 24),
       children: [
         _TodayHeader(strings: s),
         const SizedBox(height: 10),
@@ -145,7 +145,7 @@ class _HomeTabState extends State<HomeTab> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+                padding: const EdgeInsetsDirectional.fromSTEB(18, 16, 18, 14),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -181,7 +181,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               Divider(height: 1, color: wq.border),
               Padding(
-                padding: const EdgeInsets.fromLTRB(18, 10, 18, 4),
+                padding: const EdgeInsetsDirectional.fromSTEB(18, 10, 18, 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -252,7 +252,7 @@ class _HomeTabState extends State<HomeTab> {
                 )
               else
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 14),
+                  padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 10, 14),
                   child: _HabitGrid(
                     tasks: tasks,
                     year: cursor.year,
@@ -487,7 +487,6 @@ class _TodayCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: WqCard(
-        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -830,7 +829,6 @@ class _OverdueCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: WqCard(
-        padding: const EdgeInsets.all(16),
         borderColor: wq.late.withValues(alpha: .55),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

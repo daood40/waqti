@@ -92,7 +92,7 @@ class SubscriptionScreen extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
+            padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 18, 24),
             children: [
               if (kLaunchMode) ...[
                 WqCard(

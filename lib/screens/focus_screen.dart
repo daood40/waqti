@@ -165,7 +165,7 @@ class _FocusScreenState extends State<FocusScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(22, 8, 22, 24),
+            padding: const EdgeInsetsDirectional.fromSTEB(22, 8, 22, 24),
             children: [
               Text(
                 s.focusHint,

@@ -129,7 +129,7 @@ class AchievementsTab extends StatelessWidget {
     final remaining = level.per - level.current;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 18, 24),
       children: [
         SectionTitle(s.achievements, topPadding: 0),
 
@@ -220,7 +220,6 @@ class AchievementsTab extends StatelessWidget {
         // ---------- هدفك التالي ----------
         if (next != null)
           WqCard(
-            padding: const EdgeInsets.all(16),
             borderColor: wq.primary,
             child: Row(
               children: [

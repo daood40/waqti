@@ -6,8 +6,8 @@ library;
 
 import 'dart:io';
 
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   final url = Platform.environment['SUPABASE_URL'] ?? '';
@@ -58,8 +58,8 @@ void main() {
       expect(own['payload'], '{"owner":"a"}');
 
       // حذف الحساب ذاتيًا يزيل الصف (cascade) ويُنهي الجلسة.
-      await a.rpc('delete_own_account');
-      await b.rpc('delete_own_account');
+      await a.rpc<void>('delete_own_account');
+      await b.rpc<void>('delete_own_account');
     },
     skip: enabled ? false : 'SUPABASE_URL/SUPABASE_ANON_KEY not set',
   );

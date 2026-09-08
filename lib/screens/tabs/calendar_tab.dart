@@ -20,15 +20,14 @@ class CalendarTab extends StatelessWidget {
     final wq = context.wq;
 
     final dim = AppState.daysInMonth(cursor.year, cursor.month);
-    final firstWeekday = DateTime(cursor.year, cursor.month, 1).weekday % 7;
+    final firstWeekday = DateTime(cursor.year, cursor.month).weekday % 7;
     final today = DateTime.now();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 18, 24),
       children: [
         SectionTitle(s.calendar, topPadding: 0),
         WqCard(
-          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               Row(
@@ -210,7 +209,7 @@ class _DaySheet extends StatelessWidget {
 
     return ListView(
       shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(22, 12, 22, 22),
+      padding: const EdgeInsetsDirectional.fromSTEB(22, 12, 22, 22),
       children: [
         Center(
           child: Container(

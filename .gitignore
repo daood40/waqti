@@ -43,3 +43,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets & signing (flutter-security) — never commit
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+key.properties
+android/key.properties
+env/*.json
+!env/example.json
+.env
+.env.*
+google-services.json
+GoogleService-Info.plist

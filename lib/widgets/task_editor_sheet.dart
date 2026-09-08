@@ -339,7 +339,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
         ),
         child: ListView(
           controller: scrollController,
-          padding: const EdgeInsets.fromLTRB(22, 12, 22, 22),
+          padding: const EdgeInsetsDirectional.fromSTEB(22, 12, 22, 22),
           children: [
             Center(
               child: Container(
@@ -495,10 +495,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                   child: _DropdownField<String?>(
                     value: state.categoryById(_categoryId)?.id,
                     items: [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text(s.noCategory),
-                      ),
+                      DropdownMenuItem<String?>(child: Text(s.noCategory)),
                       for (final category in state.categories)
                         DropdownMenuItem<String?>(
                           value: category.id,
@@ -713,7 +710,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                       label: Text(
                         _reminders.isEmpty ? s.noReminder : s.addReminder,
                       ),
-                      onPressed: () => _pickReminder(),
+                      onPressed: _pickReminder,
                     ),
                 ],
               ),
