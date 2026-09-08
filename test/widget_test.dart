@@ -5,7 +5,7 @@ import 'package:waqti/state/app_state.dart';
 
 void main() {
   testWidgets(
-    'shows onboarding, then auth, then home shell after guest login',
+    'shows onboarding, then the home shell as guest when no auth server',
     (tester) async {
       SharedPreferences.setMockInitialValues({});
       final state = await AppState.load();
@@ -17,16 +17,11 @@ void main() {
       await tester.tap(find.text('تخطٍّ'));
       await tester.pumpAndSettle();
 
-      // ثم شاشة الدخول — بلا خادم مُهيّأ تعرض المتابعة كزائر فقط.
-      expect(find.text('المتابعة كزائر'), findsOneWidget);
-      expect(find.text('مرحبًا بعودتك'), findsNothing);
-
-      // المتابعة كزائر تنقل للرئيسية.
-      await tester.ensureVisible(find.text('المتابعة كزائر'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('المتابعة كزائر'));
-      await tester.pumpAndSettle();
+      // بلا خادم حسابات لا تظهر شاشة دخول: الرئيسية مباشرة كزائر.
+      expect(find.text('المتابعة كزائر'), findsNothing);
       expect(find.text('الجدول الشهري'), findsOneWidget);
+      expect(state.loggedIn, isTrue);
+      expect(state.hasAccount, isFalse);
     },
   );
 }

@@ -1,6 +1,6 @@
 # مراحل إطلاق «وقتي» على Google Play وApp Store
 
-> الحالة الآن: الشيفرة والاختبارات وCI والحِزم وبطاقة المتجر **جاهزة** (v1.3.1، بعد تطبيق المهارات).
+> الحالة الآن: الشيفرة والاختبارات وCI والحِزم وبطاقة المتجر **جاهزة** (v1.3.2، جاهز للرفع).
 > المتبقي حسابات وأسرار لا يملكها إلا المالك. كل مرحلة لها مالك، مدة، وبوابة خروج.
 > القاعدة: **لا مفتاح ولا كلمة سر في المحادثة** — الأسرار في GitHub → Settings → Secrets → Actions.
 
@@ -13,7 +13,7 @@
 | 4. Google Play: داخلي → مغلق → إنتاج | أنا ثم أنت | 14 يومًا (شرط Google للحسابات الجديدة) | Production access ممنوح، إصدار إنتاج بنسبة 20% |
 | 5. App Store: TestFlight → مراجعة | أنا ثم أنت | 1–3 أيام مراجعة | حالة «Ready for Sale» |
 | 6. يوم الإطلاق | أنت وأنا | 1 س | الروابط تعمل، لا أعطال في أول 24 س |
-| 7. ما بعد الإطلاق | أنا | مستمر | v1.3.2 خلال أسبوعين إن ظهرت أعطال |
+| 7. ما بعد الإطلاق | أنا | مستمر | v1.3.3 خلال أسبوعين إن ظهرت أعطال |
 
 ---
 
@@ -85,7 +85,7 @@
 **أنت**
 1. App Store Connect → App Information: الفئة Productivity؛ Pricing: Free؛ Availability: كل الدول.
 2. App Privacy: **Data Linked to You** = Contact Info (Email)، Name، User Content؛ **Not Linked** = Diagnostics (Crash Data)؛ Tracking = No. Age Rating: كل الأسئلة None → 4+.
-3. الإصدار 1.3.1: اللقطات 6.7" من `docs/screenshots/` وiPad 13" من `docs/store/`، النصوص والكلمات المفتاحية من `docs/STORE_LISTING.md`، اختر بناء TestFlight.
+3. الإصدار 1.3.2: اللقطات 6.7" من `docs/screenshots/` وiPad 13" من `docs/store/`، النصوص والكلمات المفتاحية من `docs/STORE_LISTING.md`، اختر بناء TestFlight.
 4. App Review Information: ملاحظة المراجع من `docs/STORE_LISTING.md` + حساب تجريبي (بريد/كلمة مرور أنشأتهما في المرحلة 3). أرفق أن «المتابعة كزائر» متاحة بلا حساب.
 5. Submit for Review. الرفض الشائع وحلّه جاهز: رابط الخصوصية يعمل، لا شراء رقمي خارج آبل (الباقات «قريبًا»)، حذف الحساب داخل التطبيق موجود.
 
@@ -94,7 +94,7 @@
 ## المرحلة 6 — يوم الإطلاق
 
 1. **أنت**: Play → Production → Create release → البناء نفسه الذي اجتاز المغلق → Staged rollout **20%**. آبل → Release this version.
-2. **أنا**: وسم `v1.3.1` مطابق للبناء المرفوع، تحديث `README.md` بروابط المتجرين، ومراقبة Sentry.
+2. **أنا**: وسم `v1.3.2` مطابق للبناء المرفوع، تحديث `README.md` بروابط المتجرين، ومراقبة Sentry.
 3. بعد 48 ساعة بلا أعطال: ارفع Play إلى 50% ثم 100%.
 
 **بوابة الخروج**: الروابط تعمل على المتجرين، معدل الأعطال في Sentry صفر أو مفسَّر.
@@ -103,7 +103,7 @@
 
 - أسبوعيًا: Play Console → Android vitals (ANR/Crash)، App Store Connect → Crashes، Sentry → Issues.
 - الردود على المراجعات خلال 48 ساعة (نبرة قصيرة، شكر + ما سيتغير).
-- v1.3.2 عند تجميع 3 إصلاحات أو أي عطل يتكرر: أرفع `version` و`kAppVersion` → `Release Builds` → `Publish to Stores`.
+- v1.3.3 عند تجميع 3 إصلاحات أو أي عطل يتكرر: أرفع `version` و`kAppVersion` → `Release Builds` → `Publish to Stores`.
 - بعد الاستقرار: تفعيل Google/Apple sign-in (الخطوات في `docs/LAUNCH_CHECKLIST.md` §0)، ثم قرار الباقات (RevenueCat) — حينها تُطبَّق مهارة `flutter-monetization`.
 
 ---

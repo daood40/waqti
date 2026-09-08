@@ -88,7 +88,7 @@ class CalendarTab extends StatelessWidget {
                   crossAxisCount: 7,
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
-                  childAspectRatio: 0.72,
+                  childAspectRatio: 0.78,
                 ),
                 itemCount: firstWeekday + dim,
                 itemBuilder: (context, index) {
@@ -107,7 +107,8 @@ class CalendarTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     onTap: () => _showDay(context, date),
                     child: Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(5),
+                      clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
                         color: wq.surface,
                         borderRadius: BorderRadius.circular(10),
@@ -123,6 +124,7 @@ class CalendarTab extends StatelessWidget {
                             '$day',
                             style: TextStyle(
                               fontSize: 12,
+                              height: 1.15,
                               fontWeight: FontWeight.w800,
                               color: isToday ? wq.primaryDark : wq.text,
                             ),
@@ -133,29 +135,38 @@ class CalendarTab extends StatelessWidget {
                               '$doneCount/${dayTasks.length}',
                               style: TextStyle(
                                 fontSize: 9.5,
+                                height: 1.15,
                                 color: wq.textMuted,
                               ),
                             ),
                             const SizedBox(height: 3),
-                            Expanded(
-                              child: Wrap(
-                                spacing: 2,
-                                runSpacing: 2,
+                            // صف واحد من النقاط (حتى 4) يقصّ ما زاد بدل أن
+                            // يفيض خارج الخلية على الهواتف الضيقة.
+                            ClipRect(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  for (final t in dayTasks.take(6))
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: switch (t.statusOn(date)) {
-                                          TaskStatus.done => wq.done,
-                                          TaskStatus.doneLate => wq.late,
-                                          TaskStatus.missed => wq.missed,
-                                          TaskStatus.skipped =>
-                                            wq.textMuted.withValues(alpha: .5),
-                                          null => wq.none,
-                                        },
+                                  for (final t in dayTasks.take(4))
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                        end: 2,
+                                      ),
+                                      child: Container(
+                                        width: 5,
+                                        height: 5,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: switch (t.statusOn(date)) {
+                                            TaskStatus.done => wq.done,
+                                            TaskStatus.doneLate => wq.late,
+                                            TaskStatus.missed => wq.missed,
+                                            TaskStatus.skipped =>
+                                              wq.textMuted.withValues(
+                                                alpha: .5,
+                                              ),
+                                            null => wq.none,
+                                          },
+                                        ),
                                       ),
                                     ),
                                 ],

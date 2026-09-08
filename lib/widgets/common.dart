@@ -350,9 +350,14 @@ class StatCard extends StatelessWidget {
         children: [
           Text(icon, style: const TextStyle(fontSize: 20)),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+          // الرقم في سطر واحد دائمًا (هواتف 360dp تعرض 4 بطاقات).
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+            ),
           ),
           const SizedBox(height: 2),
           Text(

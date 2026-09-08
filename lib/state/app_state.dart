@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/app_info.dart';
 import '../core/auth/auth_gateway.dart';
 import '../core/cloud_backup_service.dart';
+import '../core/l10n.dart';
 
 import '../models/models.dart';
 
@@ -328,6 +329,11 @@ class AppState extends ChangeNotifier {
   void setOnboarded() {
     if (onboarded) return;
     onboarded = true;
+    // بلا خادم حسابات لا معنى لشاشة دخول: ندخل كزائر مباشرة.
+    if (!auth.isAvailable && !loggedIn) {
+      user = UserProfile(name: AppStrings.of(lang).guestUser);
+      loggedIn = true;
+    }
     _commit();
   }
 

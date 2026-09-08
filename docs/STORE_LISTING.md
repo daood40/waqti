@@ -75,8 +75,8 @@ No ads, no behavioural tracking, no mandatory account. Start as a guest in one s
 
 The app works fully as a guest with no account: skip the 3-slide intro, then tap "المتابعة كزائر" (Continue as guest). An email account is optional and only adds a cloud backup; account deletion is available in Settings → حذف الحساب (Delete account). Every feature is free in this version; there is no purchase flow and no subscription screen.
 
-Demo account (fill after the real-device test): email `________`, password `________`.
+Demo account: not applicable when the build ships without an account server (no login exists — use "Continue as guest"). If accounts are enabled, fill after the real-device test: email `________`, password `________`.
 
 ## لقطات الشاشة
 
-مولّدة في `docs/screenshots/` (1290×2796 لآيفون 6.7" وتصلح لأندرويد؛ متجر مايكروسوفت يقبل نفس المقاس).
+مولّدة من الإصدار نفسه: آيفون 6.7"/6.9" في `docs/screenshots/` (1290×2796)، Google Play في `docs/store/play/` (1080×1920 — Play يرفض أي نسبة أبعاد أعلى من 2:1)، iPad 13" في `docs/store/ipad-*.png` (2064×2752).

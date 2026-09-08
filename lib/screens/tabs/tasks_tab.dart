@@ -85,32 +85,35 @@ class _TasksTabState extends State<TasksTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // العنوان والأزرار يلتفّون على الهواتف الضيقة بدل تقطيع العنوان.
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          runSpacing: 8,
+          spacing: 8,
           children: [
-            Expanded(
-              child: Text(
-                s.tasks,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
+            Text(
+              s.tasks,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+            ),
+            Wrap(
+              spacing: 8,
+              children: [
+                FilledButton(
+                  onPressed: () => showCategoryManagerSheet(context),
+                  child: Text(
+                    '🏷️ ${s.categoriesManage}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ),
-              ),
-            ),
-            FilledButton(
-              onPressed: () => showCategoryManagerSheet(context),
-              child: Text(
-                '🏷️ ${s.categoriesManage}',
-                style: const TextStyle(fontSize: 12),
-              ),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: () => showTaskEditorSheet(context),
-              child: Text(
-                '+ ${s.addTask}',
-                style: const TextStyle(fontSize: 12),
-              ),
+                ElevatedButton(
+                  onPressed: () => showTaskEditorSheet(context),
+                  child: Text(
+                    '+ ${s.addTask}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -345,10 +348,18 @@ class _TasksTabState extends State<TasksTab> {
       padding: padding.resolve(Directionality.of(context)),
       header: _header(context, state, s),
       onReorder: state.reorderTask,
+      // الضغط المطوّل يعيد الترتيب على كل المنصات؛ لا مقبض سطح المكتب
+      // الافتراضي (يتراكب مع أزرار البطاقة على الويب/الأجهزة اللوحية).
+      buildDefaultDragHandles: false,
       proxyDecorator: (child, index, animation) =>
           Material(color: Colors.transparent, child: child),
       children: [
-        for (final task in tasks) _taskCard(context, state, cursor, s, task),
+        for (var i = 0; i < tasks.length; i++)
+          ReorderableDelayedDragStartListener(
+            key: ValueKey('reorder-${tasks[i].id}'),
+            index: i,
+            child: _taskCard(context, state, cursor, s, tasks[i]),
+          ),
       ],
     );
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -102,14 +103,29 @@ class WaqtiApp extends StatelessWidget {
           // إتاحة: نحترم تكبير الخط حتى 1.3× ونمنع كسر التخطيط فوق ذلك.
           builder: (context, child) {
             final mq = MediaQuery.of(context);
-            return MediaQuery(
-              data: mq.copyWith(
-                textScaler: mq.textScaler.clamp(
-                  minScaleFactor: 0.85,
-                  maxScaleFactor: 1.3,
-                ),
+            final dark = Theme.of(context).brightness == Brightness.dark;
+            // أشرطة النظام شفافة (edge-to-edge) مع أيقونات متباينة مع الثيم.
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: dark
+                    ? Brightness.light
+                    : Brightness.dark,
+                statusBarBrightness: dark ? Brightness.dark : Brightness.light,
+                systemNavigationBarColor: Colors.transparent,
+                systemNavigationBarIconBrightness: dark
+                    ? Brightness.light
+                    : Brightness.dark,
               ),
-              child: child ?? const SizedBox.shrink(),
+              child: MediaQuery(
+                data: mq.copyWith(
+                  textScaler: mq.textScaler.clamp(
+                    minScaleFactor: 0.85,
+                    maxScaleFactor: 1.3,
+                  ),
+                ),
+                child: child ?? const SizedBox.shrink(),
+              ),
             );
           },
           home: state.passwordRecoveryPending
