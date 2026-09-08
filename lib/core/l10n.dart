@@ -157,6 +157,10 @@ class AppStrings {
     required this.deleteAccountConfirm,
     required this.deleteAccountDone,
     required this.cloudBackup,
+    required this.noResultsFor,
+    required this.trendChartSummary,
+    required this.weeklyBarsSummary,
+    required this.heatmapSummary,
     required this.clearSearch,
     required this.chooseIcon,
     required this.chooseColor,
@@ -468,6 +472,12 @@ class AppStrings {
   final String deleteAccountConfirm;
   final String deleteAccountDone;
   final String cloudBackup;
+
+  /// يحتوي `{q}` ويُستبدل بنص البحث.
+  final String noResultsFor;
+  final String trendChartSummary;
+  final String weeklyBarsSummary;
+  final String heatmapSummary;
   final String clearSearch;
   final String chooseIcon;
   final String chooseColor;
@@ -802,6 +812,10 @@ class AppStrings {
         'سيُحذف حسابك ونسختك السحابية نهائيًا ولا يمكن التراجع. بياناتك على هذا الجهاز ستُمسح أيضًا.',
     deleteAccountDone: 'تم حذف الحساب',
     cloudBackup: 'النسخة السحابية',
+    noResultsFor: 'لا نتائج لـ «{q}»',
+    trendChartSummary: 'مخطط خطي: عدد المهام المنجزة لكل يوم في الشهر',
+    weeklyBarsSummary: 'أعمدة: نسبة الإنجاز لكل أسبوع',
+    heatmapSummary: 'خريطة حرارية: نسبة الإنجاز لكل يوم في السنة',
     clearSearch: 'مسح البحث',
     chooseIcon: 'اختر الأيقونة',
     chooseColor: 'اختر اللون',
@@ -1146,6 +1160,10 @@ class AppStrings {
         'Your account and cloud backup will be permanently deleted. This cannot be undone. Data on this device will be erased too.',
     deleteAccountDone: 'Account deleted',
     cloudBackup: 'Cloud backup',
+    noResultsFor: 'No results for “{q}”',
+    trendChartSummary: 'Line chart: tasks completed per day this month',
+    weeklyBarsSummary: 'Bars: completion percentage per week',
+    heatmapSummary: 'Heatmap: completion percentage per day of the year',
     clearSearch: 'Clear search',
     chooseIcon: 'Choose icon',
     chooseColor: 'Choose colour',

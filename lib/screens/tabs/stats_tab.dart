@@ -117,7 +117,7 @@ class StatsTab extends StatelessWidget {
           padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 10),
           child: weeks.every((w) => w.pct == 0)
               ? EmptyHint(s.noData)
-              : WeeklyBars(buckets: weeks),
+              : WeeklyBars(buckets: weeks, semanticLabel: s.weeklyBarsSummary),
         ),
         SectionTitle(
           s.yearHeatmap,
@@ -136,6 +136,7 @@ class StatsTab extends StatelessWidget {
                   lessLabel: s.heatmapLegendLess,
                   moreLabel: s.heatmapLegendMore,
                   missedLabel: s.heatmapLegendMissed,
+                  semanticLabel: s.heatmapSummary,
                 ),
         ),
         SectionTitle(s.tasks),

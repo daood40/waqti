@@ -483,3 +483,42 @@ class WqIconButton extends StatelessWidget {
     return Opacity(opacity: onTap == null ? .35 : 1, child: button);
   }
 }
+
+/// حالة «لا نتائج»: تسمّي الاستعلام وتعرض الخطوة التالية (مسح البحث).
+class SearchEmpty extends StatelessWidget {
+  const SearchEmpty({super.key, required this.query, this.onClear});
+
+  final String query;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppStrings.of(
+      Directionality.of(context) == TextDirection.rtl ? 'ar' : 'en',
+    );
+    final text = query.trim().isEmpty
+        ? s.noResults
+        : s.noResultsFor.replaceAll('{q}', query.trim());
+    return Padding(
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: context.wq.textMuted),
+          ),
+          if (onClear != null) ...[
+            const SizedBox(height: 10),
+            TextButton.icon(
+              onPressed: onClear,
+              icon: const Icon(Icons.close, size: 18),
+              label: Text(s.clearSearch),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

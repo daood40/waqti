@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/l10n.dart';
+import '../core/notification_service.dart';
 import '../core/theme.dart';
 import '../core/tokens.dart';
 import '../state/app_state.dart';
+import '../widgets/task_detail_sheet.dart';
 import '../widgets/task_editor_sheet.dart';
 import 'tabs/achievements_tab.dart';
 import 'tabs/calendar_tab.dart';
@@ -42,17 +46,67 @@ class ShellScreen extends StatefulWidget {
   State<ShellScreen> createState() => _ShellScreenState();
 }
 
-class _ShellScreenState extends State<ShellScreen> {
+class _ShellScreenState extends State<ShellScreen> with WidgetsBindingObserver {
   int _tabIndex = 0;
   final _searchController = TextEditingController();
   final _monthCursor = MonthCursor();
   String _query = '';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    NotificationService.instance.tappedTaskId.addListener(_openTappedTask);
+    // إشعار فتح التطبيق من حالة الإغلاق: نعالجه بعد أول إطار.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openTappedTask());
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    NotificationService.instance.tappedTaskId.removeListener(_openTappedTask);
     _searchController.dispose();
     _monthCursor.dispose();
     super.dispose();
+  }
+
+  /// دورة الحياة (flutter-background-tasks): عند العودة نحدّث اليوم ونسحب
+  /// أحدث نسخة سحابية؛ عند الإخفاء نرفع أي تغيير معلّق فورًا.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    final state = context.read<AppState>();
+    switch (lifecycle) {
+      case AppLifecycleState.resumed:
+        unawaited(state.onAppResumed());
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+        unawaited(state.flushCloudPush());
+    }
+  }
+
+  /// نقر إشعار تذكير: يفتح تفاصيل المهمة المعنية (التوجيه بالحمولة لا بالنص).
+  void _openTappedTask() {
+    final id = NotificationService.instance.tappedTaskId.value;
+    if (id == null || !mounted) return;
+    NotificationService.instance.tappedTaskId.value = null;
+    final state = context.read<AppState>();
+    if (state.taskById(id) == null) return;
+    final now = DateTime.now();
+    unawaited(
+      showTaskDetailSheet(
+        context,
+        taskId: id,
+        year: now.year,
+        month: now.month,
+      ),
+    );
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() => _query = '');
   }
 
   void _selectTab(int index) {
@@ -70,10 +124,10 @@ class _ShellScreenState extends State<ShellScreen> {
     final wq = context.wq;
 
     final tabs = [
-      HomeTab(query: _query),
+      HomeTab(query: _query, onClearSearch: _clearSearch),
       const CalendarTab(),
       const StatsTab(),
-      TasksTab(query: _query),
+      TasksTab(query: _query, onClearSearch: _clearSearch),
       const AchievementsTab(),
       const SettingsTab(),
     ];

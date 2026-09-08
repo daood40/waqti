@@ -26,7 +26,11 @@ class NotificationService {
 
   final _plugin = FlutterLocalNotificationsPlugin();
   bool _ready = false;
+  bool _permissionAsked = false;
   Timer? _debounce;
+
+  /// معرّف المهمة التي نقر المستخدم إشعارها (يُستهلك من الواجهة ثم يُصفَّر).
+  final ValueNotifier<String?> tappedTaskId = ValueNotifier<String?>(null);
 
   /// يهيئ الحزمة والمنطقة الزمنية ويطلب الإذن. آمن على كل المنصات.
   Future<void> init() async {
@@ -39,23 +43,37 @@ class NotificationService {
       } catch (_) {
         // منطقة غير معروفة: نبقى على UTC بدل تعطيل التذكيرات.
       }
+      // لا نطلب الإذن هنا؛ يُطلب في سياقه عند أول تذكير فعلي (_ensurePermission).
+      const darwin = DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      );
       const settings = InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        iOS: DarwinInitializationSettings(),
-        macOS: DarwinInitializationSettings(),
+        iOS: darwin,
+        macOS: darwin,
       );
-      _ready = await _plugin.initialize(settings) ?? false;
+      _ready =
+          await _plugin.initialize(
+            settings,
+            onDidReceiveNotificationResponse: (response) {
+              final payload = response.payload;
+              if (payload != null && payload.isNotEmpty) {
+                tappedTaskId.value = payload;
+              }
+            },
+          ) ??
+          false;
       if (!_ready) return;
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >()
-          ?.requestNotificationsPermission();
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin
-          >()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
+      // فُتح التطبيق من إشعار وهو مغلق؟ نوجّه لنفس المهمة.
+      final launch = await _plugin.getNotificationAppLaunchDetails();
+      final launchPayload = launch?.notificationResponse?.payload;
+      if ((launch?.didNotificationLaunchApp ?? false) &&
+          launchPayload != null &&
+          launchPayload.isNotEmpty) {
+        tappedTaskId.value = launchPayload;
+      }
     } catch (_) {
       _ready = false; // منصة بلا دعم (مثل ويندوز بلا تسجيل): نتجاهل بهدوء
     }
@@ -71,12 +89,37 @@ class NotificationService {
     });
   }
 
+  /// يطلب إذن الإشعارات مرة واحدة، وفي سياقه: عندما يوجد فعلًا ما يُجدوَل.
+  Future<void> _ensurePermission() async {
+    if (_permissionAsked) return;
+    _permissionAsked = true;
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
+  }
+
+  /// هل يوجد ما يستحق الجدولة أصلًا؟ (يمنع طلب إذن بلا سبب)
+  bool _hasAnythingToSchedule(AppState state) =>
+      state.morningRecap ||
+      state.eveningRecap ||
+      state.tasks.any(
+        (t) => t.reminderMinutes != null && t.notificationsOn && !t.isPaused,
+      );
+
   /// يلغي كل الجدول ويعيد بناءه من الحالة الحالية.
   Future<void> sync(AppState state) async {
     if (kIsWeb || !_ready) return;
     try {
       await _plugin.cancelAll();
-      if (!state.notifMaster) return;
+      if (!state.notifMaster || !_hasAnythingToSchedule(state)) return;
+      await _ensurePermission();
       final isArabic = state.lang == 'ar';
       final details = NotificationDetails(
         android: AndroidNotificationDetails(

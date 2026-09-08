@@ -263,5 +263,42 @@ void main() {
       expect(cloud.pushes, before + 1); // دمج التغييرين في رفع واحد
       expect(cloud.remote!.payload, contains('جديد 2'));
     });
+
+    test('flushCloudPush pushes a pending change immediately', () async {
+      final state = await _fresh();
+      final auth = FakeAuth();
+      final cloud = FakeCloud();
+      state.attachServices(authGateway: auth, cloudGateway: cloud);
+      await state.onSignedIn(
+        await auth.signIn(email: 'a@b.c', password: 'secret1'),
+      );
+      final before = cloud.pushes;
+      state.addTask(TaskItem(id: 'p', name: 'معلّق'));
+      await state.flushCloudPush(); // كأن التطبيق أُخفي الآن
+      expect(cloud.pushes, before + 1);
+      expect(cloud.remote!.payload, contains('معلّق'));
+      await Future<void>.delayed(const Duration(seconds: 4));
+      expect(cloud.pushes, before + 1); // المؤقّت أُلغي: لا رفع مكرر
+    });
+
+    test('onAppResumed pulls a newer remote snapshot', () async {
+      final state = await _fresh();
+      final auth = FakeAuth();
+      final cloud = FakeCloud();
+      state.attachServices(authGateway: auth, cloudGateway: cloud);
+      await state.onSignedIn(
+        await auth.signIn(email: 'a@b.c', password: 'secret1'),
+      );
+      // جهاز آخر رفع نسخة أحدث بينما كان التطبيق في الخلفية.
+      final other = await _fresh();
+      other.addTask(TaskItem(id: 'r', name: 'من جهاز آخر'));
+      cloud.remote = CloudSnapshot(
+        payload: other.cloudPayload(),
+        updatedAt: DateTime.now().toUtc().add(const Duration(minutes: 5)),
+      );
+      await state.onAppResumed();
+      expect(state.taskById('r'), isNotNull);
+      expect(state.cloudStatus, CloudStatus.synced);
+    });
   });
 }

@@ -474,6 +474,35 @@ class AppState extends ChangeNotifier {
   /// يُستدعى بعد فشل سابق أو من زر «إعادة المحاولة».
   void retryCloudPush() => _scheduleCloudPush();
 
+  /// يرفع فورًا أي تغيير مؤجَّل (عند إخفاء التطبيق حتى لا يضيع الرفع
+  /// إن قتله النظام). لا يفعل شيئًا إن لم يكن هناك رفع معلّق.
+  Future<void> flushCloudPush() async {
+    final pending = _cloudTimer?.isActive ?? false;
+    if (!pending || !hasAccount || !cloud.isAvailable) return;
+    _cloudTimer?.cancel();
+    try {
+      lastCloudSyncAt = await cloud.push(
+        cloudPayload(),
+        appVersion: kAppVersion,
+      );
+      cloudStatus = CloudStatus.synced;
+      await _persist();
+    } catch (_) {
+      cloudStatus = CloudStatus.error;
+    }
+    notifyListeners();
+  }
+
+  /// عند العودة للمقدمة: إعادة بناء الواجهة (قد يكون اليوم تغيّر)
+  /// ثم مزامنة سحابية تسحب الأحدث أو تعيد محاولة رفع فاشل.
+  Future<void> onAppResumed() async {
+    notifyListeners();
+    if (!hasAccount || !cloud.isAvailable) return;
+    // أي رفع مؤجَّل يُدمج في المزامنة: هي تقرر (بالطوابع الزمنية) سحبًا أم رفعًا.
+    _cloudTimer?.cancel();
+    await syncWithCloud();
+  }
+
   void signInAsGuest(String guestLabel) {
     user = UserProfile(name: guestLabel);
     loggedIn = true;

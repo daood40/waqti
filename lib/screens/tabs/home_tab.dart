@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../core/app_info.dart';
 import '../../core/l10n.dart';
 import '../../core/quotes.dart';
+import '../../core/search.dart';
 import '../../core/theme.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
@@ -20,9 +21,10 @@ import '../subscription_screen.dart';
 
 /// تبويب الرئيسية: الجدول الشهري، منحنى الإنجازات، وحلقة نسبة الإنجاز.
 class HomeTab extends StatefulWidget {
-  const HomeTab({super.key, required this.query});
+  const HomeTab({super.key, required this.query, this.onClearSearch});
 
   final String query;
+  final VoidCallback? onClearSearch;
 
   @override
   State<HomeTab> createState() => _HomeTabState();
@@ -61,15 +63,12 @@ class _HomeTabState extends State<HomeTab> {
     final windowEnd = (_windowStart + 6).clamp(1, dim);
     final today = DateTime.now();
 
-    final query = widget.query.trim().toLowerCase();
-    final tasks = query.isEmpty
+    final query = widget.query.trim();
+    final terms = queryTerms(query);
+    final tasks = terms.isEmpty
         ? state.tasks
         : state.tasks
-              .where(
-                (t) =>
-                    t.name.toLowerCase().contains(query) ||
-                    t.description.toLowerCase().contains(query),
-              )
+              .where((t) => matchesAllTerms(terms, [t.name, t.description]))
               .toList();
 
     final stats = state.monthStats(cursor.year, cursor.month);
@@ -233,7 +232,10 @@ class _HomeTabState extends State<HomeTab> {
               if (tasks.isEmpty)
                 Column(
                   children: [
-                    EmptyHint(query.isNotEmpty ? s.noResults : s.noTasks),
+                    if (query.isNotEmpty)
+                      SearchEmpty(query: query, onClear: widget.onClearSearch)
+                    else
+                      EmptyHint(s.noTasks),
                     if (query.isEmpty && state.tasks.isEmpty)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
@@ -278,6 +280,7 @@ class _HomeTabState extends State<HomeTab> {
                   maxY: state.tasks.length,
                   todayIndex: cursor.isCurrentMonth ? today.day - 1 : -1,
                   axisLabel: s.tasksAxis,
+                  semanticLabel: s.trendChartSummary,
                 ),
         ),
         SectionTitle(s.completion),

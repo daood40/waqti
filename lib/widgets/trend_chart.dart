@@ -11,6 +11,7 @@ class DailyTrendChart extends StatelessWidget {
     required this.maxY,
     required this.todayIndex,
     required this.axisLabel,
+    required this.semanticLabel,
   });
 
   /// عدد المهام المنجزة لكل يوم (العنصر 0 = اليوم الأول من الشهر).
@@ -23,6 +24,9 @@ class DailyTrendChart extends StatelessWidget {
   final int todayIndex;
 
   final String axisLabel;
+
+  /// ملخص للمخطط لقارئات الشاشة (flutter-charts: Semantics على كل مخطط).
+  final String semanticLabel;
 
   static const _stepX = 26.0;
   static const _axisReserve = 34.0;
@@ -38,33 +42,39 @@ class DailyTrendChart extends StatelessWidget {
     final width = _leftPad + dailyCounts.length * _stepX + _axisReserve;
     const height = _topPad + _plotHeight + _bottomPad;
 
-    return Column(
-      children: [
-        SizedBox(
-          height: height,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            reverse: isRtl,
-            child: CustomPaint(
-              size: Size(width, height),
-              painter: _TrendPainter(
-                daily: dailyCounts,
-                maxY: maxY < 1 ? 1 : maxY,
-                todayIndex: todayIndex,
-                isRtl: isRtl,
-                lineColor: wq.primary,
-                gridColor: wq.border,
-                labelColor: wq.textMuted,
-                todayColor: wq.primaryDark,
-                dotFill: wq.primary,
-                dotStroke: wq.surface,
+    return Semantics(
+      label: semanticLabel,
+      container: true,
+      child: Column(
+        children: [
+          SizedBox(
+            height: height,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: isRtl,
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  size: Size(width, height),
+                  painter: _TrendPainter(
+                    daily: dailyCounts,
+                    maxY: maxY < 1 ? 1 : maxY,
+                    todayIndex: todayIndex,
+                    isRtl: isRtl,
+                    lineColor: wq.primary,
+                    gridColor: wq.border,
+                    labelColor: wq.textMuted,
+                    todayColor: wq.primaryDark,
+                    dotFill: wq.primary,
+                    dotStroke: wq.surface,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(axisLabel, style: TextStyle(fontSize: 11, color: wq.textMuted)),
-      ],
+          const SizedBox(height: 6),
+          Text(axisLabel, style: TextStyle(fontSize: 11, color: wq.textMuted)),
+        ],
+      ),
     );
   }
 }
@@ -238,64 +248,75 @@ enum _Anchor { centerBottom, startCenter, endCenter }
 
 /// أعمدة الإحصائيات الأسبوعية.
 class WeeklyBars extends StatelessWidget {
-  const WeeklyBars({super.key, required this.buckets});
+  const WeeklyBars({
+    super.key,
+    required this.buckets,
+    required this.semanticLabel,
+  });
 
   final List<({String label, int pct})> buckets;
+  final String semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     final wq = context.wq;
-    return SizedBox(
-      height: 130,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (final bucket in buckets) ...[
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    '${bucket.pct}%',
-                    style: TextStyle(fontSize: 10, color: wq.textMuted),
-                  ),
-                  const SizedBox(height: 4),
-                  // صفر يبقى صفرًا: لا عمود وهمي يوحي بقيمة —
-                  // شرطة خط الأساس تكفي (صدق المقدار قبل الجمال).
-                  if (bucket.pct == 0)
-                    Container(
-                      height: 2,
-                      decoration: BoxDecoration(
-                        color: wq.none,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    )
-                  else
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: bucket.pct / 100),
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, _) => Container(
-                        height: (84 * value).clamp(2, 84),
+    final summary = buckets.map((b) => '${b.label}: ${b.pct}%').join('، ');
+    return Semantics(
+      label: '$semanticLabel. $summary',
+      container: true,
+      excludeSemantics: true,
+      child: SizedBox(
+        height: 130,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (final bucket in buckets) ...[
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${bucket.pct}%',
+                      style: TextStyle(fontSize: 10, color: wq.textMuted),
+                    ),
+                    const SizedBox(height: 4),
+                    // صفر يبقى صفرًا: لا عمود وهمي يوحي بقيمة —
+                    // شرطة خط الأساس تكفي (صدق المقدار قبل الجمال).
+                    if (bucket.pct == 0)
+                      Container(
+                        height: 2,
                         decoration: BoxDecoration(
-                          color: wq.primary,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(4),
+                          color: wq.none,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      )
+                    else
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: bucket.pct / 100),
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, _) => Container(
+                          height: (84 * value).clamp(2, 84),
+                          decoration: BoxDecoration(
+                            color: wq.primary,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
                           ),
                         ),
                       ),
+                    const SizedBox(height: 6),
+                    Text(
+                      bucket.label,
+                      style: TextStyle(fontSize: 10, color: wq.textMuted),
                     ),
-                  const SizedBox(height: 6),
-                  Text(
-                    bucket.label,
-                    style: TextStyle(fontSize: 10, color: wq.textMuted),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            if (bucket != buckets.last) const SizedBox(width: 6),
+              if (bucket != buckets.last) const SizedBox(width: 6),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

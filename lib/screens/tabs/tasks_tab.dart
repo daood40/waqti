@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/l10n.dart';
+import '../../core/search.dart';
 import '../../core/theme.dart';
 import '../../models/models.dart';
 import '../../state/app_state.dart';
@@ -14,9 +15,10 @@ import '../shell_screen.dart';
 /// تبويب المهام والعادات: القائمة الكاملة مع الإدارة
 /// وإعادة الترتيب بالسحب والإفلات.
 class TasksTab extends StatefulWidget {
-  const TasksTab({super.key, required this.query});
+  const TasksTab({super.key, required this.query, this.onClearSearch});
 
   final String query;
+  final VoidCallback? onClearSearch;
 
   @override
   State<TasksTab> createState() => _TasksTabState();
@@ -284,15 +286,13 @@ class _TasksTabState extends State<TasksTab> {
     final cursor = context.watch<MonthCursor>();
     final s = AppStrings.of(state.lang);
 
-    final trimmed = query.trim().toLowerCase();
+    final terms = queryTerms(query);
     final filtering = _categoryFilter != null || _sort != _Sort.manual;
-    final searching = trimmed.isNotEmpty || filtering;
+    final searching = terms.isNotEmpty || filtering;
     var tasks = state.tasks
         .where(
           (t) =>
-              (trimmed.isEmpty ||
-                  t.name.toLowerCase().contains(trimmed) ||
-                  t.description.toLowerCase().contains(trimmed)) &&
+              matchesAllTerms(terms, [t.name, t.description]) &&
               (_categoryFilter == null || t.categoryId == _categoryFilter),
         )
         .toList();
@@ -312,7 +312,20 @@ class _TasksTabState extends State<TasksTab> {
         padding: padding,
         children: [
           _header(context, state, s),
-          WqCard(child: EmptyHint(searching ? s.noResults : s.noTasks)),
+          WqCard(
+            child: searching
+                ? SearchEmpty(
+                    query: query,
+                    onClear: () {
+                      setState(() {
+                        _categoryFilter = null;
+                        _sort = _Sort.manual;
+                      });
+                      widget.onClearSearch?.call();
+                    },
+                  )
+                : EmptyHint(s.noTasks),
+          ),
         ],
       );
     }

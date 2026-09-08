@@ -13,6 +13,7 @@ class YearHeatmap extends StatelessWidget {
     required this.lessLabel,
     required this.moreLabel,
     required this.missedLabel,
+    required this.semanticLabel,
   });
 
   final int year;
@@ -24,6 +25,7 @@ class YearHeatmap extends StatelessWidget {
   final String lessLabel;
   final String moreLabel;
   final String missedLabel;
+  final String semanticLabel;
 
   static const _cell = 11.0;
   static const _gap = 3.0;
@@ -46,79 +48,85 @@ class YearHeatmap extends StatelessWidget {
     final width = weekCount * (_cell + _gap);
     const height = _topLabelH + 7 * (_cell + _gap);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: height,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            reverse: isRtl,
-            child: CustomPaint(
-              size: Size(width, height),
-              painter: _HeatmapPainter(
-                year: year,
-                gridStart: gridStart,
-                weekCount: weekCount,
-                pctForDate: pctForDate,
-                monthLabels: monthLabels,
-                isRtl: isRtl,
-                baseColor: wq.primary,
-                emptyColor: wq.surfaceAlt,
-                missedColor: wq.missed,
-                labelColor: wq.textMuted,
-                todayBorder: wq.text,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              lessLabel,
-              style: TextStyle(fontSize: 10.5, color: wq.textMuted),
-            ),
-            const SizedBox(width: 6),
-            for (final alpha in const [.12, .3, .5, .75, 1.0])
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1.5),
-                child: Container(
-                  width: _cell,
-                  height: _cell,
-                  decoration: BoxDecoration(
-                    color: alpha == .12
-                        ? wq.surfaceAlt
-                        : wq.primary.withValues(alpha: alpha),
-                    borderRadius: BorderRadius.circular(2.5),
+    return Semantics(
+      label: semanticLabel,
+      container: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: height,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              reverse: isRtl,
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  size: Size(width, height),
+                  painter: _HeatmapPainter(
+                    year: year,
+                    gridStart: gridStart,
+                    weekCount: weekCount,
+                    pctForDate: pctForDate,
+                    monthLabels: monthLabels,
+                    isRtl: isRtl,
+                    baseColor: wq.primary,
+                    emptyColor: wq.surfaceAlt,
+                    missedColor: wq.missed,
+                    labelColor: wq.textMuted,
+                    todayBorder: wq.text,
                   ),
                 ),
               ),
-            const SizedBox(width: 6),
-            Text(
-              moreLabel,
-              style: TextStyle(fontSize: 10.5, color: wq.textMuted),
             ),
-            const SizedBox(width: 14),
-            // الخلية الحمراء (يوم فائت 0%) لها مدخل في المفتاح —
-            // لا لون بلا تفسير (قاعدة dataviz: الحالة تُشرح لا تُفترض).
-            Container(
-              width: _cell,
-              height: _cell,
-              decoration: BoxDecoration(
-                color: wq.missed.withValues(alpha: .25),
-                borderRadius: BorderRadius.circular(2.5),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                lessLabel,
+                style: TextStyle(fontSize: 10.5, color: wq.textMuted),
               ),
-            ),
-            const SizedBox(width: 5),
-            Text(
-              missedLabel,
-              style: TextStyle(fontSize: 10.5, color: wq.textMuted),
-            ),
-          ],
-        ),
-      ],
+              const SizedBox(width: 6),
+              for (final alpha in const [.12, .3, .5, .75, 1.0])
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 1.5),
+                  child: Container(
+                    width: _cell,
+                    height: _cell,
+                    decoration: BoxDecoration(
+                      color: alpha == .12
+                          ? wq.surfaceAlt
+                          : wq.primary.withValues(alpha: alpha),
+                      borderRadius: BorderRadius.circular(2.5),
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 6),
+              Text(
+                moreLabel,
+                style: TextStyle(fontSize: 10.5, color: wq.textMuted),
+              ),
+              const SizedBox(width: 14),
+              // الخلية الحمراء (يوم فائت 0%) لها مدخل في المفتاح —
+              // لا لون بلا تفسير (قاعدة dataviz: الحالة تُشرح لا تُفترض).
+              Container(
+                width: _cell,
+                height: _cell,
+                decoration: BoxDecoration(
+                  color: wq.missed.withValues(alpha: .25),
+                  borderRadius: BorderRadius.circular(2.5),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                missedLabel,
+                style: TextStyle(fontSize: 10.5, color: wq.textMuted),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
