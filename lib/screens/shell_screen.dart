@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import '../core/tokens.dart';
 import '../state/app_state.dart';
 import '../widgets/task_editor_sheet.dart';
 import 'tabs/achievements_tab.dart';
@@ -138,12 +139,19 @@ class _ShellScreenState extends State<ShellScreen> {
                                   ),
                                 ),
                                 if (_query.isNotEmpty)
-                                  GestureDetector(
-                                    onTap: () {
+                                  IconButton(
+                                    tooltip: s.clearSearch,
+                                    visualDensity: VisualDensity.compact,
+                                    constraints: const BoxConstraints(
+                                      minWidth: WqHit.min,
+                                      minHeight: WqHit.min,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
                                       _searchController.clear();
                                       setState(() => _query = '');
                                     },
-                                    child: Icon(
+                                    icon: Icon(
                                       Icons.close,
                                       size: 16,
                                       color: wq.textMuted,

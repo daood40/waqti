@@ -123,7 +123,7 @@ class SettingsTab extends StatelessWidget {
       context: context,
       initialTime: TimeOfDay(hour: current ~/ 60, minute: current % 60),
     );
-    if (picked == null) return;
+    if (picked == null || !context.mounted) return;
     final m = picked.hour * 60 + picked.minute;
     state.setQuietHours(start: start ? m : null, end: start ? null : m);
   }

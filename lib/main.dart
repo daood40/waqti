@@ -77,6 +77,19 @@ class WaqtiApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          // إتاحة: نحترم تكبير الخط حتى 1.3× ونمنع كسر التخطيط فوق ذلك.
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(
+                textScaler: mq.textScaler.clamp(
+                  minScaleFactor: 0.85,
+                  maxScaleFactor: 1.3,
+                ),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           home: state.passwordRecoveryPending
               ? const ResetPasswordScreen()
               : !state.onboarded

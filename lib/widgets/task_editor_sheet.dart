@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/l10n.dart';
 import '../core/templates.dart';
 import '../core/theme.dart';
+import '../core/tokens.dart';
 import '../models/models.dart';
 import '../screens/subscription_screen.dart';
 import '../state/app_state.dart';
@@ -136,7 +137,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
       context: context,
       initialTime: TimeOfDay(hour: initial ~/ 60, minute: initial % 60),
     );
-    if (picked == null) return;
+    if (picked == null || !mounted) return;
     final minutes = picked.hour * 60 + picked.minute;
     setState(() {
       if (replaceIndex == null) {
@@ -315,7 +316,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
       firstDate: DateTime(DateTime.now().year - 2),
       lastDate: DateTime(DateTime.now().year + 5),
     );
-    if (picked == null) return;
+    if (picked == null || !mounted) return;
     setState(() => _recurrence = _recurrence.copyWith(date: picked));
   }
 
@@ -400,7 +401,10 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
               runSpacing: 6,
               children: [
                 for (final icon in iconChoices)
-                  GestureDetector(
+                  _PickerTarget(
+                    label: '${s.chooseIcon} $icon',
+                    selected: _icon == icon,
+                    selectedLabel: s.selected,
                     onTap: () => setState(() => _icon = icon),
                     child: Container(
                       width: 36,
@@ -445,7 +449,10 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
               runSpacing: 8,
               children: [
                 for (final colorValue in colorChoices)
-                  GestureDetector(
+                  _PickerTarget(
+                    label: s.chooseColor,
+                    selected: _colorValue == colorValue,
+                    selectedLabel: s.selected,
                     onTap: () => setState(() => _colorValue = colorValue),
                     child: Container(
                       width: 30,
@@ -462,7 +469,10 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                       ),
                     ),
                   ),
-                GestureDetector(
+                _PickerTarget(
+                  label: s.customColor,
+                  selected: false,
+                  selectedLabel: s.selected,
                   onTap: _pickCustomColor,
                   child: Container(
                     width: 30,
@@ -831,7 +841,10 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
             runSpacing: 6,
             children: [
               for (var i = 0; i < 7; i++)
-                GestureDetector(
+                _PickerTarget(
+                  label: s.weekdays[i],
+                  selected: _recurrence.days.contains(i),
+                  selectedLabel: s.selected,
                   onTap: () {
                     final days = [..._recurrence.days];
                     if (!days.remove(i)) days.add(i);
@@ -948,6 +961,43 @@ class _DropdownField<T> extends StatelessWidget {
           ),
           items: items,
           onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+}
+
+/// هدف لمس مُتاح: 44px على الأقل + وصف لقارئ الشاشة + حالة التحديد.
+class _PickerTarget extends StatelessWidget {
+  const _PickerTarget({
+    required this.label,
+    required this.selected,
+    required this.selectedLabel,
+    required this.onTap,
+    required this.child,
+  });
+
+  final String label;
+  final bool selected;
+  final String selectedLabel;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: selected ? '$label، $selectedLabel' : label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(WqRadius.sm),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: WqHit.min,
+            minHeight: WqHit.min,
+          ),
+          child: Center(child: child),
         ),
       ),
     );

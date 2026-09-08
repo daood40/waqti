@@ -105,6 +105,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
           else
             for (final category in state.categories)
               Padding(
+                key: ValueKey(category.id),
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: [

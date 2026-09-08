@@ -157,6 +157,11 @@ class AppStrings {
     required this.deleteAccountConfirm,
     required this.deleteAccountDone,
     required this.cloudBackup,
+    required this.clearSearch,
+    required this.chooseIcon,
+    required this.chooseColor,
+    required this.customColor,
+    required this.selected,
     required this.cloudSynced,
     required this.cloudSyncing,
     required this.cloudSyncError,
@@ -463,6 +468,11 @@ class AppStrings {
   final String deleteAccountConfirm;
   final String deleteAccountDone;
   final String cloudBackup;
+  final String clearSearch;
+  final String chooseIcon;
+  final String chooseColor;
+  final String customColor;
+  final String selected;
   final String cloudSynced;
   final String cloudSyncing;
   final String cloudSyncError;
@@ -792,6 +802,11 @@ class AppStrings {
         'سيُحذف حسابك ونسختك السحابية نهائيًا ولا يمكن التراجع. بياناتك على هذا الجهاز ستُمسح أيضًا.',
     deleteAccountDone: 'تم حذف الحساب',
     cloudBackup: 'النسخة السحابية',
+    clearSearch: 'مسح البحث',
+    chooseIcon: 'اختر الأيقونة',
+    chooseColor: 'اختر اللون',
+    customColor: 'لون مخصص',
+    selected: 'محدد',
     cloudSynced: 'محفوظة سحابيًا',
     cloudSyncing: 'جارٍ الحفظ…',
     cloudSyncError: 'تعذّر الحفظ السحابي — سيُعاد تلقائيًا',
@@ -1131,6 +1146,11 @@ class AppStrings {
         'Your account and cloud backup will be permanently deleted. This cannot be undone. Data on this device will be erased too.',
     deleteAccountDone: 'Account deleted',
     cloudBackup: 'Cloud backup',
+    clearSearch: 'Clear search',
+    chooseIcon: 'Choose icon',
+    chooseColor: 'Choose colour',
+    customColor: 'Custom colour',
+    selected: 'selected',
     cloudSynced: 'Saved to cloud',
     cloudSyncing: 'Saving…',
     cloudSyncError: 'Cloud save failed — will retry automatically',

@@ -236,6 +236,7 @@ class _DaySheet extends StatelessWidget {
         const SizedBox(height: 12),
         for (final t in tasks)
           Padding(
+            key: ValueKey(t.id),
             padding: const EdgeInsets.only(bottom: 10),
             child: Row(
               children: [

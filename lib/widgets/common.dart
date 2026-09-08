@@ -127,18 +127,21 @@ class TaskIconBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Color(task.colorValue);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: .13),
-          borderRadius: BorderRadius.circular(size * 0.32),
-        ),
-        child: Text(task.icon, style: TextStyle(fontSize: fontSize)),
+    final box = Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .13),
+        borderRadius: BorderRadius.circular(size * 0.32),
       ),
+      child: Text(task.icon, style: TextStyle(fontSize: fontSize)),
+    );
+    if (onTap == null) return ExcludeSemantics(child: box);
+    return Semantics(
+      button: true,
+      label: task.name,
+      child: GestureDetector(onTap: onTap, child: box),
     );
   }
 }

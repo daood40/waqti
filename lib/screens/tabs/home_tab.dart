@@ -367,6 +367,7 @@ class _HabitGrid extends StatelessWidget {
         const SizedBox(height: 6),
         for (final task in tasks)
           Padding(
+            key: ValueKey('week-${task.id}'),
             // هدف اللمس داخل StatusDot صار أعرض — لا حاجة لحشوة صف إضافية.
             padding: EdgeInsets.zero,
             child: Row(
@@ -559,7 +560,10 @@ class _TodayCard extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: [for (final t in tasks) _TodayChip(task: t, date: today)],
+          children: [
+            for (final t in tasks)
+              _TodayChip(key: ValueKey(t.id), task: t, date: today),
+          ],
         ),
       ];
     }
@@ -595,7 +599,10 @@ class _TodayCard extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: [for (final t in group) _TodayChip(task: t, date: today)],
+          children: [
+            for (final t in group)
+              _TodayChip(key: ValueKey(t.id), task: t, date: today),
+          ],
         ),
       );
     }
@@ -635,7 +642,7 @@ class _QuoteCard extends StatelessWidget {
 
 /// شريحة مهمة واحدة داخل بطاقة اليوم — تنقر لتقليب حالتها.
 class _TodayChip extends StatelessWidget {
-  const _TodayChip({required this.task, required this.date});
+  const _TodayChip({super.key, required this.task, required this.date});
 
   final TaskItem task;
   final DateTime date;
