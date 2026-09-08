@@ -135,3 +135,26 @@ Integration RLS:      skipped (needs SUPABASE_URL) — test/integration/rls_test
 Analyze --fatal-infos PASS   Format PASS   Web build PASS
 ```
 
+
+## جلسة تطبيق مهارات Flutter الـ34 (2026-09-08)
+
+المرجع: `docs/SPEC.md` (ذاكرة البناء وقائمة المراحل). طُبّقت المهارات المنطبقة على التطبيق
+(الأساس، الواجهة، RTL، النماذج، الحركة، المخططات، الحالة، Supabase، التخزين المحلي، الإشعارات،
+المهام الخلفية، البحث، الأمن، الأداء، الاختبار، التصحيح، الإصدار، الويب، المستندات).
+المهارات غير المنطبقة عمدًا: Firebase، الدردشة، الوسائط، المدفوعات/الاشتراكات (الباقات «قريبًا»)،
+الذكاء الاصطناعي، سطح المكتب كهدف إطلاق، تأليف الحزم، التحليلات (لا تتبع في الإطلاق).
+
+- الجودة: `analysis_options.yaml` صارم (strict casts/inference/raw-types + 24 قاعدة) و`dart fix`.
+- RTL: كل الحواف `EdgeInsetsDirectional`/`AlignmentDirectional`؛ ارتفاع سطر عربي في الثيم؛ بحث بتطبيع عربي وAND متعدد الكلمات.
+- الإتاحة: Semantics + أهداف لمس 40px على المنتقيات، قصّ تكبير الخط عند 1.3×، ملخصات المخططات، احترام «تقليل الحركة».
+- الأمن: جلسة Supabase في Keystore/Keychain، R8 + obfuscate + رموز كـ artifacts، قواعد النسخ الاحتياطي، لا cleartext.
+- الاستقرار: حارس التعديلات غير المحفوظة، `mounted` بعد المنتقيات، مفاتيح القوائم، التقاط الأخطاء غير المعالَجة، دورة الحياة (رفع عند الإخفاء/مزامنة عند العودة).
+- الإشعارات: الإذن في سياقه، النقر يفتح المهمة (حتى من الإغلاق)، النصوص من `l10n.dart`.
+- الويب: `web/404.html`؛ CSV مع BOM؛ `env/example.json` + `--dart-define-from-file`.
+
+```
+SKILLS GATE           Status: PASS
+Tests:                +55 ~1 (+8 ملفات/حالات جديدة: a11y, search, editor guard, secure session, lifecycle)
+Analyze --fatal-infos PASS   Format PASS   Web build PASS
+CI (quality / build-apk / deploy-pages): أخضر على 49608f0 و8b0a692 (R8 مفعّل)
+```

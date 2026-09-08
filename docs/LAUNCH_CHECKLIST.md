@@ -59,3 +59,10 @@
 ## بعد الإطلاق
 - راقب Crashes/ANRs في Play Console وTestFlight feedback.
 - كل إصدار جديد: ارفع `version:` في `pubspec.yaml` و`kAppVersion` → Release Builds (version vX.Y.Z) → Publish to Stores.
+
+## ملحق — تصليب الإصدار (2026-09-08)
+
+- [x] `--obfuscate --split-debug-info` في `release.yml`/`publish.yml`؛ الرموز تُحفظ كـ artifact `waqti-symbols-*` — نزّلها واحفظها مع كل إصدار (لفك تتبع أعطال Sentry: `sentry-cli debug-files upload build/symbols`).
+- [x] R8 مفعّل (`isMinifyEnabled`/`isShrinkResources`) مع `android/app/proguard-rules.pro`.
+- [x] جلسة الحساب في Keystore/Keychain (`SecureSessionStorage`).
+- [ ] بعد أول بناء متجر: ثبّت الـ AAB على جهاز حقيقي وتأكد أن التذكيرات تعمل مع R8 (قواعد Gson موجودة).
