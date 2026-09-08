@@ -43,14 +43,19 @@ jobs:
             echo "signed=no (debug keys; add ANDROID_KEYSTORE_BASE64 + ANDROID_KEY_PROPERTIES secrets)"
           fi
       - run: flutter pub get
-      - run: flutter build appbundle --release --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }} --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }} --dart-define=APPLE_SIGNIN=${{ secrets.APPLE_SIGNIN_ENABLED || 'false' }}
-      - run: flutter build apk --release --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }} --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }} --dart-define=APPLE_SIGNIN=${{ secrets.APPLE_SIGNIN_ENABLED || 'false' }}
+      - run: flutter build appbundle --release --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }} --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }} --dart-define=APPLE_SIGNIN=${{ secrets.APPLE_SIGNIN_ENABLED || 'false' }} --obfuscate --split-debug-info=build/symbols
+      - run: flutter build apk --release --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }} --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }} --dart-define=APPLE_SIGNIN=${{ secrets.APPLE_SIGNIN_ENABLED || 'false' }} --obfuscate --split-debug-info=build/symbols
       - uses: actions/upload-artifact@v4
         with:
           name: waqti-android
           path: |
             build/app/outputs/bundle/release/app-release.aab
             build/app/outputs/flutter-apk/app-release.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: waqti-symbols-android
+          path: build/symbols
+          if-no-files-found: ignore
 
   windows:
     runs-on: windows-2022
@@ -120,13 +125,18 @@ jobs:
           flutter-version: 3.35.1
           cache: true
       - run: flutter pub get
-      - run: flutter build ios --release --no-codesign --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }} --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }} --dart-define=APPLE_SIGNIN=${{ secrets.APPLE_SIGNIN_ENABLED || 'false' }}
+      - run: flutter build ios --release --no-codesign --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }} --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }} --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }} --dart-define=APPLE_SIGNIN=${{ secrets.APPLE_SIGNIN_ENABLED || 'false' }} --obfuscate --split-debug-info=build/symbols
       - name: Zip Runner.app
         run: cd build/ios/iphoneos && zip -r ../../../waqti-ios-nosign.zip Runner.app
       - uses: actions/upload-artifact@v4
         with:
           name: waqti-ios-nosign
           path: waqti-ios-nosign.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: waqti-symbols-ios
+          path: build/symbols
+          if-no-files-found: ignore
 
   # عند وسم vX.Y.Z: يجمع الحِزم الأربع في GitHub Release بروابط تحميل مباشرة.
   publish:

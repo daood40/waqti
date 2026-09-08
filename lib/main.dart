@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/app_config.dart';
 import 'core/app_info.dart';
 import 'core/auth/auth_gateway.dart';
+import 'core/auth/secure_session_storage.dart';
 import 'core/auth/supabase_auth_gateway.dart';
 import 'core/cloud_backup_service.dart';
 import 'core/notification_service.dart';
@@ -27,6 +31,10 @@ Future<void> main() async {
     await Supabase.initialize(
       url: AppConfig.supabaseUrl,
       publishableKey: AppConfig.supabaseAnonKey,
+      authOptions: FlutterAuthClientOptions(
+        // الويب يستخدم مخزن المتصفح؛ الهواتف تحفظ الجلسة في Keystore/Keychain.
+        localStorage: kIsWeb ? null : SecureSessionStorage(),
+      ),
     );
     authGateway = SupabaseAuthGateway(Supabase.instance.client);
     cloudGateway = SupabaseCloudBackupGateway(Supabase.instance.client);
@@ -34,9 +42,15 @@ Future<void> main() async {
 
   final appState = await AppState.load();
   appState.attachServices(authGateway: authGateway, cloudGateway: cloudGateway);
-  // التذكيرات المحلية: تهيئة ثم مزامنة الجدول مع كل تغيير في الحالة.
-  await NotificationService.instance.init();
-  NotificationService.instance.bind(appState);
+  // التذكيرات المحلية تُهيَّأ بعد أول إطار حتى لا تؤخر الإقلاع
+  // ولا تطلب الإذن قبل ظهور الواجهة (flutter-performance: startup).
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(
+      NotificationService.instance.init().then(
+        (_) => NotificationService.instance.bind(appState),
+      ),
+    );
+  });
 
   if (AppConfig.hasSentry) {
     // تتبع الأعطال فقط: لا بيانات شخصية، لا نصوص المستخدم.

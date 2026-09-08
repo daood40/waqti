@@ -58,6 +58,13 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // تقليص وتشويش الشيفرة الأصلية (R8) — قواعد الإبقاء في proguard-rules.pro
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

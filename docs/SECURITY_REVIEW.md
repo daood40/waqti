@@ -35,3 +35,20 @@
 
 عند إضافة Supabase: RLS على كل جدول، رموز في التخزين الآمن، تدوير المفاتيح،
 تحديد معدل الطلبات، وسياسة حذف الحساب (مطلوبة من آبل وجوجل).
+
+
+## ملحق 2026-09 — تصليب الإصدار (flutter-security / flutter-performance)
+
+| البند | الحالة | الدليل |
+|---|---|---|
+| رموز جلسة Supabase في Keystore/Keychain لا في SharedPreferences | ✅ | `lib/core/auth/secure_session_storage.dart` + `test/secure_session_storage_test.dart` |
+| استثناء مخزن الجلسة من نسخ Android الاحتياطي ونقل الجهاز | ✅ | `android/app/src/main/res/xml/backup_rules.xml`, `data_extraction_rules.xml` |
+| `usesCleartextTraffic="false"` صراحةً | ✅ | `AndroidManifest.xml` |
+| R8: تقليص + تشويش الشيفرة الأصلية مع قواعد إبقاء للإشعارات (Gson) | ✅ (يُتحقق في CI) | `android/app/build.gradle.kts`, `android/app/proguard-rules.pro` |
+| `--obfuscate --split-debug-info` لبنيات Android/iOS + أرشفة الرموز كـ artifact | ✅ | `release.yml`, `publish.yml` (`waqti-symbols-*`) |
+| ملفات التوقيع والبيئة خارج git | ✅ | `.gitignore` (`*.jks`, `key.properties`, `env/*.json`) |
+| `avoid_print` + lints صارمة | ✅ | `analysis_options.yaml` |
+| تهيئة الإشعارات وطلب الإذن بعد أول إطار لا قبله | ✅ | `lib/main.dart` |
+| Sentry بلا PII، لا لقطات شاشة | ✅ | `lib/main.dart` |
+
+ملاحظة: عند رفع أعطال Sentry لبنية مشوَّشة، ارفع `build/symbols` عبر `sentry-cli debug-files upload` لفك التتبع.

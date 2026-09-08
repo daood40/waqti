@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android ≤ 11: انسخ بيانات التطبيق احتياطيًا لكن استثنِ مخزن الجلسة الآمن
+     (مفاتيح Keystore لا تنتقل بين الأجهزة فتصبح القيم غير قابلة للقراءة). -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="FlutterSecureStorage.xml"/>
+</full-backup-content>
