@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../core/l10n.dart';
@@ -79,10 +82,81 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     ];
     _timeSlot = existing?.timeSlot ?? TimeSlot.any;
     _isQuit = existing?.isQuit ?? false;
+    _initialSnapshot = _snapshot();
+    // تغيّر النص لا يعيد البناء وحده؛ الحارس يحتاج إعادة تقييم canPop.
+    for (final c in [
+      _nameController,
+      _descController,
+      _targetController,
+      _unitController,
+    ]) {
+      c.addListener(_onTextChanged);
+    }
+  }
+
+  bool _wasDirty = false;
+
+  void _onTextChanged() {
+    final now = _dirty;
+    if (now != _wasDirty && mounted) setState(() => _wasDirty = now);
+  }
+
+  late final String _initialSnapshot;
+
+  /// بصمة كل الحقول — تغيّرها يعني وجود تعديلات غير محفوظة.
+  String _snapshot() => [
+    _nameController.text,
+    _descController.text,
+    _icon,
+    _colorValue,
+    _categoryId,
+    _priority.name,
+    _recurrence.toJson(),
+    _notificationsOn,
+    _targetController.text,
+    _unitController.text,
+    _reminders,
+    [for (final st in _subtasks) '${st.title}:${st.done}'],
+    _timeSlot.name,
+    _isQuit,
+  ].join('|');
+
+  bool get _dirty => _snapshot() != _initialSnapshot;
+
+  /// زر الرجوع مع تعديلات غير محفوظة: نسأل قبل الإغلاق (flutter-navigation).
+  Future<void> _confirmDiscard() async {
+    final s = AppStrings.of(context.read<AppState>().lang);
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(s.discardChangesTitle),
+        content: Text(s.discardChangesBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(s.keepEditing),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: TextButton.styleFrom(foregroundColor: context.wq.missed),
+            child: Text(s.discard),
+          ),
+        ],
+      ),
+    );
+    if (discard == true && mounted) Navigator.of(context).pop(false);
   }
 
   @override
   void dispose() {
+    for (final c in [
+      _nameController,
+      _descController,
+      _targetController,
+      _unitController,
+    ]) {
+      c.removeListener(_onTextChanged);
+    }
     _nameController.dispose();
     _descController.dispose();
     _customIconController.dispose();
@@ -329,467 +403,517 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     final iconChoices = [...kTaskIconChoices, ...state.customIcons];
     final colorChoices = [...kTaskColorPalette, ...state.customColors];
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.9,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      builder: (context, scrollController) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: ListView(
-          controller: scrollController,
-          padding: const EdgeInsetsDirectional.fromSTEB(22, 12, 22, 22),
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: wq.none,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              _isEditing ? s.editTask : s.newTask,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 16),
-            if (!_isEditing) ...[
-              _FieldLabel(s.quickSuggestions),
-              SizedBox(
-                height: 38,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: kHabitTemplates.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 6),
-                  itemBuilder: (context, i) {
-                    final t = kHabitTemplates[i];
-                    return ActionChip(
-                      label: Text('${t.icon} ${t.name(state.lang)}'),
-                      labelStyle: const TextStyle(fontSize: 12),
-                      onPressed: () => _applyTemplate(t, state),
-                    );
-                  },
+    return PopScope(
+      canPop: !_dirty,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) unawaited(_confirmDiscard());
+      },
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.9,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsetsDirectional.fromSTEB(22, 12, 22, 22),
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: wq.none,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
-            ],
-            _FieldLabel(s.name),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(errorText: _nameError),
-              onChanged: (_) {
-                if (_nameError != null) setState(() => _nameError = null);
-              },
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.description),
-            TextField(
-              controller: _descController,
-              minLines: 2,
-              maxLines: 4,
-              decoration: InputDecoration(hintText: s.whyHint),
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.icon),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final icon in iconChoices)
-                  _PickerTarget(
-                    label: '${s.chooseIcon} $icon',
-                    selected: _icon == icon,
-                    selectedLabel: s.selected,
-                    onTap: () => setState(() => _icon = icon),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: wq.surfaceAlt,
-                        borderRadius: BorderRadius.circular(9),
-                        border: Border.all(
-                          color: _icon == icon
-                              ? wq.primary
-                              : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
-                      child: Text(icon, style: const TextStyle(fontSize: 16)),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _customIconController,
-                    maxLength: 4,
-                    decoration: InputDecoration(
-                      hintText: s.customIconPlaceholder,
-                      counterText: '',
-                    ),
+              Text(
+                _isEditing ? s.editTask : s.newTask,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (!_isEditing) ...[
+                _FieldLabel(s.quickSuggestions),
+                SizedBox(
+                  height: 38,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: kHabitTemplates.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 6),
+                    itemBuilder: (context, i) {
+                      final t = kHabitTemplates[i];
+                      return ActionChip(
+                        label: Text('${t.icon} ${t.name(state.lang)}'),
+                        labelStyle: const TextStyle(fontSize: 12),
+                        onPressed: () => _applyTemplate(t, state),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(width: 8),
-                FilledButton(onPressed: _addCustomIcon, child: Text(s.addNew)),
+                const SizedBox(height: 14),
               ],
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.color),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final colorValue in colorChoices)
+              _FieldLabel(s.name),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(errorText: _nameError),
+                textInputAction: TextInputAction.next,
+                textCapitalization: TextCapitalization.sentences,
+                maxLength: 60,
+                buildCounter:
+                    (
+                      _, {
+                      required currentLength,
+                      required isFocused,
+                      maxLength,
+                    }) => null,
+                onChanged: (_) {
+                  if (_nameError != null) setState(() => _nameError = null);
+                },
+              ),
+              const SizedBox(height: 14),
+              _FieldLabel(s.description),
+              TextField(
+                controller: _descController,
+                minLines: 2,
+                maxLines: 4,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.newline,
+                decoration: InputDecoration(hintText: s.whyHint),
+              ),
+              const SizedBox(height: 14),
+              _FieldLabel(s.icon),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final icon in iconChoices)
+                    _PickerTarget(
+                      label: '${s.chooseIcon} $icon',
+                      selected: _icon == icon,
+                      selectedLabel: s.selected,
+                      onTap: () => setState(() => _icon = icon),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: wq.surfaceAlt,
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(
+                            color: _icon == icon
+                                ? wq.primary
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(icon, style: const TextStyle(fontSize: 16)),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _customIconController,
+                      maxLength: 4,
+                      decoration: InputDecoration(
+                        hintText: s.customIconPlaceholder,
+                        counterText: '',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: _addCustomIcon,
+                    child: Text(s.addNew),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _FieldLabel(s.color),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final colorValue in colorChoices)
+                    _PickerTarget(
+                      label: s.chooseColor,
+                      selected: _colorValue == colorValue,
+                      selectedLabel: s.selected,
+                      onTap: () => setState(() => _colorValue = colorValue),
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Color(colorValue),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _colorValue == colorValue
+                                ? wq.text
+                                : Colors.transparent,
+                            width: 3,
+                          ),
+                        ),
+                      ),
+                    ),
                   _PickerTarget(
-                    label: s.chooseColor,
-                    selected: _colorValue == colorValue,
+                    label: s.customColor,
+                    selected: false,
                     selectedLabel: s.selected,
-                    onTap: () => setState(() => _colorValue = colorValue),
+                    onTap: _pickCustomColor,
                     child: Container(
                       width: 30,
                       height: 30,
                       decoration: BoxDecoration(
-                        color: Color(colorValue),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _colorValue == colorValue
-                              ? wq.text
-                              : Colors.transparent,
-                          width: 3,
+                        border: Border.all(color: wq.border),
+                        gradient: const SweepGradient(
+                          colors: [
+                            Colors.red,
+                            Colors.orange,
+                            Colors.yellow,
+                            Colors.green,
+                            Colors.blue,
+                            Colors.purple,
+                            Colors.red,
+                          ],
                         ),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        size: 16,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                _PickerTarget(
-                  label: s.customColor,
-                  selected: false,
-                  selectedLabel: s.selected,
-                  onTap: _pickCustomColor,
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: wq.border),
-                      gradient: const SweepGradient(
-                        colors: [
-                          Colors.red,
-                          Colors.orange,
-                          Colors.yellow,
-                          Colors.green,
-                          Colors.blue,
-                          Colors.purple,
-                          Colors.red,
-                        ],
-                      ),
-                    ),
-                    child: const Icon(Icons.add, size: 16, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.category),
-            Row(
-              children: [
-                Expanded(
-                  child: _DropdownField<String?>(
-                    value: state.categoryById(_categoryId)?.id,
-                    items: [
-                      DropdownMenuItem<String?>(child: Text(s.noCategory)),
-                      for (final category in state.categories)
-                        DropdownMenuItem<String?>(
-                          value: category.id,
-                          child: Text(category.name),
-                        ),
-                    ],
-                    onChanged: (value) => setState(() => _categoryId = value),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                WqIconButton(
-                  size: 44,
-                  tooltip: s.addCategory,
-                  onTap: () async {
-                    final created = await showCategoryManagerSheet(context);
-                    if (created != null && mounted) {
-                      setState(() => _categoryId = created);
-                    }
-                  },
-                  child: const Icon(Icons.add, size: 18),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.priority),
-            SegmentedPills(
-              options: [s.low, s.medium, s.high, s.urgent],
-              selectedIndex: _priority.index,
-              onSelected: (i) =>
-                  setState(() => _priority = TaskPriority.values[i]),
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.timeSlot),
-            SegmentedPills(
-              options: [
-                s.slotAny,
-                s.slotMorning,
-                s.slotAfternoon,
-                s.slotEvening,
-              ],
-              selectedIndex: _timeSlot.index,
-              onSelected: (i) => setState(() => _timeSlot = TimeSlot.values[i]),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '🚭 ${s.quitHabit}',
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        s.quitHint,
-                        style: TextStyle(fontSize: 11, color: wq.textMuted),
-                      ),
-                    ],
-                  ),
-                ),
-                Switch(
-                  value: _isQuit,
-                  onChanged: (v) => setState(() => _isQuit = v),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.subtasks),
-            for (var i = 0; i < _subtasks.length; i++)
+                ],
+              ),
+              const SizedBox(height: 14),
+              _FieldLabel(s.category),
               Row(
                 children: [
-                  Icon(Icons.drag_indicator, size: 16, color: wq.textMuted),
-                  const SizedBox(width: 6),
                   Expanded(
-                    child: Text(
-                      _subtasks[i].title,
-                      style: const TextStyle(fontSize: 13),
+                    child: _DropdownField<String?>(
+                      value: state.categoryById(_categoryId)?.id,
+                      items: [
+                        DropdownMenuItem<String?>(child: Text(s.noCategory)),
+                        for (final category in state.categories)
+                          DropdownMenuItem<String?>(
+                            value: category.id,
+                            child: Text(category.name),
+                          ),
+                      ],
+                      onChanged: (value) => setState(() => _categoryId = value),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   WqIconButton(
-                    onTap: () => setState(() => _subtasks.removeAt(i)),
-                    child: Icon(Icons.close, size: 14, color: wq.textMuted),
+                    size: 44,
+                    tooltip: s.addCategory,
+                    onTap: () async {
+                      final created = await showCategoryManagerSheet(context);
+                      if (created != null && mounted) {
+                        setState(() => _categoryId = created);
+                      }
+                    },
+                    child: const Icon(Icons.add, size: 18),
                   ),
                 ],
               ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _subtaskController,
-                    decoration: InputDecoration(hintText: s.subtaskHint),
-                    onSubmitted: (_) => _addSubtask(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: _addSubtask,
-                  child: const Icon(Icons.add, size: 18),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _FieldLabel(s.dailyTarget),
-                      TextField(
-                        controller: _targetController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(hintText: s.targetHint),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _FieldLabel(s.unit),
-                      TextField(
-                        controller: _unitController,
-                        enabled: _target > 1,
-                        decoration: InputDecoration(hintText: s.unitHint),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _FieldLabel(s.recurrence),
-            _DropdownField<RecurrenceType>(
-              value: _recurrence.type,
-              items: [
-                DropdownMenuItem(
-                  value: RecurrenceType.daily,
-                  child: Text(s.daily),
-                ),
-                DropdownMenuItem(
-                  value: RecurrenceType.weekly,
-                  child: Text(s.weekly),
-                ),
-                DropdownMenuItem(
-                  value: RecurrenceType.monthly,
-                  child: Text(s.monthly),
-                ),
-                DropdownMenuItem(
-                  value: RecurrenceType.specificDays,
-                  child: Text(s.specificDays),
-                ),
-                DropdownMenuItem(
-                  value: RecurrenceType.once,
-                  child: Text(s.once),
-                ),
-              ],
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() => _recurrence = _recurrence.copyWith(type: value));
-              },
-            ),
-            const SizedBox(height: 14),
-            ..._recurrenceDetails(s, wq),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  s.notifications,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: wq.textMuted,
-                  ),
-                ),
-                Switch(
-                  value: _notificationsOn,
-                  onChanged: (value) =>
-                      setState(() => _notificationsOn = value),
-                ),
-              ],
-            ),
-            if (_notificationsOn) ...[
-              const SizedBox(height: 6),
-              _FieldLabel(s.reminders),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
+              const SizedBox(height: 14),
+              _FieldLabel(s.priority),
+              SegmentedPills(
+                options: [s.low, s.medium, s.high, s.urgent],
+                selectedIndex: _priority.index,
+                onSelected: (i) =>
+                    setState(() => _priority = TaskPriority.values[i]),
+              ),
+              const SizedBox(height: 14),
+              _FieldLabel(s.timeSlot),
+              SegmentedPills(
+                options: [
+                  s.slotAny,
+                  s.slotMorning,
+                  s.slotAfternoon,
+                  s.slotEvening,
+                ],
+                selectedIndex: _timeSlot.index,
+                onSelected: (i) =>
+                    setState(() => _timeSlot = TimeSlot.values[i]),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  for (var i = 0; i < _reminders.length; i++)
-                    InputChip(
-                      avatar: const Icon(Icons.alarm, size: 15),
-                      label: Text(
-                        _hhmm(_reminders[i]),
-                        textDirection: TextDirection.ltr,
-                      ),
-                      onPressed: () => _pickReminder(replaceIndex: i),
-                      onDeleted: () => setState(() => _reminders.removeAt(i)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '🚭 ${s.quitHabit}',
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          s.quitHint,
+                          style: TextStyle(fontSize: 11, color: wq.textMuted),
+                        ),
+                      ],
                     ),
-                  if (_reminders.length < 3)
-                    ActionChip(
-                      label: Text(
-                        _reminders.isEmpty ? s.noReminder : s.addReminder,
-                      ),
-                      onPressed: _pickReminder,
-                    ),
+                  ),
+                  Switch(
+                    value: _isQuit,
+                    onChanged: (v) => setState(() => _isQuit = v),
+                  ),
                 ],
               ),
-            ],
-            if (_formError != null) ...[
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: wq.missed.withValues(alpha: .1),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: wq.missed.withValues(alpha: .4)),
-                ),
-                child: Row(
+              const SizedBox(height: 14),
+              _FieldLabel(s.subtasks),
+              for (var i = 0; i < _subtasks.length; i++)
+                Row(
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: wq.missed),
-                    const SizedBox(width: 8),
+                    Icon(Icons.drag_indicator, size: 16, color: wq.textMuted),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        _formError!,
-                        style: TextStyle(fontSize: 12, color: wq.missed),
+                        _subtasks[i].title,
+                        style: const TextStyle(fontSize: 13),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        final navigator = Navigator.of(context);
-                        navigator.pop(false);
-                        SubscriptionScreen.push(navigator.context);
-                      },
-                      child: Text(
-                        s.upgradeNow,
-                        style: const TextStyle(fontSize: 12),
-                      ),
+                    WqIconButton(
+                      onTap: () => setState(() => _subtasks.removeAt(i)),
+                      child: Icon(Icons.close, size: 14, color: wq.textMuted),
                     ),
                   ],
                 ),
-              ),
-            ],
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                if (_isEditing) ...[
+              Row(
+                children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: _confirmDelete,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: wq.missed,
-                      ),
-                      child: Text(s.delete),
+                    child: TextField(
+                      controller: _subtaskController,
+                      decoration: InputDecoration(hintText: s.subtaskHint),
+                      textInputAction: TextInputAction.done,
+                      textCapitalization: TextCapitalization.sentences,
+                      onSubmitted: (_) => _addSubtask(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: _addSubtask,
+                    child: const Icon(Icons.add, size: 18),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FieldLabel(s.dailyTarget),
+                        TextField(
+                          controller: _targetController,
+                          keyboardType: TextInputType.number,
+                          textInputAction: TextInputAction.next,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(5),
+                          ],
+                          decoration: InputDecoration(hintText: s.targetHint),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 10),
-                ],
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(s.cancel),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FieldLabel(s.unit),
+                        TextField(
+                          controller: _unitController,
+                          enabled: _target > 1,
+                          textInputAction: TextInputAction.done,
+                          maxLength: 12,
+                          buildCounter:
+                              (
+                                _, {
+                                required currentLength,
+                                required isFocused,
+                                maxLength,
+                              }) => null,
+                          decoration: InputDecoration(hintText: s.unitHint),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(onPressed: _save, child: Text(s.save)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _FieldLabel(s.recurrence),
+              _DropdownField<RecurrenceType>(
+                value: _recurrence.type,
+                items: [
+                  DropdownMenuItem(
+                    value: RecurrenceType.daily,
+                    child: Text(s.daily),
+                  ),
+                  DropdownMenuItem(
+                    value: RecurrenceType.weekly,
+                    child: Text(s.weekly),
+                  ),
+                  DropdownMenuItem(
+                    value: RecurrenceType.monthly,
+                    child: Text(s.monthly),
+                  ),
+                  DropdownMenuItem(
+                    value: RecurrenceType.specificDays,
+                    child: Text(s.specificDays),
+                  ),
+                  DropdownMenuItem(
+                    value: RecurrenceType.once,
+                    child: Text(s.once),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(
+                    () => _recurrence = _recurrence.copyWith(type: value),
+                  );
+                },
+              ),
+              const SizedBox(height: 14),
+              ..._recurrenceDetails(s, wq),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    s.notifications,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: wq.textMuted,
+                    ),
+                  ),
+                  Switch(
+                    value: _notificationsOn,
+                    onChanged: (value) =>
+                        setState(() => _notificationsOn = value),
+                  ),
+                ],
+              ),
+              if (_notificationsOn) ...[
+                const SizedBox(height: 6),
+                _FieldLabel(s.reminders),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    for (var i = 0; i < _reminders.length; i++)
+                      InputChip(
+                        avatar: const Icon(Icons.alarm, size: 15),
+                        label: Text(
+                          _hhmm(_reminders[i]),
+                          textDirection: TextDirection.ltr,
+                        ),
+                        onPressed: () => _pickReminder(replaceIndex: i),
+                        onDeleted: () => setState(() => _reminders.removeAt(i)),
+                      ),
+                    if (_reminders.length < 3)
+                      ActionChip(
+                        label: Text(
+                          _reminders.isEmpty ? s.noReminder : s.addReminder,
+                        ),
+                        onPressed: _pickReminder,
+                      ),
+                  ],
                 ),
               ],
-            ),
-          ],
+              if (_formError != null) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: wq.missed.withValues(alpha: .1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: wq.missed.withValues(alpha: .4)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: wq.missed),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _formError!,
+                          style: TextStyle(fontSize: 12, color: wq.missed),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          final navigator = Navigator.of(context);
+                          navigator.pop(false);
+                          SubscriptionScreen.push(navigator.context);
+                        },
+                        child: Text(
+                          s.upgradeNow,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  if (_isEditing) ...[
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _confirmDelete,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: wq.missed,
+                        ),
+                        child: Text(s.delete),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(context).maybePop(false),
+                      child: Text(s.cancel),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _save,
+                      child: Text(s.save),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

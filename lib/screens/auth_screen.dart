@@ -239,6 +239,8 @@ class _AuthScreenState extends State<AuthScreen> {
         TextField(
           controller: _nameController,
           textInputAction: TextInputAction.next,
+          textCapitalization: TextCapitalization.words,
+          autofillHints: const [AutofillHints.name],
           enabled: !_busy,
         ),
         const SizedBox(height: 14),

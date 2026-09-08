@@ -64,6 +64,13 @@ Future<void> main() async {
     }, appRunner: () => runApp(WaqtiApp(appState: appState)));
     return;
   }
+  // بلا Sentry: خطأ غير مُعالَج في async لا يُسقط التطبيق، ويُسجَّل للتشخيص.
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FlutterError.reportError(
+      FlutterErrorDetails(exception: error, stack: stack, library: 'waqti'),
+    );
+    return true;
+  };
   runApp(WaqtiApp(appState: appState));
 }
 

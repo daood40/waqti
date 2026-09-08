@@ -1213,7 +1213,8 @@ class AppState extends ChangeNotifier {
 
   /// تصدير CSV: صف لكل (مهمة، يوم) له حالة — يُفتح في Excel/Sheets.
   String exportCsv() {
-    final buffer = StringBuffer('task,date,status,progress,note\n');
+    // BOM في البداية حتى يقرأ Excel العربية بترميز UTF-8 (flutter-documents).
+    final buffer = StringBuffer('\uFEFFtask,date,status,progress,note\n');
     String esc(String v) => '"${v.replaceAll('"', '""')}"';
     for (final task in tasks) {
       final keys = task.statuses.keys.toList()..sort();

@@ -554,7 +554,8 @@ void main() {
     task.setStatusOn(DateTime(2026, 8), TaskStatus.done);
     task.setNoteOn(DateTime(2026, 8), 'ممتاز');
     final csv = state.exportCsv();
-    expect(csv.split('\n').first, 'task,date,status,progress,note');
+    expect(csv.startsWith('\uFEFF'), isTrue); // BOM لـ Excel
+    expect(csv.split('\n').first, '\uFEFFtask,date,status,progress,note');
     expect(csv, contains('"قراءة ""مهمة""",2026-08-01,done,,"ممتاز"'));
   });
 

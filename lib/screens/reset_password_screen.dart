@@ -77,6 +77,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     TextField(
                       controller: _controller,
                       obscureText: true,
+                      keyboardType: TextInputType.visiblePassword,
+                      textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.newPassword],
                       onSubmitted: (_) => _save(),
                       enabled: !_busy,

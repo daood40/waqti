@@ -70,6 +70,9 @@
   - [x] إشعارات: توجيه النقر بالحمولة إلى تفاصيل المهمة، الإذن يُطلب في سياقه لا عند الإقلاع
   - [x] دورة الحياة: رفع فوري عند الإخفاء، مزامنة عند العودة (`flushCloudPush`/`onAppResumed`)
   - [x] مخططات: `Semantics` ملخّص + `RepaintBoundary` على كل مخطط
+  - [x] نماذج: `textInputAction`/`autofillHints`/`textCapitalization`/حدود طول على كل حقل
+  - [x] حارس التعديلات غير المحفوظة في محرر المهمة (`PopScope` — زر الرجوع وزر الإلغاء؛ السحب للإغلاق يبقى فوريًا عمدًا)
+  - [x] CSV مع BOM، `web/404.html` لإعادة توجيه Pages، التقاط الأخطاء غير المعالَجة بلا Sentry
 - [x] **5 Polish** — مفاتيح القوائم، فحص `mounted` بعد كل `await`، إتاحة (40px+، semantics، قصّ 1.3×)، اختبار RTL/تكبير في `test/a11y_test.dart`.
 - [x] **6 Hardening** — جلسة في تخزين آمن، R8 + obfuscate + رموز، backup rules، تهيئة مؤجلة؛ الدليل في `docs/SECURITY_REVIEW.md` (ملحق 2026-09).
 - [x] **7 Release prep** — أيقونة/سبلاش، توقيع، نص المتجر، خصوصية، CI إصدار (v1.3.0 منشور).

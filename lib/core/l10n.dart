@@ -157,6 +157,10 @@ class AppStrings {
     required this.deleteAccountConfirm,
     required this.deleteAccountDone,
     required this.cloudBackup,
+    required this.discardChangesTitle,
+    required this.discardChangesBody,
+    required this.discard,
+    required this.keepEditing,
     required this.noResultsFor,
     required this.trendChartSummary,
     required this.weeklyBarsSummary,
@@ -472,6 +476,10 @@ class AppStrings {
   final String deleteAccountConfirm;
   final String deleteAccountDone;
   final String cloudBackup;
+  final String discardChangesTitle;
+  final String discardChangesBody;
+  final String discard;
+  final String keepEditing;
 
   /// يحتوي `{q}` ويُستبدل بنص البحث.
   final String noResultsFor;
@@ -812,6 +820,10 @@ class AppStrings {
         'سيُحذف حسابك ونسختك السحابية نهائيًا ولا يمكن التراجع. بياناتك على هذا الجهاز ستُمسح أيضًا.',
     deleteAccountDone: 'تم حذف الحساب',
     cloudBackup: 'النسخة السحابية',
+    discardChangesTitle: 'تجاهل التغييرات؟',
+    discardChangesBody: 'لديك تعديلات لم تُحفظ.',
+    discard: 'تجاهل',
+    keepEditing: 'متابعة التعديل',
     noResultsFor: 'لا نتائج لـ «{q}»',
     trendChartSummary: 'مخطط خطي: عدد المهام المنجزة لكل يوم في الشهر',
     weeklyBarsSummary: 'أعمدة: نسبة الإنجاز لكل أسبوع',
@@ -1160,6 +1172,10 @@ class AppStrings {
         'Your account and cloud backup will be permanently deleted. This cannot be undone. Data on this device will be erased too.',
     deleteAccountDone: 'Account deleted',
     cloudBackup: 'Cloud backup',
+    discardChangesTitle: 'Discard changes?',
+    discardChangesBody: 'You have unsaved edits.',
+    discard: 'Discard',
+    keepEditing: 'Keep editing',
     noResultsFor: 'No results for “{q}”',
     trendChartSummary: 'Line chart: tasks completed per day this month',
     weeklyBarsSummary: 'Bars: completion percentage per week',

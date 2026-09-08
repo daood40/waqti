@@ -147,6 +147,16 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                 child: TextField(
                   controller: _nameController,
                   decoration: InputDecoration(hintText: s.categoryName),
+                  textInputAction: TextInputAction.done,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLength: 30,
+                  buildCounter:
+                      (
+                        _, {
+                        required currentLength,
+                        required isFocused,
+                        maxLength,
+                      }) => null,
                   onSubmitted: (_) => _addCategory(),
                 ),
               ),
