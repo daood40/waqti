@@ -13,7 +13,7 @@
 | 4. Google Play: داخلي → مغلق → إنتاج | أنا ثم أنت | 14 يومًا (شرط Google للحسابات الجديدة) | Production access ممنوح، إصدار إنتاج بنسبة 20% |
 | 5. App Store: TestFlight → مراجعة | أنا ثم أنت | 1–3 أيام مراجعة | حالة «Ready for Sale» |
 | 6. يوم الإطلاق | أنت وأنا | 1 س | الروابط تعمل، لا أعطال في أول 24 س |
-| 7. ما بعد الإطلاق | أنا | مستمر | v1.3.1 خلال أسبوعين إن ظهرت أعطال |
+| 7. ما بعد الإطلاق | أنا | مستمر | v1.3.2 خلال أسبوعين إن ظهرت أعطال |
 
 ---
 
@@ -103,7 +103,7 @@
 
 - أسبوعيًا: Play Console → Android vitals (ANR/Crash)، App Store Connect → Crashes، Sentry → Issues.
 - الردود على المراجعات خلال 48 ساعة (نبرة قصيرة، شكر + ما سيتغير).
-- v1.3.1 عند تجميع 3 إصلاحات أو أي عطل يتكرر: أرفع `version` و`kAppVersion` → `Release Builds` → `Publish to Stores`.
+- v1.3.2 عند تجميع 3 إصلاحات أو أي عطل يتكرر: أرفع `version` و`kAppVersion` → `Release Builds` → `Publish to Stores`.
 - بعد الاستقرار: تفعيل Google/Apple sign-in (الخطوات في `docs/LAUNCH_CHECKLIST.md` §0)، ثم قرار الباقات (RevenueCat) — حينها تُطبَّق مهارة `flutter-monetization`.
 
 ---
