@@ -158,3 +158,5 @@ Tests:                78 pass + 1 skipped (+8 ملفات/حالات جديدة: 
 Analyze --fatal-infos PASS   Format PASS   Web build PASS
 CI (quality / build-apk / deploy-pages): أخضر على 49608f0 و8b0a692 (R8 مفعّل)
 ```
+
+- مراحل الإطلاق (Play + App Store) بمالك ومدة وبوابة لكل مرحلة: `docs/LAUNCH_PHASES.md`.
