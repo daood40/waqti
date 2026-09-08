@@ -157,6 +157,10 @@ class AppStrings {
     required this.deleteAccountConfirm,
     required this.deleteAccountDone,
     required this.cloudBackup,
+    required this.privacyPolicy,
+    required this.support,
+    required this.openSourceLicenses,
+    required this.linkOpenFailed,
     required this.notifChannelName,
     required this.notifChannelDesc,
     required this.notifReminderBody,
@@ -483,6 +487,10 @@ class AppStrings {
   final String deleteAccountConfirm;
   final String deleteAccountDone;
   final String cloudBackup;
+  final String privacyPolicy;
+  final String support;
+  final String openSourceLicenses;
+  final String linkOpenFailed;
   final String notifChannelName;
   final String notifChannelDesc;
   final String notifReminderBody;
@@ -834,6 +842,10 @@ class AppStrings {
         'سيُحذف حسابك ونسختك السحابية نهائيًا ولا يمكن التراجع. بياناتك على هذا الجهاز ستُمسح أيضًا.',
     deleteAccountDone: 'تم حذف الحساب',
     cloudBackup: 'النسخة السحابية',
+    privacyPolicy: 'سياسة الخصوصية',
+    support: 'الدعم والتواصل',
+    openSourceLicenses: 'تراخيص المكتبات مفتوحة المصدر',
+    linkOpenFailed: 'تعذّر فتح الرابط',
     notifChannelName: 'تذكيرات العادات',
     notifChannelDesc: 'تذكير بمهامك وعاداتك في وقتها',
     notifReminderBody: 'حان وقت عادتك — نقرة واحدة تُنجزها',
@@ -1193,6 +1205,10 @@ class AppStrings {
         'Your account and cloud backup will be permanently deleted. This cannot be undone. Data on this device will be erased too.',
     deleteAccountDone: 'Account deleted',
     cloudBackup: 'Cloud backup',
+    privacyPolicy: 'Privacy policy',
+    support: 'Support & contact',
+    openSourceLicenses: 'Open-source licences',
+    linkOpenFailed: 'Could not open the link',
     notifChannelName: 'Habit reminders',
     notifChannelDesc: 'Reminds you of your tasks and habits on time',
     notifReminderBody: "It's time — one tap completes it",

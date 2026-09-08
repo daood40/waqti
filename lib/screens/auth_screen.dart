@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -212,7 +213,17 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
+  /// إرشاد App Store 4.8: لا دخول Google على منصات آبل بلا Sign in with Apple.
+  bool _showGoogle(AuthGateway auth) {
+    final applePlatform =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS);
+    return auth.supportsGoogle && (!applePlatform || auth.supportsApple);
+  }
+
   List<Widget> _form(AppStrings s, WaqtiColors wq, AuthGateway auth) {
+    final showGoogle = _showGoogle(auth);
     final signup = _mode == _Mode.signup;
     final forgot = _mode == _Mode.forgot;
     return [
@@ -330,7 +341,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     : s.login,
               ),
       ),
-      if (!forgot && (auth.supportsGoogle || auth.supportsApple)) ...[
+      if (!forgot && (showGoogle || auth.supportsApple)) ...[
         const SizedBox(height: 16),
         Row(
           children: [
@@ -346,14 +357,13 @@ class _AuthScreenState extends State<AuthScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        if (auth.supportsGoogle)
+        if (showGoogle)
           _OAuthButton(
             label: s.continueGoogle,
             icon: 'G',
             onTap: _busy ? null : () => _social(auth.signInWithGoogle),
           ),
-        if (auth.supportsGoogle && auth.supportsApple)
-          const SizedBox(height: 9),
+        if (showGoogle && auth.supportsApple) const SizedBox(height: 9),
         if (auth.supportsApple)
           _OAuthButton(
             label: s.continueApple,

@@ -51,6 +51,8 @@ flutter run --dart-define=SUPABASE_URL=https://xxx.supabase.co \
 flutter run --dart-define-from-file=env/dev.json
 ```
 
+الصفحات العامة: [الخصوصية](https://daood40.github.io/waqti/privacy.html) · [الدعم](https://daood40.github.io/waqti/support.html) · [حذف الحساب](https://daood40.github.io/waqti/delete-account.html). مطابقة شروط المتاجر: `docs/STORE_COMPLIANCE.md`.
+
 مخطط قاعدة البيانات وسياسات RLS في `supabase/migrations/`، والإعداد في `supabase/README.md`.
 
 ## البنية

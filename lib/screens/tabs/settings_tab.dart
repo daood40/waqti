@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/app_info.dart';
 import '../../core/export_file.dart';
@@ -382,45 +383,47 @@ class SettingsTab extends StatelessWidget {
         ),
 
         // ---------- الاشتراك ----------
-        _Group(
-          title: '',
-          onTap: () => SubscriptionScreen.push(context),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '💎 ${s.subscriptionSection}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+        // في فترة الإطلاق لا باقات ولا «قريبًا»: المتاجر ترفض المحتوى النائب.
+        if (!kLaunchMode)
+          _Group(
+            title: '',
+            onTap: () => SubscriptionScreen.push(context),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '💎 ${s.subscriptionSection}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              Row(
-                children: [
-                  Text(
-                    kLaunchMode
-                        ? s.comingSoon
-                        : (state.isPremium
-                              ? s.manageSubscription
-                              : s.upgradeNow),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                Row(
+                  children: [
+                    Text(
+                      kLaunchMode
+                          ? s.comingSoon
+                          : (state.isPremium
+                                ? s.manageSubscription
+                                : s.upgradeNow),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: wq.primaryDark,
+                      ),
+                    ),
+                    Icon(
+                      Directionality.of(context) == TextDirection.rtl
+                          ? Icons.chevron_left
+                          : Icons.chevron_right,
+                      size: 18,
                       color: wq.primaryDark,
                     ),
-                  ),
-                  Icon(
-                    Directionality.of(context) == TextDirection.rtl
-                        ? Icons.chevron_left
-                        : Icons.chevron_right,
-                    size: 18,
-                    color: wq.primaryDark,
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
 
         // ---------- اللغة ----------
         _Group(
@@ -586,10 +589,79 @@ class SettingsTab extends StatelessWidget {
                 '${s.aboutVersion}: $kAppVersion',
                 style: TextStyle(fontSize: 12, color: wq.textMuted),
               ),
+              const SizedBox(height: 10),
+              // روابط تشترطها المتاجر داخل التطبيق (Play: سياسة الخصوصية).
+              _LinkRow(
+                icon: Icons.privacy_tip_outlined,
+                label: s.privacyPolicy,
+                onTap: () => _openLink(context, AppLinks.privacy, s),
+              ),
+              _LinkRow(
+                icon: Icons.support_agent_outlined,
+                label: s.support,
+                onTap: () => _openLink(context, AppLinks.support, s),
+              ),
+              _LinkRow(
+                icon: Icons.description_outlined,
+                label: s.openSourceLicenses,
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: s.appName,
+                  applicationVersion: kAppVersion,
+                ),
+              ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _openLink(BuildContext context, String url, AppStrings s) async {
+    final ok = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (ok || !context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(s.linkOpenFailed)));
+  }
+}
+
+class _LinkRow extends StatelessWidget {
+  const _LinkRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final wq = context.wq;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: wq.primaryDark),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(fontSize: 13, color: wq.primaryDark),
+              ),
+            ),
+            Icon(Icons.open_in_new, size: 14, color: wq.textMuted),
+          ],
+        ),
+      ),
     );
   }
 }

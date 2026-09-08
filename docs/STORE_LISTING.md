@@ -65,9 +65,17 @@ No ads, no behavioural tracking, no mandatory account. Start as a guest in one s
 
 مهام,عادات,يومي,إنتاجية,تخطيط,تذكير,سلسلة,إنجاز,tasks,habits,streak,planner
 
+## الروابط المطلوبة في البطاقة
+
+- Privacy policy: https://daood40.github.io/waqti/privacy.html
+- Support URL: https://daood40.github.io/waqti/support.html
+- Account deletion (Play Data safety): https://daood40.github.io/waqti/delete-account.html
+
 ## ملاحظات المراجع (App Review Notes)
 
-The app works fully as a guest with no account: skip the 3-slide intro, then tap "المتابعة كزائر" (Continue as guest). Accounts (email, Google, Apple) are optional and only add a cloud backup; account deletion is available in Settings → حذف الحساب. During the launch period every feature is free; the Plans screen shows tiers as "Coming soon" with disabled buttons — no purchase flow exists in this version.
+The app works fully as a guest with no account: skip the 3-slide intro, then tap "المتابعة كزائر" (Continue as guest). An email account is optional and only adds a cloud backup; account deletion is available in Settings → حذف الحساب (Delete account). Every feature is free in this version; there is no purchase flow and no subscription screen.
+
+Demo account (fill after the real-device test): email `________`, password `________`.
 
 ## لقطات الشاشة
 

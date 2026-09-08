@@ -35,7 +35,7 @@
 2. **Set up your app** — الإجابات:
    - App access: *All functionality is available without special access*.
    - Ads: **No**. Content rating: استبيان IARC → فئة Utility/Productivity → كل الإجابات **No** → Everyone.
-   - Target audience: 13+ (ليس موجّهًا للأطفال). News app: No. Data safety: **Collects**: Personal info → Email address, Name (App functionality, Account management; optional; deletable); App activity → App interactions? **No**; Crash logs + Diagnostics (App functionality) — collected, not shared; **Data is encrypted in transit** ✔؛ **Users can request deletion** ✔ (داخل التطبيق: الإعدادات → حذف الحساب).
+   - Target audience: 13+ (ليس موجّهًا للأطفال). News app: No. Data safety: **Collects**: Personal info → Email address, Name (App functionality, Account management; optional; deletable); App activity → App interactions? **No**; Crash logs + Diagnostics (App functionality) — collected, not shared; **Data is encrypted in transit** ✔؛ **Users can request deletion** ✔ (داخل التطبيق: الإعدادات → حذف الحساب؛ الرابط المطلوب: <https://daood40.github.io/waqti/delete-account.html>).
    - Government app: No. Financial features: None. Health: None. Privacy policy: <https://daood40.github.io/waqti/privacy.html>.
 3. Store listing: انسخ النصوص من `docs/STORE_LISTING.md`، الأيقونة 512 (صغّر `app_icon.png`)، الرسم المميز، اللقطات.
 4. Setup → API access → Create service account → Grant access (Release manager) → أضف مفتاح JSON كسر `PLAY_SERVICE_ACCOUNT_JSON` + مفتاح الرفع (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEY_PROPERTIES`).

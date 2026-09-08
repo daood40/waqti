@@ -160,3 +160,10 @@ CI (quality / build-apk / deploy-pages): أخضر على 49608f0 و8b0a692 (R8 �
 ```
 
 - مراحل الإطلاق (Play + App Store) بمالك ومدة وبوابة لكل مرحلة: `docs/LAUNCH_PHASES.md`.
+
+## جلسة مطابقة شروط المتاجر (2026-09-08)
+
+- `docs/STORE_COMPLIANCE.md`: مصفوفة Play/App Store بالدليل. Target API 36، 16 KB مُتحقق على APK v1.3.1.
+- الشيفرة: قسم الباقات مخفي في وضع الإطلاق (لا «قريبًا»)، روابط الخصوصية/الدعم/التراخيص في الإعدادات، Google على iOS فقط مع Apple (4.8)، `UIRequiresFullScreen`، Privacy manifest بأنواع البيانات، predictive back.
+- الويب: `support.html`, `delete-account.html`, تحديث `privacy.html`.
+- `test/compliance_test.dart`؛ 79 اختبارًا.
