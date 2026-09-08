@@ -154,7 +154,7 @@ Analyze --fatal-infos PASS   Format PASS   Web build PASS
 
 ```
 SKILLS GATE           Status: PASS
-Tests:                +55 ~1 (+8 ملفات/حالات جديدة: a11y, search, editor guard, secure session, lifecycle)
+Tests:                78 pass + 1 skipped (+8 ملفات/حالات جديدة: a11y, search, editor guard, secure session, lifecycle)
 Analyze --fatal-infos PASS   Format PASS   Web build PASS
 CI (quality / build-apk / deploy-pages): أخضر على 49608f0 و8b0a692 (R8 مفعّل)
 ```
