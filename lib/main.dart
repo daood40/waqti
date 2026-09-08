@@ -13,6 +13,7 @@ import 'core/auth/auth_gateway.dart';
 import 'core/auth/secure_session_storage.dart';
 import 'core/auth/supabase_auth_gateway.dart';
 import 'core/cloud_backup_service.dart';
+import 'core/l10n.dart';
 import 'core/notification_service.dart';
 import 'core/theme.dart';
 import 'screens/auth_screen.dart';
@@ -86,7 +87,7 @@ class WaqtiApp extends StatelessWidget {
       value: appState,
       child: Consumer<AppState>(
         builder: (context, state, _) => MaterialApp(
-          title: 'وقتي',
+          title: AppStrings.of(state.lang).appName,
           debugShowCheckedModeBanner: false,
           theme: WaqtiTheme.light(),
           darkTheme: WaqtiTheme.dark(),

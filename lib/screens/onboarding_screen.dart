@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import '../core/tokens.dart';
 import '../state/app_state.dart';
 
 /// جولة تعريفية من ثلاث شاشات تُعرض مرة واحدة عند أول تشغيل.
@@ -103,7 +104,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     for (var i = 0; i < pages.length; i++)
                       AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                        duration: context.motion(WqMotion.fast),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         width: i == _page ? 22 : 8,
                         height: 8,
@@ -122,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: last
                           ? _finish
                           : () => _controller.nextPage(
-                              duration: const Duration(milliseconds: 250),
+                              duration: context.motion(WqMotion.normal),
                               curve: Curves.easeOut,
                             ),
                       child: Text(last ? s.onbStart : s.onbNext),

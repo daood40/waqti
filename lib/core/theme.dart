@@ -124,6 +124,10 @@ class WaqtiColors extends ThemeExtension<WaqtiColors> {
 /// اختصار للوصول لألوان وقتي من أي [BuildContext].
 extension WaqtiThemeX on BuildContext {
   WaqtiColors get wq => Theme.of(this).extension<WaqtiColors>()!;
+
+  /// مدة حركة تحترم إعداد النظام «تقليل الحركة» (flutter-animations).
+  Duration motion(Duration base) =>
+      MediaQuery.disableAnimationsOf(this) ? Duration.zero : base;
 }
 
 abstract final class WaqtiTheme {

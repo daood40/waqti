@@ -7,6 +7,7 @@ import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../state/app_state.dart';
+import 'l10n.dart';
 
 /// تذكيرات محلية بلا خادم: لكل عادة لها وقت تذكير نجدول إشعارًا في كل
 /// يوم مستحق خلال الأسبوعين القادمين، إضافةً إلى ملخص صباحي ومسائي.
@@ -120,14 +121,12 @@ class NotificationService {
       await _plugin.cancelAll();
       if (!state.notifMaster || !_hasAnythingToSchedule(state)) return;
       await _ensurePermission();
-      final isArabic = state.lang == 'ar';
+      final s = AppStrings.of(state.lang);
       final details = NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
-          isArabic ? 'تذكيرات العادات' : 'Habit reminders',
-          channelDescription: isArabic
-              ? 'تذكير بمهامك وعاداتك في وقتها'
-              : 'Reminds you of your tasks and habits on time',
+          s.notifChannelName,
+          channelDescription: s.notifChannelDesc,
           importance: Importance.high,
           priority: Priority.high,
         ),
@@ -156,9 +155,7 @@ class NotificationService {
           await _plugin.zonedSchedule(
             1000 + counter++,
             '${task.icon} ${task.name}',
-            isArabic
-                ? 'حان وقت عادتك — نقرة واحدة تُنجزها'
-                : "It's time — one tap completes it",
+            s.notifReminderBody,
             day,
             details,
             androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
@@ -170,10 +167,8 @@ class NotificationService {
         await _scheduleDaily(
           _morningId,
           _morningHour,
-          isArabic ? 'صباح الخير ☀️' : 'Good morning ☀️',
-          isArabic
-              ? 'ابدأ يومك بأهم مهامك — افتح «وقتي» لترى ما عليك اليوم'
-              : "Start with what matters — open Waqti to see today's list",
+          s.notifMorningTitle,
+          s.notifMorningBody,
           details,
           now,
         );
@@ -182,10 +177,8 @@ class NotificationService {
         await _scheduleDaily(
           _eveningId,
           _eveningHour,
-          isArabic ? 'مساء الخير 🌙' : 'Good evening 🌙',
-          isArabic
-              ? 'راجع يومك: أنجز ما تبقى قبل النوم لتحمي سلسلتك'
-              : 'Review your day: finish what is left to protect your streak',
+          s.notifEveningTitle,
+          s.notifEveningBody,
           details,
           now,
         );

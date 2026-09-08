@@ -72,6 +72,7 @@
   - [x] مخططات: `Semantics` ملخّص + `RepaintBoundary` على كل مخطط
   - [x] نماذج: `textInputAction`/`autofillHints`/`textCapitalization`/حدود طول على كل حقل
   - [x] حارس التعديلات غير المحفوظة في محرر المهمة (`PopScope` — زر الرجوع وزر الإلغاء؛ السحب للإغلاق يبقى فوريًا عمدًا)
+  - [x] حركة: مدد من `WqMotion` عبر `context.motion()` تحترم «تقليل الحركة»؛ نصوص الإشعارات من `l10n.dart`
   - [x] CSV مع BOM، `web/404.html` لإعادة توجيه Pages، التقاط الأخطاء غير المعالَجة بلا Sentry
 - [x] **5 Polish** — مفاتيح القوائم، فحص `mounted` بعد كل `await`، إتاحة (40px+، semantics، قصّ 1.3×)، اختبار RTL/تكبير في `test/a11y_test.dart`.
 - [x] **6 Hardening** — جلسة في تخزين آمن، R8 + obfuscate + رموز، backup rules، تهيئة مؤجلة؛ الدليل في `docs/SECURITY_REVIEW.md` (ملحق 2026-09).

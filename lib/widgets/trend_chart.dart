@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import '../core/tokens.dart';
 
 /// منحنى الإنجازات اليومية على مدار الشهر — مكافئ الرسم البياني SVG
 /// في النموذج الأصلي، مرسوم بـ [CustomPainter] وقابل للتمرير أفقيًا.
@@ -293,7 +294,7 @@ class WeeklyBars extends StatelessWidget {
                     else
                       TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0, end: bucket.pct / 100),
-                        duration: const Duration(milliseconds: 500),
+                        duration: context.motion(WqMotion.medium),
                         curve: Curves.easeOutCubic,
                         builder: (context, value, _) => Container(
                           height: (84 * value).clamp(2, 84),

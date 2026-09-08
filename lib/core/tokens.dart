@@ -36,6 +36,14 @@ abstract final class WqType {
   static const double titleHeight = 1.3;
 }
 
+/// مدد الحركة المسمّاة — تُمرَّر عبر `context.motion()` لاحترام «تقليل الحركة».
+abstract final class WqMotion {
+  static const Duration fast = Duration(milliseconds: 150);
+  static const Duration normal = Duration(milliseconds: 250);
+  static const Duration medium = Duration(milliseconds: 350);
+  static const Duration slow = Duration(milliseconds: 700);
+}
+
 /// أدنى بعد لهدف لمس مريح (إرشادات الإتاحة).
 abstract final class WqHit {
   static const double min = 40;

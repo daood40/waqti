@@ -157,6 +157,13 @@ class AppStrings {
     required this.deleteAccountConfirm,
     required this.deleteAccountDone,
     required this.cloudBackup,
+    required this.notifChannelName,
+    required this.notifChannelDesc,
+    required this.notifReminderBody,
+    required this.notifMorningTitle,
+    required this.notifMorningBody,
+    required this.notifEveningTitle,
+    required this.notifEveningBody,
     required this.discardChangesTitle,
     required this.discardChangesBody,
     required this.discard,
@@ -476,6 +483,13 @@ class AppStrings {
   final String deleteAccountConfirm;
   final String deleteAccountDone;
   final String cloudBackup;
+  final String notifChannelName;
+  final String notifChannelDesc;
+  final String notifReminderBody;
+  final String notifMorningTitle;
+  final String notifMorningBody;
+  final String notifEveningTitle;
+  final String notifEveningBody;
   final String discardChangesTitle;
   final String discardChangesBody;
   final String discard;
@@ -820,6 +834,13 @@ class AppStrings {
         'سيُحذف حسابك ونسختك السحابية نهائيًا ولا يمكن التراجع. بياناتك على هذا الجهاز ستُمسح أيضًا.',
     deleteAccountDone: 'تم حذف الحساب',
     cloudBackup: 'النسخة السحابية',
+    notifChannelName: 'تذكيرات العادات',
+    notifChannelDesc: 'تذكير بمهامك وعاداتك في وقتها',
+    notifReminderBody: 'حان وقت عادتك — نقرة واحدة تُنجزها',
+    notifMorningTitle: 'صباح الخير ☀️',
+    notifMorningBody: 'ابدأ يومك بأهم مهامك — افتح «وقتي» لترى ما عليك اليوم',
+    notifEveningTitle: 'مساء الخير 🌙',
+    notifEveningBody: 'راجع يومك: أنجز ما تبقى قبل النوم لتحمي سلسلتك',
     discardChangesTitle: 'تجاهل التغييرات؟',
     discardChangesBody: 'لديك تعديلات لم تُحفظ.',
     discard: 'تجاهل',
@@ -1172,6 +1193,15 @@ class AppStrings {
         'Your account and cloud backup will be permanently deleted. This cannot be undone. Data on this device will be erased too.',
     deleteAccountDone: 'Account deleted',
     cloudBackup: 'Cloud backup',
+    notifChannelName: 'Habit reminders',
+    notifChannelDesc: 'Reminds you of your tasks and habits on time',
+    notifReminderBody: "It's time — one tap completes it",
+    notifMorningTitle: 'Good morning ☀️',
+    notifMorningBody:
+        "Start with what matters — open Waqti to see today's list",
+    notifEveningTitle: 'Good evening 🌙',
+    notifEveningBody:
+        'Review your day: finish what is left to protect your streak',
     discardChangesTitle: 'Discard changes?',
     discardChangesBody: 'You have unsaved edits.',
     discard: 'Discard',

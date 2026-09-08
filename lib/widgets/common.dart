@@ -190,7 +190,7 @@ class StatusDot extends StatelessWidget {
     };
 
     final dot = AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
+      duration: context.motion(WqMotion.fast),
       width: size,
       height: size,
       alignment: Alignment.center,
@@ -254,7 +254,7 @@ class LevelBar extends StatelessWidget {
         child: FractionallySizedBox(
           widthFactor: (pct.clamp(0, 100)) / 100,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 350),
+            duration: context.motion(WqMotion.medium),
             decoration: BoxDecoration(
               gradient: color == null
                   ? LinearGradient(colors: [wq.primary, wq.primaryDark])
@@ -292,7 +292,7 @@ class CompletionRing extends StatelessWidget {
       children: [
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: pct / 100),
-          duration: const Duration(milliseconds: 700),
+          duration: context.motion(WqMotion.slow),
           curve: Curves.easeOutCubic,
           builder: (context, value, _) => SizedBox(
             width: size,
@@ -419,7 +419,7 @@ class SegmentedPills extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => onSelected(i),
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
+                  duration: context.motion(WqMotion.fast),
                   padding: const EdgeInsets.symmetric(vertical: 9),
                   decoration: BoxDecoration(
                     color: i == selectedIndex ? wq.primary : Colors.transparent,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/auth/auth_gateway.dart';
 import '../core/l10n.dart';
 import '../core/theme.dart';
+import '../core/tokens.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 
@@ -162,7 +163,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   WqCard(
                     padding: const EdgeInsets.all(22),
                     child: AnimatedSize(
-                      duration: const Duration(milliseconds: 180),
+                      duration: context.motion(WqMotion.fast),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
