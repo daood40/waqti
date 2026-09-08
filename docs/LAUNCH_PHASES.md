@@ -1,6 +1,6 @@
 # مراحل إطلاق «وقتي» على Google Play وApp Store
 
-> الحالة الآن: الشيفرة والاختبارات وCI والحِزم وبطاقة المتجر **جاهزة** (v1.3.0، `af4222a`).
+> الحالة الآن: الشيفرة والاختبارات وCI والحِزم وبطاقة المتجر **جاهزة** (v1.3.1، بعد تطبيق المهارات).
 > المتبقي حسابات وأسرار لا يملكها إلا المالك. كل مرحلة لها مالك، مدة، وبوابة خروج.
 > القاعدة: **لا مفتاح ولا كلمة سر في المحادثة** — الأسرار في GitHub → Settings → Secrets → Actions.
 
@@ -85,7 +85,7 @@
 **أنت**
 1. App Store Connect → App Information: الفئة Productivity؛ Pricing: Free؛ Availability: كل الدول.
 2. App Privacy: **Data Linked to You** = Contact Info (Email)، Name، User Content؛ **Not Linked** = Diagnostics (Crash Data)؛ Tracking = No. Age Rating: كل الأسئلة None → 4+.
-3. الإصدار 1.3.0: اللقطات 6.7" من `docs/screenshots/` وiPad 13" من `docs/store/`، النصوص والكلمات المفتاحية من `docs/STORE_LISTING.md`، اختر بناء TestFlight.
+3. الإصدار 1.3.1: اللقطات 6.7" من `docs/screenshots/` وiPad 13" من `docs/store/`، النصوص والكلمات المفتاحية من `docs/STORE_LISTING.md`، اختر بناء TestFlight.
 4. App Review Information: ملاحظة المراجع من `docs/STORE_LISTING.md` + حساب تجريبي (بريد/كلمة مرور أنشأتهما في المرحلة 3). أرفق أن «المتابعة كزائر» متاحة بلا حساب.
 5. Submit for Review. الرفض الشائع وحلّه جاهز: رابط الخصوصية يعمل، لا شراء رقمي خارج آبل (الباقات «قريبًا»)، حذف الحساب داخل التطبيق موجود.
 
@@ -94,7 +94,7 @@
 ## المرحلة 6 — يوم الإطلاق
 
 1. **أنت**: Play → Production → Create release → البناء نفسه الذي اجتاز المغلق → Staged rollout **20%**. آبل → Release this version.
-2. **أنا**: وسم `v1.3.0` مطابق للبناء المرفوع، تحديث `README.md` بروابط المتجرين، ومراقبة Sentry.
+2. **أنا**: وسم `v1.3.1` مطابق للبناء المرفوع، تحديث `README.md` بروابط المتجرين، ومراقبة Sentry.
 3. بعد 48 ساعة بلا أعطال: ارفع Play إلى 50% ثم 100%.
 
 **بوابة الخروج**: الروابط تعمل على المتجرين، معدل الأعطال في Sentry صفر أو مفسَّر.
