@@ -9,6 +9,7 @@ import '../core/app_info.dart';
 import '../core/auth/auth_gateway.dart';
 import '../core/cloud_backup_service.dart';
 import '../core/l10n.dart';
+import '../core/remote_config.dart';
 
 import '../models/models.dart';
 
@@ -104,6 +105,17 @@ class AppState extends ChangeNotifier {
   /// آخر حفظ سحابي ناجح.
   DateTime? lastCloudSyncAt;
   CloudStatus cloudStatus = CloudStatus.idle;
+
+  /// آخر إعداد عن بُعد (لا يُحفظ محليًا: يُعاد جلبه كل إقلاع، ويفشل مفتوحًا).
+  RemoteConfig remoteConfig = RemoteConfig.none;
+  bool get blockedByRemote => remoteConfig.blocks;
+
+  Future<void> checkRemoteConfig(RemoteConfigSource source) async {
+    final loaded = await source.load();
+    if (loaded == null) return; // فشل الجلب = لا تغيير (fail-open)
+    remoteConfig = loaded;
+    notifyListeners();
+  }
 
   /// وصلنا رابط استرجاع كلمة مرور — تعرض الواجهة شاشة كلمة المرور الجديدة.
   bool passwordRecoveryPending = false;

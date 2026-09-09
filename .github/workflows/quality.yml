@@ -27,6 +27,11 @@ jobs:
         run: flutter analyze --fatal-infos
       - name: Tests
         run: flutter test --reporter expanded
+      - name: Production config (no dev endpoints, no debuggable)
+        run: |
+          if grep -rnE "http://|localhost|10\.0\.2\.2" lib/ ; then echo "::error::dev endpoint in lib/"; exit 1; fi
+          if grep -q 'android:debuggable="true"' android/app/src/main/AndroidManifest.xml; then echo "::error::debuggable"; exit 1; fi
+          if grep -q 'usesCleartextTraffic="true"' android/app/src/main/AndroidManifest.xml; then echo "::error::cleartext"; exit 1; fi
       - name: Secrets scan (no keys in repo)
         run: |
           if grep -rnE "AIza[0-9A-Za-z_-]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY|storePassword=" --include=*.dart --include=*.yaml --include=*.json --include=*.kts --include=*.properties --include=*.plist --include=*.xml . ; then

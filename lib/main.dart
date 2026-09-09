@@ -16,8 +16,10 @@ import 'core/auth/supabase_auth_gateway.dart';
 import 'core/cloud_backup_service.dart';
 import 'core/l10n.dart';
 import 'core/notification_service.dart';
+import 'core/remote_config.dart';
 import 'core/theme.dart';
 import 'screens/auth_screen.dart';
+import 'screens/blocked_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/reset_password_screen.dart';
 import 'screens/shell_screen.dart';
@@ -52,6 +54,8 @@ Future<void> main() async {
         (_) => NotificationService.instance.bind(appState),
       ),
     );
+    // مفتاح الإيقاف عن بُعد: صيانة أو تحديث إجباري؛ أي فشل = لا حجب.
+    unawaited(appState.checkRemoteConfig(const HttpRemoteConfigSource()));
   });
 
   if (AppConfig.hasSentry) {
@@ -59,7 +63,8 @@ Future<void> main() async {
     await SentryFlutter.init((options) {
       options.dsn = AppConfig.sentryDsn;
       options.environment = AppConfig.environment;
-      options.release = 'waqti@$kAppVersion';
+      options.release = 'waqti@$kAppVersion+$kBuildNumber';
+      options.dist = kBuildNumber;
       options.sendDefaultPii = false;
       options.tracesSampleRate = 0.1;
       options.attachScreenshot = false;
@@ -128,7 +133,9 @@ class WaqtiApp extends StatelessWidget {
               ),
             );
           },
-          home: state.passwordRecoveryPending
+          home: state.blockedByRemote
+              ? const BlockedScreen()
+              : state.passwordRecoveryPending
               ? const ResetPasswordScreen()
               : !state.onboarded
               ? const OnboardingScreen()

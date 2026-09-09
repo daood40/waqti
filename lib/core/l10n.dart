@@ -158,6 +158,11 @@ class AppStrings {
     required this.deleteAccountConfirm,
     required this.deleteAccountDone,
     required this.cloudBackup,
+    required this.updateRequiredTitle,
+    required this.updateRequiredBody,
+    required this.maintenanceTitle,
+    required this.maintenanceBody,
+    required this.openStore,
     required this.privacyPolicy,
     required this.support,
     required this.openSourceLicenses,
@@ -488,6 +493,11 @@ class AppStrings {
   final String deleteAccountConfirm;
   final String deleteAccountDone;
   final String cloudBackup;
+  final String updateRequiredTitle;
+  final String updateRequiredBody;
+  final String maintenanceTitle;
+  final String maintenanceBody;
+  final String openStore;
   final String privacyPolicy;
   final String support;
   final String openSourceLicenses;
@@ -844,6 +854,13 @@ class AppStrings {
         'سيُحذف حسابك ونسختك السحابية نهائيًا ولا يمكن التراجع. بياناتك على هذا الجهاز ستُمسح أيضًا.',
     deleteAccountDone: 'تم حذف الحساب',
     cloudBackup: 'النسخة السحابية',
+    updateRequiredTitle: 'حدّث التطبيق للمتابعة',
+    updateRequiredBody:
+        'هذا الإصدار لم يعد مدعومًا. نزّل التحديث من المتجر ثم افتح التطبيق مجددًا.',
+    maintenanceTitle: 'صيانة قصيرة',
+    maintenanceBody:
+        'نعمل على تحسين «وقتي». بياناتك على جهازك بأمان، جرّب بعد قليل.',
+    openStore: 'فتح المتجر',
     privacyPolicy: 'سياسة الخصوصية',
     support: 'الدعم والتواصل',
     openSourceLicenses: 'تراخيص المكتبات مفتوحة المصدر',
@@ -1208,6 +1225,13 @@ class AppStrings {
         'Your account and cloud backup will be permanently deleted. This cannot be undone. Data on this device will be erased too.',
     deleteAccountDone: 'Account deleted',
     cloudBackup: 'Cloud backup',
+    updateRequiredTitle: 'Update to continue',
+    updateRequiredBody:
+        'This version is no longer supported. Get the update from the store, then reopen the app.',
+    maintenanceTitle: 'Short maintenance',
+    maintenanceBody:
+        'We are improving Waqti. Your data is safe on your device; try again shortly.',
+    openStore: 'Open store',
     privacyPolicy: 'Privacy policy',
     support: 'Support & contact',
     openSourceLicenses: 'Open-source licences',
