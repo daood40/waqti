@@ -609,8 +609,24 @@ class AppState extends ChangeNotifier {
   }
 
   /// يضيف مهمة جديدة. يرجع `false` عند بلوغ حد الخطة المجانية.
+  /// الحدود تُفرض هنا لا في الواجهة فقط (qa-engineer-mode BUG-001/002/005).
+  static const int maxNameLength = 60;
+
+  /// يطبّع الاسم: قصّ المسافات والطول. يرجع null إن كان فارغًا.
+  static String? normalizeName(String raw) {
+    final name = raw.trim();
+    if (name.isEmpty) return null;
+    return name.length > maxNameLength
+        ? name.substring(0, maxNameLength)
+        : name;
+  }
+
   bool addTask(TaskItem task) {
     if (!canAddTask) return false;
+    final name = normalizeName(task.name);
+    if (name == null) return false;
+    if (tasks.any((t) => t.id == task.id)) return false;
+    task.name = name;
     tasks.add(task);
     _commit();
     return true;
@@ -619,6 +635,9 @@ class AppState extends ChangeNotifier {
   void updateTask(TaskItem task) {
     final index = tasks.indexWhere((t) => t.id == task.id);
     if (index == -1) return;
+    final name = normalizeName(task.name);
+    if (name == null) return;
+    task.name = name;
     tasks[index] = task;
     _commit();
   }
@@ -839,10 +858,16 @@ class AppState extends ChangeNotifier {
   // التصنيفات
   // =======================================================================
 
-  TaskCategory addCategory(String name, int colorValue) {
+  /// اسم فارغ → لا إضافة (يرجع null)؛ اسم موجود → يرجع الموجود بلا تكرار.
+  TaskCategory? addCategory(String name, int colorValue) {
+    final clean = normalizeName(name);
+    if (clean == null) return null;
+    for (final c in categories) {
+      if (c.name.trim() == clean) return c;
+    }
     final category = TaskCategory(
       id: TaskItem.newId(),
-      name: name,
+      name: clean,
       colorValue: colorValue,
     );
     categories.add(category);
@@ -1221,7 +1246,12 @@ class AppState extends ChangeNotifier {
   String exportCsv() {
     // BOM في البداية حتى يقرأ Excel العربية بترميز UTF-8 (flutter-documents).
     final buffer = StringBuffer('\uFEFFtask,date,status,progress,note\n');
-    String esc(String v) => '"${v.replaceAll('"', '""')}"';
+    // تحييد حقن الصيغ في Excel/Sheets: قيمة تبدأ بـ = + - @ تُسبَق بفاصلة عليا.
+    String esc(String v) {
+      final safe = RegExp(r'^[=+\-@\t\r]').hasMatch(v) ? "'$v" : v;
+      return '"${safe.replaceAll('"', '""')}"';
+    }
+
     for (final task in tasks) {
       final keys = task.statuses.keys.toList()..sort();
       for (final key in keys) {

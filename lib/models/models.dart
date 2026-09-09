@@ -213,6 +213,9 @@ class TaskCategory {
 
 /// مهمة أو عادة يتتبعها المستخدم.
 class TaskItem {
+  /// الحد الأعلى للتذكيرات لكل مهمة (يُفرض في النموذج والواجهة).
+  static const int maxReminders = 3;
+
   TaskItem({
     required this.id,
     required this.name,
@@ -419,9 +422,10 @@ class TaskItem {
     });
     // ترحيل: 'reminder' المفرد القديم → قائمة.
     final reminders = <int>[
-      ...((json['reminders'] as List?) ?? const []).whereType<num>().map(
-        (e) => e.toInt(),
-      ),
+      ...((json['reminders'] as List?) ?? const [])
+          .whereType<num>()
+          .map((e) => e.toInt())
+          .take(maxReminders),
     ];
     if (reminders.isEmpty && json['reminder'] is num) {
       reminders.add((json['reminder'] as num).toInt());
@@ -431,22 +435,27 @@ class TaskItem {
         .map(Subtask.fromJson)
         .toList();
     return TaskItem(
-      id: json['id'] as String,
-      name: json['name'] as String? ?? '',
-      description: json['desc'] as String? ?? '',
-      icon: json['icon'] as String? ?? '✅',
-      colorValue: (json['color'] as num?)?.toInt() ?? 0xFF6E8F72,
-      categoryId: json['category'] as String?,
-      priority: TaskPriority.fromKey(json['priority'] as String?),
+      // معرّف ناقص أو بنوع خاطئ لا يُسقط الاستيراد كله.
+      id: json['id'] is String && (json['id'] as String).isNotEmpty
+          ? json['id'] as String
+          : newId(),
+      name: json['name'] is String ? json['name'] as String : '',
+      description: _str(json['desc']),
+      icon: _str(json['icon'], fallback: '✅'),
+      colorValue: _int(json['color']) ?? 0xFF6E8F72,
+      categoryId: json['category'] is String
+          ? json['category'] as String
+          : null,
+      priority: TaskPriority.fromKey(_strOrNull(json['priority'])),
       recurrence: json['recurrence'] is Map<String, dynamic>
           ? Recurrence.fromJson(json['recurrence'] as Map<String, dynamic>)
           : const Recurrence(),
-      notificationsOn: json['notif'] as bool? ?? true,
-      target: ((json['target'] as num?)?.toInt() ?? 1).clamp(1, 100000),
-      unit: json['unit'] as String? ?? '',
-      pausedAt: DateKey.tryParse(json['pausedAt'] as String?),
-      timeSlot: TimeSlot.fromKey(json['slot'] as String?),
-      isQuit: json['quit'] as bool? ?? false,
+      notificationsOn: json['notif'] is bool ? json['notif'] as bool : true,
+      target: (_int(json['target']) ?? 1).clamp(1, 100000),
+      unit: _str(json['unit']),
+      pausedAt: DateKey.tryParse(_strOrNull(json['pausedAt'])),
+      timeSlot: TimeSlot.fromKey(_strOrNull(json['slot'])),
+      isQuit: json['quit'] is bool ? json['quit'] as bool : false,
       reminders: reminders,
       subtasks: subtasks,
       progress: progress,
@@ -454,7 +463,7 @@ class TaskItem {
       // بيانات قديمة بلا createdAt: نعتبرها موجودة منذ زمن حتى لا
       // تختفي متأخراتها الحقيقية.
       createdAt:
-          DateKey.tryParse(json['createdAt'] as String?) ?? DateTime(2000),
+          DateKey.tryParse(_strOrNull(json['createdAt'])) ?? DateTime(2000),
       statuses: statuses,
     );
   }
@@ -503,6 +512,12 @@ class UserProfile {
 }
 
 /// أدوات تحويل التاريخ من/إلى مفتاح نصي `yyyy-MM-dd`.
+/// قراءة متسامحة لحقول JSON بأنواع خاطئة (استيراد من ملف يدوي أو نسخة قديمة).
+String _str(Object? v, {String fallback = ''}) => v is String ? v : fallback;
+String? _strOrNull(Object? v) => v is String ? v : null;
+int? _int(Object? v) =>
+    v is num ? v.toInt() : (v is String ? int.tryParse(v) : null);
+
 abstract final class DateKey {
   static String fromDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-'

@@ -43,7 +43,8 @@ class WaqtiColors extends ThemeExtension<WaqtiColors> {
     primaryDark: Color(0xFF4F6E54),
     primaryLight: Color(0xFFDCE7DD),
     text: Color(0xFF20291F),
-    textMuted: Color(0xFF6C7A69),
+    // 5.1:1 على الخلفية و4.8:1 على surfaceAlt (WCAG AA للنص الصغير).
+    textMuted: Color(0xFF5F6D5C),
     border: Color(0xFFE5E9DE),
     done: Color(0xFF4CAF6D),
     late: Color(0xFFE3A93F),
@@ -240,7 +241,8 @@ abstract final class WaqtiTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: c.primary,
+          // نص أبيض على primaryDark = 5.7:1 (primary وحده 3.6:1 لا يكفي للنص الصغير).
+          backgroundColor: c.primaryDark,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),

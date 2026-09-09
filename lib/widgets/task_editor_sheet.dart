@@ -215,7 +215,8 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
     final minutes = picked.hour * 60 + picked.minute;
     setState(() {
       if (replaceIndex == null) {
-        if (!_reminders.contains(minutes) && _reminders.length < 3) {
+        if (!_reminders.contains(minutes) &&
+            _reminders.length < TaskItem.maxReminders) {
           _reminders.add(minutes);
         }
       } else {
@@ -835,7 +836,7 @@ class _TaskEditorSheetState extends State<TaskEditorSheet> {
                         onPressed: () => _pickReminder(replaceIndex: i),
                         onDeleted: () => setState(() => _reminders.removeAt(i)),
                       ),
-                    if (_reminders.length < 3)
+                    if (_reminders.length < TaskItem.maxReminders)
                       ActionChip(
                         label: Text(
                           _reminders.isEmpty ? s.noReminder : s.addReminder,

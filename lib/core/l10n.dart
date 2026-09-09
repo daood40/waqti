@@ -4,6 +4,7 @@
 /// أي مفتاح ناقص وقت الترجمة لا وقت التشغيل.
 class AppStrings {
   const AppStrings({
+    required this.code,
     required this.appName,
     required this.home,
     required this.calendar,
@@ -666,6 +667,7 @@ class AppStrings {
   final String aboutDesc;
 
   static const ar = AppStrings(
+    code: 'ar',
     appName: 'وقتي',
     home: 'الرئيسية',
     calendar: 'التقويم',
@@ -718,7 +720,7 @@ class AppStrings {
     save: 'حفظ',
     cancel: 'إلغاء',
     delete: 'حذف',
-    noTasks: 'لا توجد مهام بعد. أضف أول مهمة لك!',
+    noTasks: 'ستظهر مهامك هنا. أضف أول مهمة لك',
     categoriesManage: 'إدارة التصنيفات',
     addCategory: 'إضافة تصنيف',
     categoryName: 'اسم التصنيف',
@@ -791,8 +793,8 @@ class AppStrings {
     continueGuest: 'المتابعة كزائر',
     noAccount: 'ليس لديك حساب؟',
     haveAccount: 'لديك حساب بالفعل؟',
-    fillFields: 'يرجى تعبئة جميع الحقول',
-    invalidEmail: 'يرجى إدخال بريد إلكتروني صالح',
+    fillFields: 'أكمل كل الحقول',
+    invalidEmail: 'أدخل بريدًا إلكترونيًا صالحًا',
     shortPassword: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
     resetLinkSent:
         'تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني (محاكاة)',
@@ -833,7 +835,7 @@ class AppStrings {
     errEmailNotConfirmed: 'أكّد بريدك أولًا من الرابط الذي أرسلناه',
     errNetwork: 'لا اتصال بالإنترنت — حاول لاحقًا',
     errRateLimited: 'محاولات كثيرة — انتظر دقيقة ثم أعد المحاولة',
-    errUnknown: 'حدث خطأ غير متوقع — حاول مجددًا',
+    errUnknown: 'خلل غير متوقع. أعد المحاولة',
     newPasswordTitle: 'كلمة مرور جديدة',
     savePassword: 'حفظ كلمة المرور',
     passwordUpdated: 'تم تحديث كلمة المرور',
@@ -994,7 +996,7 @@ class AppStrings {
     customIconPlaceholder: 'اكتب أو الصق إيموجي',
     customColorLabel: 'لون مخصص',
     addNew: 'إضافة',
-    enterTaskName: 'يرجى إدخال اسم المهمة',
+    enterTaskName: 'اكتب اسم المهمة',
     deleteTaskConfirm:
         'هل أنت متأكد من حذف هذه المهمة؟ سيُحذف سجل إنجازها أيضًا.',
     deleteCategoryConfirm:
@@ -1005,7 +1007,7 @@ class AppStrings {
         'وصلت للحد الأقصى في الخطة المجانية (5 مهام). قم بالترقية لإضافة المزيد.',
     exportCopied: 'تم نسخ بياناتك إلى الحافظة بصيغة JSON',
     importHint: 'الصق بيانات JSON التي صدّرتها سابقًا',
-    importSuccess: 'تم استيراد البيانات بنجاح',
+    importSuccess: 'تم استيراد البيانات',
     invalidFile: 'بيانات غير صالحة',
     hexColorHint: 'كود اللون مثل 6E8F72',
     simulatedNote: 'محاكاة — بدون دفع فعلي',
@@ -1027,6 +1029,7 @@ class AppStrings {
   );
 
   static const en = AppStrings(
+    code: 'en',
     appName: 'Waqti',
     home: 'Home',
     calendar: 'Calendar',
@@ -1079,7 +1082,7 @@ class AppStrings {
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
-    noTasks: 'No tasks yet. Add your first one!',
+    noTasks: 'Your tasks will appear here. Add your first one',
     categoriesManage: 'Manage Categories',
     addCategory: 'Add Category',
     categoryName: 'Category name',
@@ -1395,4 +1398,68 @@ class AppStrings {
   );
 
   static AppStrings of(String langCode) => langCode == 'en' ? en : ar;
+
+  /// رمز اللغة ('ar' | 'en').
+  final String code;
+
+  /// صيغ الجمع العربية الست (0، 1، 2، 3–10، 11–99، 100+) أو الإنجليزية.
+  String plural(
+    int n, {
+    required String zero,
+    required String one,
+    required String two,
+    required String few,
+    required String many,
+    required String other,
+  }) {
+    if (code != 'ar') return n == 1 ? one : other;
+    final abs = n.abs();
+    if (abs == 0) return zero;
+    if (abs == 1) return one;
+    if (abs == 2) return two;
+    final mod100 = abs % 100;
+    if (mod100 >= 3 && mod100 <= 10) return few;
+    if (mod100 >= 11 && mod100 <= 99) return many;
+    return other;
+  }
+
+  String points(int n) => plural(
+    n,
+    zero: code == 'ar' ? 'لا نقاط' : '0 points',
+    one: code == 'ar' ? 'نقطة واحدة' : '1 point',
+    two: code == 'ar' ? 'نقطتان' : '2 points',
+    few: code == 'ar' ? '$n نقاط' : '$n points',
+    many: code == 'ar' ? '$n نقطة' : '$n points',
+    other: code == 'ar' ? '$n نقطة' : '$n points',
+  );
+
+  String minutes(int n) => plural(
+    n,
+    zero: code == 'ar' ? 'لا دقائق' : '0 minutes',
+    one: code == 'ar' ? 'دقيقة واحدة' : '1 minute',
+    two: code == 'ar' ? 'دقيقتان' : '2 minutes',
+    few: code == 'ar' ? '$n دقائق' : '$n minutes',
+    many: code == 'ar' ? '$n دقيقة' : '$n minutes',
+    other: code == 'ar' ? '$n دقيقة' : '$n minutes',
+  );
+
+  String tasksCount(int n) => plural(
+    n,
+    zero: code == 'ar' ? 'لا مهام' : '0 tasks',
+    one: code == 'ar' ? 'مهمة واحدة' : '1 task',
+    two: code == 'ar' ? 'مهمتان' : '2 tasks',
+    few: code == 'ar' ? '$n مهام' : '$n tasks',
+    many: code == 'ar' ? '$n مهمة' : '$n tasks',
+    other: code == 'ar' ? '$n مهمة' : '$n tasks',
+  );
+
+  String daysCount(int n) => plural(
+    n,
+    zero: code == 'ar' ? 'لا أيام' : '0 days',
+    one: code == 'ar' ? 'يوم واحد' : '1 day',
+    two: code == 'ar' ? 'يومان' : '2 days',
+    few: code == 'ar' ? '$n أيام' : '$n days',
+    many: code == 'ar' ? '$n يومًا' : '$n days',
+    other: code == 'ar' ? '$n يوم' : '$n days',
+  );
 }

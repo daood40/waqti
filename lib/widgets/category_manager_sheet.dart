@@ -42,6 +42,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
     final color =
         kTaskColorPalette[state.categories.length % kTaskColorPalette.length];
     final created = state.addCategory(name, color);
+    if (created == null) return;
     setState(() {
       _lastCreatedId = created.id;
       _nameController.clear();

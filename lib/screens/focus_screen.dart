@@ -122,7 +122,7 @@ class _FocusScreenState extends State<FocusScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(s.focusDoneTitle),
-        content: Text('$_minutes ${s.focusMinutes}'),
+        content: Text(s.minutes(_minutes)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),

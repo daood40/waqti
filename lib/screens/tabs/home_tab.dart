@@ -848,7 +848,7 @@ class _OverdueCard extends StatelessWidget {
                 Icon(Icons.history_rounded, size: 17, color: wq.late),
                 const SizedBox(width: 7),
                 Text(
-                  '${strings.overdueTitle} (${entries.length})',
+                  '${strings.overdueTitle} · ${strings.tasksCount(entries.length)}',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,

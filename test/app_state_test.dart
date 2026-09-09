@@ -109,7 +109,7 @@ void main() {
 
   test('removing a category unlinks its tasks', () async {
     final state = await freshState();
-    final category = state.addCategory('عمل', 0xFF123456);
+    final category = state.addCategory('عمل', 0xFF123456)!;
     final task = TaskItem(id: 't1', name: 'اجتماع', categoryId: category.id);
     state.addTask(task);
     state.removeCategory(category.id);

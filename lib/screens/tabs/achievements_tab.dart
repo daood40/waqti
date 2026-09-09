@@ -85,7 +85,7 @@ class AchievementsTab extends StatelessWidget {
         for (final t in const [500, 2000, 5000])
           _Badge(
             icon: '⭐',
-            title: '$t ${s.xp}',
+            title: s.points(t),
             desc: tr('اجمع $t نقطة خبرة', 'Earn $t XP'),
             current: xp,
             target: t,
@@ -166,7 +166,7 @@ class AchievementsTab extends StatelessWidget {
                         style: TextStyle(fontSize: 12.5, color: wq.textMuted),
                       ),
                       Text(
-                        '$xp ${s.xp}',
+                        s.points(xp),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,

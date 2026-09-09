@@ -1,4 +1,6 @@
 # memory/TEST_RESULTS.md   (يُكتب بعد تشغيل حقيقي فقط)
+## 2026-09-09 — محلي بعد جولة الكسر
+الأمر: `flutter test` · النتيجة: 98 نجحت / 0 فشلت / 1 متخطّى · `flutter analyze --fatal-infos`: 0 · جولة الكسر: 19 محاولة، 7 أعطال اكتُشفت ثم أُصلحت، إعادة التشغيل 19/19.
 ## 2026-09-09 — محلي (بيئة Claude Code) على الالتزام eaef149
 الأمر: `flutter test` · النتيجة: 79 نجحت / 0 فشلت / 1 متخطّى (rls_test يحتاج SUPABASE_URL)
 `flutter analyze --fatal-infos`: 0 مشكلات · `dart format`: نظيف · `flutter build web --release`: نجح

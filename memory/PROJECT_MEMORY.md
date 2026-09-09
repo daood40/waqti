@@ -7,4 +7,4 @@ Flutter 3.35.1 · Provider + `ChangeNotifier` واحد (`lib/state/app_state.dar
 - يعمل: كل الميزات كزائر بلا خادم؛ الويب منشور؛ إصدار GitHub v1.3.2 (build 8) بحِزم APK/AAB/iOS-nosign/Windows/Web؛ CI أخضر (quality/build-apk/deploy-pages/release).
 - لا يعمل / غير مفعّل: الحساب والنسخة السحابية (تحتاج `SUPABASE_URL`/`SUPABASE_ANON_KEY` في Secrets)، تقارير الأعطال (تحتاج `SENTRY_DSN`)، الرفع الفعلي للمتاجر (يحتاج حسابات المطوّر وأسرارها).
 ## أين توقّفنا
-2026-09-09: التطبيق مطابق لشروط Play/App Store (`docs/STORE_COMPLIANCE.md`) وحزمة الرفع جاهزة (`docs/SUBMISSION_PACK.md`). الخطوة التالية المباشرة: المالك ينشئ حسابَي Play وApple ويضيف الأسرار (`docs/LAUNCH_PHASES.md` المرحلتان 1–2)، ثم `Publish to Stores`.
+2026-09-09 (مساءً): جولة كسر عدائية على طبقة الحالة أصلحت 7 أعطال (حقن CSV، حدود الإدخال، استيراد متسامح)، صيغ الجمع العربية، تباين AA. التطبيق مطابق لشروط Play/App Store (`docs/STORE_COMPLIANCE.md`) وحزمة الرفع جاهزة (`docs/SUBMISSION_PACK.md`). الخطوة التالية المباشرة: المالك ينشئ حسابَي Play وApple ويضيف الأسرار (`docs/LAUNCH_PHASES.md` المرحلتان 1–2)، ثم `Publish to Stores`.
