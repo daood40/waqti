@@ -29,7 +29,7 @@ GitHub → Actions → **Release Builds** → Run workflow → انتظر ~12 د
 ### A2 — Google Play (45 دقيقة)
 1. Create app → الاسم **وقتي** → تطبيق → مجاني.
 2. **Set up your app** (القائمة اليسرى): أكمل كل البنود — سياسة الخصوصية: `https://daood40.github.io/waqti/privacy.html`؛ الإعلانات: لا؛ الوصول: كل الميزات متاحة بلا دخول (اذكر «المتابعة كزائر»)؛ التصنيف: استبيان → للجميع؛ الفئة: Productivity؛ Data safety: لا يجمع بيانات، لا يشارك، البيانات على الجهاز.
-3. **Main store listing**: انسخ النصوص من `docs/STORE_LISTING.md`، الأيقونة 512 من `assets/branding/app_icon.png`، Feature graphic 1024×500 (أرسله لك عند الطلب)، اللقطات من `docs/screenshots/`.
+3. **Main store listing**: انسخ النصوص من `docs/STORE_LISTING.md`، الأيقونة 512 من `assets/branding/app_icon.png`، Feature graphic 1024×500 (أرسله لك عند الطلب)، اللقطات من `docs/store/final/ar/play/`.
 4. **Production → Create new release** → ارفع `app-release.aab` → ملاحظات الإصدار → Review → Start rollout.
    المراجعة: 1–7 أيام.
 

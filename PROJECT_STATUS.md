@@ -176,3 +176,16 @@ CI (quality / build-apk / deploy-pages): أخضر على 49608f0 و8b0a692 (R8 �
 - لقطات المتاجر مولّدة من الإصدار نفسه: Play 1080×1920، iPhone 1290×2796، iPad 2064×2752، أيقونة Play 512.
 - `docs/SUBMISSION_PACK.md`: كل ما تُلصقه في اللوحتين، بنسختي Data safety/App Privacy (بلا خادم / مع خادم).
 - 79 اختبارًا؛ مسح متصفح حقيقي: لا أخطاء، لا باقات، روابط الخصوصية/الدعم/التراخيص تعمل.
+
+## جلسة تطبيق حزم المهارات الـ121 (2026-09-09) — v1.3.3+9
+
+- QA: جولة كسر عدائية (19 محاولة → 7 أعطال أُصلحت: حقن CSV، حدود الإدخال في الطبقة، استيراد متسامح)، صيغ الجمع العربية الست، `docs/TEST_STRATEGY.md`، `qa/rounds/`.
+- تصميم/إتاحة: تباين AA (نص ثانوي 5.1:1، أزرار 5.7:1)، تسميات لا تُكسر، أيقونة بدل حرف ✓ — `docs/DESIGN_AUDIT.md`.
+- بيانات/تشغيل: سياسات `(select auth.uid())` + مشغّل `updated_at` من الخادم، `supabase/tests/rls_checks.sql`، مفتاح إيقاف عن بُعد (`web/app-config.json`)، Sentry release+dist، فحوص إعدادات الإنتاج في CI.
+- منتج/محتوى: نصوص متجر بفائدة أولًا + عنوان فرعي + كلمات مفتاحية (100 حرف)، لقطات بعناوين لمجموعتين لغويتين، `docs/METRICS.md`.
+- بوابة الإطلاق: `docs/RELEASE_GATE.md` — 12 PASS، 3 NOT RUN (جهاز/أداء/تفعيل حقيقي للمفتاح)، 2 BLOCKED (Sentry، نماذج المتاجر). القرار للمالك.
+
+```
+SKILLS-121 GATE       Status: PASS (code) / BLOCKED (device+owner)
+Tests: 103 pass + 1 skipped · Analyze 0 · Web build PASS
+```

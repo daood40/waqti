@@ -378,15 +378,8 @@ class _BadgeCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (b.unlocked)
-            Text(
-              '✓',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: wq.done,
-              ),
-            )
+            // أيقونة لا حرف: '✓' ليس في خط Tajawal ويسقط إلى خط النظام.
+            Icon(Icons.check_rounded, size: 16, color: wq.done)
           else ...[
             LevelBar(pct: b.pct, height: 7),
             const SizedBox(height: 4),

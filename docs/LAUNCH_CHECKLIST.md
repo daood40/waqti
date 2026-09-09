@@ -1,4 +1,4 @@
-# قائمة الإطلاق — «وقتي» v1.3.2
+# قائمة الإطلاق — «وقتي» v1.3.3
 
 > الترتيب الزمني والمالك لكل خطوة: `docs/LAUNCH_PHASES.md`.
 
@@ -13,8 +13,8 @@
 | حِزم الإصدار (APK/AAB/Windows zip+MSIX/Web/iOS) | ✅ <https://github.com/daood40/waqti/releases/latest> |
 | سياسة الخصوصية (عربي/إنجليزي، تشمل الحساب وSentry) | ✅ <https://daood40.github.io/waqti/privacy.html> |
 | بطاقة المتجر: الاسم، الوصف القصير/الكامل، الكلمات المفتاحية، ملاحظة المراجع | ✅ `docs/STORE_LISTING.md` |
-| لقطات هاتف 1290×2796 (5) | ✅ `docs/screenshots/` |
-| لقطات iPad 13" 2064×2752 (4) | ✅ `docs/store/ipad-*.png` |
+| لقطات هاتف بعناوين (Play 1080×1920، iPhone 1290×2796) عربي/إنجليزي | ✅ `docs/store/final/{ar,en}/{play,iphone}/` |
+| لقطات iPad 13" 2064×2752 بعناوين عربي/إنجليزي | ✅ `docs/store/final/{ar,en}/ipad/` |
 | رسم Play المميز 1024×500 | ✅ `docs/store/play-feature-graphic-1024x500.png` |
 | أيقونة 512×512 (Play) / 1024×1024 (آبل) | ✅ `assets/branding/app_icon.png` (1024) |
 | نصوص «ما الجديد» عربي/إنجليزي | ✅ `distribution/whatsnew/` |

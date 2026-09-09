@@ -1,4 +1,4 @@
-# حزمة الرفع للمتاجر — «وقتي» v1.3.2 (build 8)
+# حزمة الرفع للمتاجر — «وقتي» v1.3.3 (build 9)
 
 كل ما تحتاجه لوحة Google Play وApp Store Connect، جاهز للنسخ. الترتيب الزمني في `docs/LAUNCH_PHASES.md`،
 والمطابقة القانونية/التقنية في `docs/STORE_COMPLIANCE.md`.
@@ -7,8 +7,8 @@
 
 | الملف | المصدر |
 |---|---|
-| `waqti-v1.3.2.aab` (Play، موقّع بمفتاح الرفع عند وجود الأسرار) | GitHub Release `v1.3.2` أو `Publish to Stores` |
-| `waqti-v1.3.2.apk` (اختبار الجهاز) | GitHub Release `v1.3.2` |
+| `waqti-v1.3.3.aab` (Play، موقّع بمفتاح الرفع عند وجود الأسرار) | GitHub Release `v1.3.3` أو `Publish to Stores` |
+| `waqti-v1.3.3.apk` (اختبار الجهاز) | GitHub Release `v1.3.3` |
 | IPA (App Store) | `Publish to Stores` → iOS (توقيع سحابي بمفتاح ASC) |
 | رموز فك التشويش | artifact `waqti-symbols-android` / `waqti-symbols-ios` — احفظها مع الإصدار |
 
@@ -18,13 +18,15 @@
 - الأيقونة: Play 512×512 `docs/store/play-icon-512.png`؛ آبل 1024×1024 بلا شفافية `assets/branding/app_icon.png`.
 - الرسم المميز (Play) 1024×500: `docs/store/play-feature-graphic-1024x500.png`.
 
-## 3. اللقطات (مولّدة من الإصدار نفسه)
+## 3. اللقطات (نهائية بعناوين، مجموعة لكل لغة)
 
-| المتجر | المقاس | الملفات |
-|---|---|---|
-| Google Play — هاتف | 1080×1920 (9:16) | `docs/store/play/1-home.png` … `5-calendar.png` |
-| App Store — iPhone 6.7"/6.9" | 1290×2796 | `docs/screenshots/1-home.png` … `5-calendar.png` |
-| App Store — iPad 13" | 2064×2752 | `docs/store/ipad-1-home.png` … `ipad-5-calendar.png` |
+| المتجر | المقاس | عربي | إنجليزي |
+|---|---|---|---|
+| Google Play — هاتف | 1080×1920 | `docs/store/final/ar/play/` | `docs/store/final/en/play/` |
+| App Store — iPhone 6.7"/6.9" | 1290×2796 | `docs/store/final/ar/iphone/` | `docs/store/final/en/iphone/` |
+| App Store — iPad 13" | 2064×2752 | `docs/store/final/ar/ipad/` | `docs/store/final/en/ipad/` |
+
+ارفع المجموعة العربية في تعريب `ar` والإنجليزية في `en-US`؛ لا تخلطهما.
 
 ## 4. النصوص
 

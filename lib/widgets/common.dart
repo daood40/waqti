@@ -360,10 +360,15 @@ class StatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: context.wq.textMuted),
+          // التسمية تُصغَّر بدل أن تُكسر في منتصف الكلمة على الهواتف الضيقة.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: context.wq.textMuted),
+            ),
           ),
         ],
       ),

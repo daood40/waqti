@@ -1,8 +1,8 @@
 /// معلومات إصدار التطبيق — تُحدَّث مع `version` في pubspec.yaml.
-const String kAppVersion = '1.3.2';
+const String kAppVersion = '1.3.3';
 
 /// رقم البناء — يطابق ما بعد `+` في pubspec.yaml (يُتحقق منه في الاختبارات).
-const String kBuildNumber = '8';
+const String kBuildNumber = '9';
 
 /// وضع الإطلاق: كل المزايا مجانية ولا دفع داخل التطبيق (الباقات تظهر
 /// «قريبًا»). يُعطَّل بسطر واحد عند تفعيل الدفع الحقيقي (RevenueCat).
