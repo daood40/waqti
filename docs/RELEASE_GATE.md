@@ -18,7 +18,7 @@
 | 4 | اختبارات الواجهة | PASS | widget flows: onboarding→home، إنجاز مهمة، التقويم، تبديل اللغة، a11y، حارس المحرر، الامتثال، الحجب عن بُعد |
 | 5 | اختبارات التكامل (الرحلة الحرجة) | PASS | `flows_test.dart` + مسح متصفح حقيقي (Playwright) على بناء الويب: أول تشغيل → زائر → إضافة/إنجاز → الإعدادات، 0 أخطاء |
 | 6 | اختبارات API | PASS (غير منطبق مُثبَت) | لا API مخصص ولا خادم في هذا البناء (`AppConfig.hasSupabase=false`). عند التفعيل: `test/integration/rls_test.dart` إلزامي |
-| 7 | الفحص الأمني | PASS | تاريخ git: 0 أنماط أسرار؛ 0 ملفات `.env/.jks/.p8` متتبَّعة؛ R8+obfuscate؛ لا cleartext؛ جلسة في Keystore/Keychain؛ فحص CI (`quality.yml`) |
+| 7 | الفحص الأمني | PASS | تاريخ git كاملًا: 0 قيم مفاتيح (JWT/`sb_secret_`/`sk_live_`/PRIVATE KEY)؛ 23 ذكرًا لكلمة `service_role` كلها نصوص إرشادية في docs/skills لا قيم؛ 0 ملفات `.env/.jks/.p8` متتبَّعة؛ R8+obfuscate؛ لا cleartext؛ جلسة في Keystore/Keychain؛ فحص CI (`quality.yml`) |
 | 8 | فحص الأداء | NOT RUN | يحتاج جهازًا حقيقيًا في وضع release (`flutter run --profile`) — يُنفَّذ في المرحلة 3 |
 | 9 | فحص قاعدة البيانات | PASS (غير منطبق مُثبَت) | لا قاعدة في هذا البناء. للتفعيل: `supabase/tests/rls_checks.sql` + `rls_test.dart` |
 | 10 | اختبار الشبكة | PASS (نطاق مخفَّف موثَّق) | الاستخدام الأساسي بلا شبكة؛ الجلب الوحيد (`app-config.json`) يفشل مفتوحًا — `remote_config_test.dart` |
