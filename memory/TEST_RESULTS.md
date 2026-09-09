@@ -1,4 +1,6 @@
 # memory/TEST_RESULTS.md   (يُكتب بعد تشغيل حقيقي فقط)
+## 2026-09-09 — GitHub Actions على 2a06667 / 62a39a5 (v1.3.3+9)
+Release Builds #16 ✓ (إصدار v1.3.3: apk/aab/ios-nosign/windows/msix/web) · Quality Gate #24 ✓ · Build Android APK #62 ✓ · Deploy Pages #62 ✓
 ## 2026-09-09 — محلي بعد المرحلة C (مفتاح الإيقاف + SQL)
 الأمر: `flutter test` · 103 نجحت / 0 فشلت / 1 متخطّى · analyze 0 · لم يُشغَّل: `supabase/tests/rls_checks.sql` (يحتاج قاعدة).
 ## 2026-09-09 — محلي بعد جولة الكسر

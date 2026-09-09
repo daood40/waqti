@@ -12,7 +12,7 @@
 
 | # | البوابة | الحالة | الدليل / السبب |
 |---|---|---|---|
-| 1 | البناء | PASS | Release Builds (release.yml) — v1.3.2 run #15 ناجح بنفس الإعداد؛ v1.3.3 يُشغَّل مع هذا الالتزام (يُحدَّث الرقم في `memory/TEST_RESULTS.md`) |
+| 1 | البناء | PASS | Release Builds #16 ✓ (v1.3.3، الحِزم الست مرفوعة في GitHub Release) · Quality Gate #24 ✓ · Build APK #62 ✓ |
 | 2 | التحليل الساكن | PASS | `flutter analyze --fatal-infos` = 0 مشكلات (محليًا + Quality Gate) |
 | 3 | اختبارات الوحدة | PASS | 103 نجحت / 0 فشلت / 1 متخطّى (`flutter test`, 2026-09-09) |
 | 4 | اختبارات الواجهة | PASS | widget flows: onboarding→home، إنجاز مهمة، التقويم، تبديل اللغة، a11y، حارس المحرر، الامتثال، الحجب عن بُعد |
